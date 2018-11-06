@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{:C('TITLE')}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <include file="Public:theme_lte_css" />
+    <block name="css">css</block>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body class="hold-transition skin-blue-light sidebar-mini">
+    <div class="wrapper">
+        <!-- header -->
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="javascript:;" class="logo">
+                <span class="logo-mini"><b>C</b>TH</span>
+                <span class="logo-lg"><b>Comic</b>TH</span>
+            </a>
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <i class="fa fa-menu"></i>
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="hidden-xs"><?php echo session(C('USER_AUTH_KEY'))['real_name'] ?></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="user-footer">
+                                    <div class="text-center">
+                                        <a href="{:U('Login/log_out')}" class="btn btn-default btn-flat">退出登录</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- sidebar -->
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li class="header text-center">您好</li>
+                    <foreach name="nav_data" item="v">
+                        <!-- <neq name="v.nav_mca" value="Admin/ShowNav/Total">hidden-xs</neq> -->
+                        <li class="treeview <if condition="(MODULE_NAME.'/ShowNav/'.CONTROLLER_NAME) eq $v['nav_mca']">active</if>">
+                            <a href="#">
+                                <i class="fa fa-{$v.nav_ico}"></i>
+                                <span>{$v.nav_name}</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+
+                            <ul class="treeview-menu">
+                                <foreach name="v._data" item="vv">
+                                    <li <if condition="(MODULE_NAME.'/'.CONTROLLER_NAME.'/'.ACTION_NAME) eq $vv['nav_mca']">class="active"</if> >
+                                        <a href="{:U($vv['nav_mca'])}"><i class="fa fa-circle-o text-primary"></i> {$vv.nav_name}</a>
+                                    </li>
+                                </foreach>
+                            </ul>
+                        </li>
+                    </foreach>
+                </ul>
+            </section>
+        </aside>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+
+                    <block name="header">标题</block>
+
+                </h1>
+            </section>
+
+            <section class="content">
+
+                <block name="content">主内容</block>
+
+            </section>
+        </div>
+    </div>
+
+    <include file="Public:base_js" />
+    <block name="js">js</block>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__BOWER__/sweetalert2/dist/sweetalert2.min.css">
+</block>
+<block name="header">sweetalert2</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="sweet"><i class="fa fa-plus fa-fw"></i>sweet</button>
+        </div>
+        <div class="box-body">
+
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script src="__BOWER__/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <script type="text/javascript">
+        $('#sweet').on('click', () => {
+            // swal_notice('操作成功','error');
+            toastr["error"]("操作成功", "");
+        });
+    </script>
+</block>

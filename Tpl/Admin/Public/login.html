@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <title>{:C('title')}</title>
+    <meta name="Robots" contect="none">
+    <link rel="shortcut icon" href="__IMG__/favicon.ico">
+    <link rel="stylesheet" href="__BOWER__/bootstrap/dist/css/bootstrap.min.css">
+    <link href="__ADMIN_CSS__/animate.css" rel="stylesheet">
+    <link href="__ADMIN_CSS__/login.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+</head>
+
+<body class="signin">
+    <div class="signinpanel animated flipInX">
+        <div class="row">
+            <div class="col-sm-12">
+                <form id="loginform">
+                    <h4 class="no-margins">登录：</h4>
+                    <p class="m-t-md">欢迎登录{:C('title')}</p>
+                    <div class="v-group">
+                        <input type="text" name="user_name" class="form-control uname" placeholder="用户名" required>
+                    </div>
+                    <div class="v-group">
+                        <input type="password" name="user_psw" class="form-control pword m-b" placeholder="密码" required>
+                    </div>
+                    <!-- <a href="{:U('Register/index')}" class="register">还没有帐号？点我注册！</a> -->
+                    <div class="v-group" style="margin-top: 20px;">
+                        <button id="loginBtn" class="btn btn-success btn-block">登录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="__BOWER__/jquery/dist/jquery.min.js"></script>
+    <script src="__STATICS__/validate/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            //表单验证控件
+            var validator = $("#loginform").validate({
+                errorElement: "span",
+                errorPlacement: function(error, element) {
+                    $( element ).parent().append( error );
+                },
+                onkeyup: false,
+                focusCleanup: true,
+                onfocusout: function(element) { $(element).valid(); },
+                rules : {
+                    user_name: {
+                        remote:{
+                            url: "{:U('Login/check_user')}",
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                user_name: function() {
+                                    return $('.uname').val();
+                                }
+                            }
+                        }
+                    },
+                    user_psw: {
+                        remote:{
+                            url: "{:U('Login/check_psw')}",
+                            type: "post",
+                            dataType: 'json',
+                            data: {
+                                user_name: function(){
+                                    return $('.uname').val();
+                                },
+                                user_psw: function(){
+                                    return $('.pword').val();
+                                }
+                            }
+                        }
+                    },
+                },
+                messages:{
+                    user_name:{
+                        remote: "用户名不存在",
+                        required:"请输入用户名"
+                    },
+                    user_psw:{
+                        remote: "密码错误",
+                        required:"请输入密码"
+                    },
+                }
+            });
+
+            // iso safari 禁止缩放
+            document.addEventListener('touchstart',function (event) {
+                if(event.touches.length>1){
+                    event.preventDefault();
+                }
+            })
+            var lastTouchEnd=0;
+            document.addEventListener('touchend',function (event) {
+                var now=(new Date()).getTime();
+                if(now-lastTouchEnd<=300){
+                    event.preventDefault();
+                }
+                lastTouchEnd=now;
+            },false);
+        });
+
+        // 登录
+        $('#loginBtn').click(function(){
+            $("#loginform").submit();
+        });
+        // 登录键盘事件
+        $(document).keydown(function(e){
+            if (e.keyCode == 13) {
+                e.cancelBubble = true;
+                e.returnValue = false;
+                $("#loginform").submit();
+            }
+        });
+        //表单验证
+        $.validator.setDefaults({
+            submitHandler: function() {
+                var formData = $("#loginform").serialize();
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "{:U('Login/login')}",
+                    data: formData,
+                    dataType:"json",
+                    async: true,
+                    success: function(result) {
+                        if (result.status ==1) {
+                            location.href = "{:U('Admin/Index/index')}";
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

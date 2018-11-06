@@ -1,0 +1,173 @@
+<extend name="Public/base" />
+<block name="css"></block>
+<block name="header">菜单 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="delete"><i class="fa fa-trash-o fa-fw"></i>删除</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>菜单名称</th>
+                        <th>方法</th>
+                        <th>图标</th>
+                        <th width="5%">排序</th>
+                        <th width="10%">状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">父级菜单</label>
+                <div class="layui-input-block">
+                    <select name="pid" lay-verify="required" lay-search>
+                        <option value=""></option>
+                        <option value="0">一级菜单</option>
+                        <foreach name="navs" item="v">
+                            <option value="{$v.id}">{$v.nav_name}</option>
+                        </foreach>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="nav_name" placeholder="请输入菜单名称" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">方法</label>
+                <div class="layui-input-block">
+                    <input type="text" name="nav_mca" placeholder="请输入方法" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">图标</label>
+                <div class="layui-input-block">
+                    <input type="text" name="nav_ico" placeholder="请输入图标" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="{:C('STATUS_Y')}" title="启用" checked>
+                    <input type="radio" name="status" value="{:C('STATUS_B')}" title="禁用">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                serverSide: false,
+                ordering: false,
+                paging: false,
+                ajax: "{:U('Sys/get_admin_nav_info')}",
+                columns: [
+                    {
+                        "data":"nav_name",
+                        "render":function(data,type,full,meta){
+                            return full._name ? full._name + data : data ;
+                        }
+                    },
+                    { "data": "nav_mca" },
+                    {
+                        "data":"nav_ico",
+                        "class": "text-center",
+                        "render": DT.RENDER.FA
+                    },
+                    {
+                        "data": "order_num",
+                        "class": "text-center",
+                        "render": DT.RENDER.INPUT
+                    },
+                    DT.COLUMN.STATUS
+                ],
+                initComplete: function(settings, json) {
+                    $('.table').on('change', '.dt-input', function() {
+                        var data = getCurRowData(oTable, this);
+                        $.ajax({
+                            type: "POST",
+                            url: "__URL__/order_nav",
+                            data: {
+                                id: data.id,
+                                'order_num': this.value
+                            },
+                            dataType:"json",
+                            success: function(result) {
+                                if (result.status == 1) {
+                                    toastr["success"]("操作成功", "");
+                                    DTdraw(oTable);
+                                } else {
+                                    toastr["error"]("网络故障，请稍后重试！", "");
+                                    DTdraw(oTable);
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        layui.use(['layer', 'form'], function() {
+            var layer = layui.layer,
+                form = layui.form;
+
+            // 添加
+            $('#add').on('click', function() {
+                layui_form('添加菜单');
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function() {
+                getSelectedData(oTable, function(data){
+                    layui_form('修改菜单', function(){
+                        dataToForm('actionForm', data);
+                    });
+                    form.render();
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                submit_form("__URL__/input_nav");
+            });
+        });
+
+        // 删除
+        $('#delete').on('click', function() {
+            getSelectedData(oTable, function(data){
+                var title = '确认删除菜单 ' + data['nav_name'] + ' ?';
+                set_status(title, "{:U('Sys/set_status')}", {
+                    id: data.id,
+                    status: {:C('STATUS_N')},
+                    table: "{$table}"
+                });
+            });
+        });
+    </script>
+</block>

@@ -1,0 +1,127 @@
+/* dt样式 */
+table.dataTable tbody tr.selected {
+    background-color: #B0BED9;
+}
+.table tr{
+    cursor: pointer;
+}
+.table th{
+    text-align: left;
+}
+.table td{
+    vertical-align: middle !important;
+}
+.search-box{
+    border-radius: 3px;
+    margin: 0 0 20px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid #eee;
+}
+.search-box .layui-input{
+    height: 34px;
+}
+.search-box label{
+    color: #FFF;
+}
+/* input */
+.dt-input{
+    width: 30px;
+    text-align: center;
+    border: 1px solid #DDD;
+}
+/* ellipsis */
+.dt-ellipsis{
+    overflow: hidden;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+/* dt搜索 */
+
+.search-item {
+    text-align: right;
+}
+
+#searchCollapse {
+    margin-top: 10px;
+}
+
+#searchCollapse .form-group {
+    margin-right: 5px;
+}
+
+/* layui */
+.layui-form-label{
+    width: 100px;
+}
+#actionForm{
+    padding: 20px;
+}
+
+/* tagsinput */
+.layui-form .bootstrap-tagsinput{
+    width: 100%;
+    line-height: 28px;
+    border: 1px solid #E6E6E6;
+    border-radius: 2px;
+    box-shadow: none;
+}
+
+/* multiselect */
+.multiselect-header{
+    text-align: center;
+    color: #FFF;
+    background: #3c8dbc;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+/* fileinput */
+#kvFileinputModal{
+    z-index: 19999999;
+}
+
+/* detail */
+.detail-item{
+    padding: 20px;
+    font-size: 20px;
+    color: #A7A7A7;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+/*
+ * Skin: Blue
+ */
+.skin-blue-light .layui-layer-title,
+.skin-blue-light .layui-btn-normal,
+.skin-blue-light .layui-form-select dl dd.layui-this,
+.skin-blue-light .layui-form-checked[lay-skin=primary] i,
+.skin-blue-light .bootstrap-tagsinput .label,
+.skin-blue-light ::-webkit-scrollbar-thumb{
+    background-color: #3c8dbc;
+    color: #FFF;
+}
+.skin-blue-light .search-box{
+    background-color: #3c8dbc;
+    border-color: #0a6396;
+}
+.skin-blue-light .layui-form-radioed i,
+.skin-blue-light .layui-form-radio i:hover{
+    color: #3c8dbc;
+}
+.skin-blue-light .layui-form-checkbox[lay-skin=primary]:hover i,
+.skin-blue-light .layui-form-checked[lay-skin=primary] i{
+    border-color: #3c8dbc;
+}

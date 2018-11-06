@@ -1,0 +1,202 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+    <style type="text/css">
+        .avatar .krajee-default.file-preview-frame,.avatar .krajee-default.file-preview-frame:hover {
+            margin: 0;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            text-align: center;
+        }
+        .avatar {
+            display: inline-block;
+        }
+        .avatar .file-input {
+            display: table-cell;
+            width: 213px;
+        }
+        .kv-reqd {
+            color: red;
+            font-family: monospace;
+            font-weight: normal;
+        }
+    </style>
+</block>
+<block name="header">fileinput</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-body">
+            <div id="avatarErrors" class="center-block" style="width:800px;display:none"></div>
+            <div class="avatar text-center">
+                <div class="file-loading">
+                    <input id="avatar-2" name="avatar-2" type="file" required>
+                </div>
+            </div>
+
+            <input id="input" name="input40[]" type="file" class="file" multiple>
+            <br>
+            <button type="button" class="btn btn-warning btn-modify">禁用</button>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <!-- <script src="__BOWER__/bootstrap-fileinput/js/plugins/piexif.min.js"></script> -->
+    <script src="__BOWER__/bootstrap-fileinput/js/plugins/sortable.min.js"></script>
+    <script src="__BOWER__/bootstrap-fileinput/js/plugins/purify.min.js"></script>
+    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript">
+        var btnCust = '<button type="button" class="btn btn-secondary" title="Add picture tags" ' +
+            'onclick="alert(\'Call your custom code here.\')">' +
+            '<i class="glyphicon glyphicon-tag"></i>' +
+            '</button>';
+        $("#avatar-2").fileinput({
+            overwriteInitial: true,
+            maxFileSize: 1500,
+            showClose: false,
+            showCaption: false,
+            showBrowse: false,
+            browseOnZoneClick: true,
+            removeLabel: '',
+            removeIcon: '<i class="glyphicon glyphicon-remove"></i>',
+            removeTitle: 'Cancel or reset changes',
+            elErrorContainer: '#avatarErrors',
+            msgErrorClass: 'alert alert-block alert-danger',
+            defaultPreviewContent: '<img src="__Admin_IMG__/default_avatar_male.jpg" alt="Your Avatar"><h6 class="text-muted">Click to select</h6>',
+            layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
+            allowedFileExtensions: ["jpg", "png", "gif"]
+        });
+
+        $(".btn-modify").on("click", function() {
+            var $btn = $(this);
+            if ($btn.text() == "禁用") {
+                $("#input").fileinput("disable").fileinput("refresh", {showUpload: false});
+                $btn.html("启用");
+            }
+            else {
+                $("#input").fileinput("enable").fileinput("refresh", {showUpload: true});
+                $btn.html("禁用");
+            }
+        });
+
+        $("#input").fileinput({
+            uploadUrl: "/file-upload-batch/1",
+            showUpload: false,
+            uploadAsync: false,
+            minFileCount: 2,
+            maxFileCount: 5,
+            overwriteInitial: false,
+            initialPreview: [
+                // 图像数据
+                "http://kartik-v.github.io/bootstrap-fileinput-samples/samples/Desert.jpg",
+                // 图像数据
+                "http://kartik-v.github.io/bootstrap-fileinput-samples/samples/Lighthouse.jpg",
+                // 视频数据
+                "http://kartik-v.github.io/bootstrap-fileinput-samples/samples/small.mp4",
+                // PDF数据
+                'http://kartik-v.github.io/bootstrap-fileinput-samples/samples/pdf-sample.pdf',
+                // 文本数据
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ut mauris ut libero fermentum feugiat eu et dui. Mauris condimentum rhoncus enim, sed semper neque vestibulum id. Nulla semper, turpis ut consequat imperdiet, enim turpis aliquet orci, eget venenatis elit sapien non ante. Aliquam neque ipsum, rhoncus id ipsum et, volutpat tincidunt augue. Maecenas dolor libero, gravida nec est at, commodo tempor massa. Sed id feugiat massa. Pellentesque at est eu ante aliquam viverra ac sed est.",
+                // HTML数据
+                '<div class="text-center">' +
+                '<h3>Lorem Ipsum</h3>' +
+                '<p><em>"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."</em></p>' +
+                '<h5><small>"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."</small></h5>' +
+                '<hr>' +
+                '</div>' +
+                '<div class="text-justify">' +
+                '<p>' +
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed convallis convallis dolor sed dignissim. Phasellus euismod mauris vel dolor maximus, sed fermentum mauris lobortis. Aliquam luctus, diam in luctus egestas, magna lacus luctus libero, scelerisque mattis ante dolor ac nunc. Interdum et malesuada fames ac ante ipsum primis in faucibus. Suspendisse varius orci ultricies massa euismod, at semper turpis fermentum. Quisque vitae augue vel lectus viverra facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla lacinia molestie diam, et volutpat nunc bibendum a. Cras a est sed augue commodo accumsan quis vitae nisi.' +
+                '</p>' +
+                '<p>' +
+                'Nunc sit amet metus et dui aliquet feugiat. Praesent lobortis, ipsum et elementum dignissim, urna libero fringilla justo, at tincidunt nisi mi sed mi. Integer vel est porttitor, tempor tortor non, lobortis felis. Curabitur porttitor nisi et volutpat iaculis. Fusce nec feugiat lectus, vitae ullamcorper lorem. Ut ultrices nunc imperdiet placerat malesuada. Proin commodo erat in egestas maximus.' +
+                '</p>'
+            ],
+            initialPreviewAsData: true, // 确定你是否仅发送预览数据，而不是原始标记
+            initialPreviewFileType: 'image', // `image`是默认值，可以在下面的配置中覆盖
+            initialPreviewConfig: [
+                {caption: "Desert.jpg", size: 827000, width: "120px", url: "/file-upload-batch/2", key: 1},
+                {caption: "Lighthouse.jpg", size: 549000, width: "120px", url: "/file-upload-batch/2", key: 2},
+                {type: "video", size: 375000, filetype: "video/mp4", caption: "KrajeeSample.mp4", url: "/file-upload-batch/2", key: 3},
+                {type: "pdf", size: 8000, caption: "About.pdf", url: "/file-upload-batch/2", key: 4},
+                {type: "text", size: 1430, caption: "LoremIpsum.txt", url: "/file-upload-batch/2", key: 5},
+                {type: "html", size: 3550, caption: "LoremIpsum.html", url: "/file-upload-batch/2", key: 6}
+            ],
+            purifyHtml: true, // 这是默认情况下为预览净化HTML数据
+            uploadExtraData: {
+                img_key: "1000",
+                img_keywords: "happy, places",
+            }
+        }).on('filesorted', function(e, params) {
+            console.log('File sorted params', params);
+        }).on('fileuploaded', function(e, params) {
+            console.log('File uploaded params', params);
+        });
+
+
+        layui.use(['layer', 'form', 'laydate'], function() {
+            var layer = layui.layer,
+                laydate = layui.laydate,
+                form = layui.form;
+
+            // 新增
+            $('#add').on('click', function() {
+                layui_form('添加信息', function(){
+                    var oFileInput = new FileInput();
+                    oFileInput.Init("uploadImg", "{:U('Demo/uploadImg')}");
+                    $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                        var image_path = data.response.data;
+                        $('input[name="img"]').val(image_path);
+                    });
+                });
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function() {
+                getSelectedData(oTable, function(data){
+                    layer.open({
+                        type: 1,
+                        shadeClose: true,
+                        title: '编辑信息',
+                        content: $('#actionModal').html(),
+                        offset: '100px',
+                        area: '600px',
+                        success: function(layero, index){
+                            dataToForm('actionForm', data);
+                            var oFileInput = new FileInput();
+                            var initialPreviewConfig = [],
+                                config = {
+                                    url: "{:U('Demo/deleteLevelImg')}",
+                                    extra: {
+                                        id: data['id']
+                                    }
+                                }
+                            initialPreviewConfig.push(config);
+                            oFileInput.Preview("uploadImg", "{:U('Demo/uploadImg')}", data.img, initialPreviewConfig);
+                            $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                                var image_path = data.response.data;
+                                $('input[name="img"]').val(image_path);
+                            });
+                        }
+                    });
+                    form.render();
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                if ($('#uploadImg').val()) {
+                    $('#uploadImg').fileinput('upload')
+                    .on("filebatchuploadsuccess", function(event, data) {
+                        if(data.response.status){
+                            submit_form("{:U('Controller/action')}");
+                        }
+                    });
+                } else {
+                    submit_form("{:U('Controller/action')}");
+                }
+            });
+        });
+    </script>
+</block>

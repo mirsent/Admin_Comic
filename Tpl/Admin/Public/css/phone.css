@@ -1,0 +1,8 @@
+@media screen and (max-width: 640px) {
+    .content{
+        padding: 10px 0;
+    }
+    .nav-tabs-custom>.tab-content{
+        padding: 10px 3px;
+    }
+}

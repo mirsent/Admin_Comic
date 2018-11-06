@@ -1,0 +1,34 @@
+<extend name="Public/base" />
+<block name="css">
+    <style type="text/css">
+        .content-wrapper{
+            background: #FFF;
+        }
+        .clock-item{
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</block>
+<block name="header"></block>
+<block name="content">
+    <div class="clock-item">
+        <canvas id="clock2_" width="500px" height="500px"></canvas>
+    </div>
+</block>
+<block name="js">
+    <script src="__STATICS__/canvasclock/js/canvas_clock.js"></script>
+    <script type="text/javascript">
+        var  clockd2_={
+            "indicate": true,
+            "dial1_color": "#666600",
+            "time_24h": true,
+            "timeoffset":0,
+            "date_add":3,
+            "date_add_color": "#999",
+        };
+        var c = document.getElementById('clock2_');
+        cns2_ = c.getContext('2d');
+        clock_digital(500,cns2_,clockd2_);
+    </script>
+</block>
