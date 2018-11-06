@@ -1,0 +1,174 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+</block>
+<block name="header">评论 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th width="80">封面</th>
+                        <th>漫画名称</th>
+                        <th width="80">头像</th>
+                        <th>读者昵称</th>
+                        <th>评论内容</th>
+                        <th>评论时间</th>
+                        <th>是否显示</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        name: $('.search-name').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Comic/get_comment_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    {
+                        "data": "comic_img",
+                        "orderable": false,
+                        "render": DT.RENDER.IMG
+                    },
+                    { "data": "comic_name" },
+                    {
+                        "data": "reader_img",
+                        "orderable": false,
+                        "render": DT.RENDER.HEAD
+                    },
+                    { "data": "reader_name" },
+                    { "data": "comment_content" },
+                    { "data": "comment_time" },
+                    {
+                        "data": "s_show",
+                        "render": function(data,type,full){
+                            return '<div class="layui-form"><div class="layui-form-item"><input type="checkbox" name="switch" lay-skin="switch"></div></div>'
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-name"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画作者" class="layui-input search-author"></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-release" lay-search> <option value="">发布类型</option> <foreach name="release_type" item="v"> <option value="{$v.id}">{$v.release_type_name}</option> </foreach> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-type" lay-search> <option value="">漫画分类</option> <foreach name="comic_type" item="v"> <option value="{$v.id}">{$v.comic_type_name}</option> </foreach> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-serial"> <option value="">是否完结</option> <option value="'+C_SERIAL_L+'">连载中</option><option value="'+C_SERIAL_W+'">已完结</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-fee"> <option value="">是否收费</option> <option value="'+C_FEE_Y+'">收费</option><option value="'+C_FEE_N+'">免费</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-target"> <option value="">面向群体</option> <option value="'+C_TARGET_M+'">男频</option><option value="'+C_TARGET_F+'">女频</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-space"> <option value="">篇幅</option> <option value="'+C_SPACE_C+'">长篇</option><option value="'+C_SPACE_D+'">短篇</option> </select></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        form.render();
+                    });
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        layui.use(['layer', 'form', 'laydate'], function() {
+            var layer = layui.layer,
+            form = layui.form;
+            laydate = layui.laydate;
+
+            // 新增
+            $('#add').on('click', function() {
+                layui_form('添加漫画信息', function(){
+                    var oFileInput = new FileInput();
+                    oFileInput.Init("uploadImg", "{:U('Upload/upload_img')}");
+                    $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                        var image_path = data.response.data;
+                        $('input[name="cover"]').val(image_path);
+                    });
+                    form.render();
+                }, '900px');
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function(){
+                getSelectedData(oTable, function(data){
+                    layui_form('编辑漫画信息', function(){
+                        dataToForm('actionForm', data);
+                        $('#uploadImg').fileinput({
+                            language: 'zh',
+                            uploadUrl: "{:U('Upload/upload_img')}",
+                            showUpload: false,
+                            showCaption: false,
+                            showRemove: false,
+                            uploadAsync: false,
+                            maxFileSize : 10240,
+                            maxFileCount: 10,
+                            overwriteInitial: true,
+                            allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                            browseClass: "btn btn-default btn-block",
+                            dropZoneEnabled: false,
+                            enctype: 'multipart/form-data',
+                            browseLabel: '上传图片',
+                            previewClass:'previewPanel',
+                            initialPreview: ['<img src="'+data['cover']+'" class="img-thumbnail">'],
+                            layoutTemplates:{
+                                actionUpload: ''
+                            }
+                        }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                            var image_path = data.response.data.image_path;
+                            $('input[name="cover"]').val(image_path);
+                        });
+                        form.render();
+                    }, '900px');
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                if ($('#uploadImg').val()) {
+                    $('#uploadImg').fileinput('upload')
+                    .on("filebatchuploadsuccess", function(event, data) {
+                        if(data.response.status){
+                            submit_form("{:U('Comic/input_comic')}");
+                        }
+                    });
+                } else {
+                    submit_form("{:U('Comic/input_comic')}");
+                }
+            });
+        });
+    </script>
+</block>

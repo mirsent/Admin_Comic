@@ -99,6 +99,9 @@ var DT = {
         IMG: function (data,type,full,meta) {
             return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data+'"></a>';
         },
+        HEAD: function (data,type,full,meta) {
+            return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail img-circle" src="'+data+'"></a>';
+        },
         FA: function (data,type,full,meta) {
             return '<i class="fa fa-'+data+'"></i>';
         },
