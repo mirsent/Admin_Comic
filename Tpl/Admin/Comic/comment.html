@@ -8,6 +8,7 @@
         <div class="box-header with-border">
             <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
             <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <span class="lined"></span>
         </div>
         <div class="box-body">
             <table class="table table-bordered table-hover table-single">
@@ -43,7 +44,9 @@
                         order: data.order,
                         search: $('.fuzzy-search').val(),
 
-                        name: $('.search-name').val(),
+                        comic_name: $('.search-comic').val(),
+                        reader_name: $('.search-reader').val(),
+                        search_date: $('.search-date').val(),
                     };
                     $.ajax({
                         type: "POST",
@@ -72,21 +75,27 @@
                     { "data": "comment_time" },
                     {
                         "data": "s_show",
+                        "class": "text-center",
                         "render": function(data,type,full){
-                            return '<div class="layui-form"><div class="layui-form-item"><input type="checkbox" name="switch" lay-skin="switch"></div></div>'
+                            if (data == STATUS_Y) {
+                                return '<div class="layui-form"><input type="checkbox" name="switch" lay-skin="switch" lay-text="显示|隐藏" lay-filter="s-show" dataid='+full.id+' checked></div>'
+                            } else {
+                                return '<div class="layui-form"><input type="checkbox" name="switch" lay-skin="switch" lay-text="显示|隐藏" lay-filter="s-show" dataid='+full.id+'></div>'
+                            }
                         }
                     }
                 ],
+                "drawCallback": function( settings ) {
+                    layui.use('form', function() {
+                        var form = layui.form;
+                        form.render();
+                    })
+                },
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-name"></div> ';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画作者" class="layui-input search-author"></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-release" lay-search> <option value="">发布类型</option> <foreach name="release_type" item="v"> <option value="{$v.id}">{$v.release_type_name}</option> </foreach> </select></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-type" lay-search> <option value="">漫画分类</option> <foreach name="comic_type" item="v"> <option value="{$v.id}">{$v.comic_type_name}</option> </foreach> </select></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-serial"> <option value="">是否完结</option> <option value="'+C_SERIAL_L+'">连载中</option><option value="'+C_SERIAL_W+'">已完结</option> </select></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-fee"> <option value="">是否收费</option> <option value="'+C_FEE_Y+'">收费</option><option value="'+C_FEE_N+'">免费</option> </select></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-target"> <option value="">面向群体</option> <option value="'+C_TARGET_M+'">男频</option><option value="'+C_TARGET_F+'">女频</option> </select></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-space"> <option value="">篇幅</option> <option value="'+C_SPACE_C+'">长篇</option><option value="'+C_SPACE_D+'">短篇</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="评论日期" class="layui-input picker-date search-date" readonly></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 
@@ -95,6 +104,35 @@
                     layui.use(['form', 'laydate'], function() {
                         var laydate = layui.laydate;
                         var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.on('switch(s-show)', function(data){
+                            var obj = getCurRowData(oTable, this);
+                            var isShow;
+                            if (data.elem.checked) {
+                                isShow = STATUS_Y;
+                            } else {
+                                isShow = STATUS_B;
+                            }
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{:U('Comic/set_comment')}",
+                                data: {
+                                    id: obj.id,
+                                    s_show: isShow
+                                },
+                                dataType:"json",
+                                success: function(result) {
+                                    if (result.status == 1) {
+                                        toastr["success"]("操作成功", "");
+                                        DTdraw(oTable);
+                                    } else {
+                                        toastr["error"]("操作失败，请稍后重试！", "");
+                                        DTdraw(oTable);
+                                    }
+                                }
+                            });
+                        });
                         form.render();
                     });
                 }

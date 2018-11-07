@@ -1,8 +1,3 @@
-// 系统常量
-var STATUS_N = 0,
-    STATUS_Y = 1,
-    STATUS_B = 2;
-
 // To make Pace works on Ajax calls
 $(document).ajaxStart(function() {
     Pace.restart();

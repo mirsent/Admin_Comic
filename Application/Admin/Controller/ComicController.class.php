@@ -29,6 +29,10 @@ class ComicController extends AdminBaseController{
         $this->display();
     }
 
+    ////////////
+    // banner //
+    ////////////
+
 
     /**
      * 获取banner信息
@@ -75,7 +79,9 @@ class ComicController extends AdminBaseController{
         ajax_return(1);
     }
 
-
+    ////////
+    // 漫画 //
+    ////////
 
     /**
      * 漫画列表页面
@@ -154,6 +160,18 @@ class ComicController extends AdminBaseController{
     }
 
     /**
+     * 漫画仓库页面
+     */
+    public function warehouse(){
+        $cond['status'] = C('STATUS_Y');
+        $release_type = M('release_type')->where($cond)->select();
+        $comic_type = M('comic_type')->where($cond)->select();
+        $assign = compact('release_type','comic_type');
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
      * 获取下架漫画信息
      */
     public function get_comic_down_info(){
@@ -218,6 +236,31 @@ class ComicController extends AdminBaseController{
     }
 
     /**
+     * 编辑漫画
+     */
+    public function input_comic(){
+        $comic = D('Comics');
+        $data = I('post.');
+        $id = I('id');
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $comic->editComic($cond, $data);
+        } else {
+            $res = $comic->addComic($data);
+        }
+
+        if ($res === false) {
+            ajax_return(0, '编辑漫画失败');
+        }
+        ajax_return(1);
+    }
+
+
+    ////////
+    // 评论 //
+    ////////
+
+    /**
      * 获取评论信息
      */
     public function get_comment_info(){
@@ -229,19 +272,14 @@ class ComicController extends AdminBaseController{
         // 搜索
         $search = I('search');
         if (strlen($search)>0) {
-            $cond['name|author|release_type_name'] = array('like', '%'.$search.'%');
+            $cond['name|nickname|comment_content'] = array('like', '%'.$search.'%');
         }
         $cond['name'] = I('name');
-        $cond['author'] = I('author');
-        $cond['release_type_id'] = I('release_type_id');
-        $comicTypeId = I('comic_type_id');
-        if ($comicTypeId) {
-            $cond['_string'] = 'FIND_IN_SET('.$comicTypeId.', type_ids)';
+        $cond['nickname'] = I('nickname');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['comment_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
         }
-        $cond['s_serial'] = I('s_serial');
-        $cond['s_fee'] = I('s_fee');
-        $cond['s_target'] = I('s_target');
-        $cond['s_space'] = I('s_space');
 
         $recordsFiltered = $ms->getCommentNumber($cond);
 
@@ -253,17 +291,14 @@ class ComicController extends AdminBaseController{
             $i = intval($orderColumn);
             switch($i){
                 case 1: $ms->order('name '.$orderDir); break;
-                case 2: $ms->order('author '.$orderDir); break;
-                case 3: $ms->order('release_type_name '.$orderDir); break;
-                case 4: $ms->order('type_ids '.$orderDir); break;
-                case 5: $ms->order('total_chapter '.$orderDir); break;
-                case 6: $ms->order('free_chapter '.$orderDir); break;
-                case 7: $ms->order('pre_chapter_pay '.$orderDir); break;
-                case 8: $ms->order('spread_times '.$orderDir); break;
+                case 3: $ms->order('nickname '.$orderDir); break;
+                case 4: $ms->order('comment_content '.$orderDir); break;
+                case 5: $ms->order('comment_time '.$orderDir); break;
+                case 6: $ms->order('s_show '.$orderDir); break;
                 default: break;
             }
         } else {
-            $ms->order('sort desc', 'created_at');
+            $ms->order('comment_time');
         }
 
         // 分页
@@ -282,21 +317,15 @@ class ComicController extends AdminBaseController{
     }
 
     /**
-     * 编辑漫画
+     * 设置评论显示状态
      */
-    public function input_comic(){
-        $comic = D('Comics');
-        $data = I('post.');
-        $id = I('id');
-        if ($id) {
-            $cond['id'] = $id;
-            $res = $comic->editComic($cond, $data);
-        } else {
-            $res = $comic->addComic($data);
-        }
+    public function set_comment(){
+        $cond['id'] = I('id');
+        $data['s_show'] = I('s_show');
+        $res = M('comment')->where($cond)->save($data);
 
         if ($res === false) {
-            ajax_return(0, '编辑漫画失败');
+            ajax_return(0, '设置评论显示状态失败');
         }
         ajax_return(1);
     }

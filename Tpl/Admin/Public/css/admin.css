@@ -1,7 +1,24 @@
 /* dt样式 */
 table.dataTable tbody tr.selected {
-    background-color: #B0BED9;
+    /* background-color: #B0BED9; */
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-name: breathe;
+    -webkit-animation-duration: 1500ms;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
 }
+
+@-webkit-keyframes breathe {
+    0% {
+        box-shadow: 0 1px 1px rgba(0, 147, 223, 0.4), 0 1px 1px rgba(0, 147, 223, 0.2) inset;
+    }
+    100% {
+        box-shadow: 0 2px 2px #0093df, 0 2px 2px #0093df inset;
+    }
+}
+
+
 .table tr{
     cursor: pointer;
 }
