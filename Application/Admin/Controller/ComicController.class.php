@@ -35,11 +35,32 @@ class ComicController extends AdminBaseController{
 
 
     /**
+     * 漫画广告banner页面
+     */
+    public function banner(){
+        $cond['status'] = C('C_STATUS_U');
+        $comic = M('comics')
+            ->field('id,title')
+            ->where($cond)
+            ->select();
+        $assign = [
+            'comic' => $comic
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
      * 获取banner信息
      */
     public function get_banner_info(){
-        $cond['status'] = C('STATUS_Y');
-        $infos = M('comic_banner')->where($cond)->select();
+        $cond['cb.status'] = C('STATUS_Y');
+        $infos = M('comic_banner')
+            ->alias('cb')
+            ->join('__COMICS__ c ON c.id = cb.jump_comic_id')
+            ->field('cb.*,title as comic_title')
+            ->where($cond)
+            ->select();
         echo json_encode([
             "data" => $infos
         ], JSON_UNESCAPED_UNICODE);
@@ -86,7 +107,7 @@ class ComicController extends AdminBaseController{
     /**
      * 漫画列表页面
      */
-    public function list(){
+    public function comic_list(){
         $cond['status'] = C('STATUS_Y');
         $release_type = M('release_type')->where($cond)->select();
         $comic_type = M('comic_type')->where($cond)->select();
@@ -107,9 +128,9 @@ class ComicController extends AdminBaseController{
         // 搜索
         $search = I('search');
         if (strlen($search)>0) {
-            $cond['name|author|release_type_name'] = array('like', '%'.$search.'%');
+            $cond['title|author|release_type_name'] = array('like', '%'.$search.'%');
         }
-        $cond['name'] = I('name');
+        $cond['title'] = I('title');
         $cond['author'] = I('author');
         $cond['release_type_id'] = I('release_type_id');
         $comicTypeId = I('comic_type_id');
@@ -130,7 +151,7 @@ class ComicController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 1: $ms->order('name '.$orderDir); break;
+                case 1: $ms->order('title '.$orderDir); break;
                 case 2: $ms->order('author '.$orderDir); break;
                 case 3: $ms->order('release_type_name '.$orderDir); break;
                 case 4: $ms->order('type_ids '.$orderDir); break;

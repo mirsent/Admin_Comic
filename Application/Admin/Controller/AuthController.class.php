@@ -53,7 +53,6 @@ class AuthController extends AdminBaseController {
 
 
 
-
     /********************************************** 用户组管理 ****************************************/
 
     public function group(){

@@ -39,7 +39,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">漫画名称</label>
                         <div class="layui-input-block">
-                            <input type="text" name="name" placeholder="请输入漫画名称" autocomplete="off" lay-verify="required" class="layui-input">
+                            <input type="text" name="title" placeholder="请输入漫画名称" autocomplete="off" lay-verify="required" class="layui-input">
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -199,7 +199,7 @@
                         order: data.order,
                         search: $('.fuzzy-search').val(),
 
-                        name: $('.search-name').val(),
+                        title: $('.search-title').val(),
                         author: $('.search-author').val(),
                         release_type_id: $('.search-release').val(),
                         comic_type_id: $('.search-type').val(),
@@ -224,7 +224,7 @@
                         "orderable": false,
                         "render": DT.RENDER.IMG
                     },
-                    { "data": "name" },
+                    { "data": "title" },
                     { "data": "author" },
                     { "data": "release_type_name" },
                     { "data": "type_names" },
@@ -246,7 +246,7 @@
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-name"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-title"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画作者" class="layui-input search-author"></div> ';
                     advancedHtml += '<div class="layui-inline"><select class="search-release" lay-search> <option value="">发布类型</option> <foreach name="release_type" item="v"> <option value="{$v.id}">{$v.release_type_name}</option> </foreach> </select></div> ';
                     advancedHtml += '<div class="layui-inline"><select class="search-type" lay-search> <option value="">漫画分类</option> <foreach name="comic_type" item="v"> <option value="{$v.id}">{$v.comic_type_name}</option> </foreach> </select></div> ';
@@ -310,12 +310,13 @@
                             enctype: 'multipart/form-data',
                             browseLabel: '上传图片',
                             previewClass:'previewPanel',
-                            initialPreview: ['<img src="'+data['cover']+'" class="img-thumbnail">'],
+                            initialPreview: [data['cover']],
+                            initialPreviewAsData: true,
                             layoutTemplates:{
                                 actionUpload: ''
                             }
                         }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
-                            var image_path = data.response.data.image_path;
+                            var image_path = data.response.data;
                             $('input[name="cover"]').val(image_path);
                         });
                         form.render();

@@ -14,7 +14,7 @@
             <table class="table table-bordered table-striped table-hover table-single">
                 <thead>
                     <tr>
-                        <th width="600">banner</th>
+                        <th width="500">banner</th>
                         <th>跳转地址</th>
                         <th>排序</th>
                         <th width="10%">状态</th>
@@ -37,9 +37,20 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">跳转地址</label>
+                <label class="layui-form-label">跳转漫画</label>
                 <div class="layui-input-block">
-                    <input type="text" name="jump_url" placeholder="请输入跳转地址" autocomplete="off" lay-verify="required" class="layui-input">
+                    <select name="jump_comic_id" lay-verify="required" lay-search>
+                        <option value="">请选择漫画</option>
+                        <foreach name="comic" item="v">
+                            <option value="{$v.id}">{$v.title}</option>
+                        </foreach>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">跳转章节</label>
+                <div class="layui-input-block">
+                    <input type="number" name="jump_chapter" value="1" placeholder="请输入跳转章节" autocomplete="off" class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -82,13 +93,15 @@
                         "orderable": false,
                         "render": DT.RENDER.IMG
                     },
-                    { "data": "jump_url" },
+                    {
+                        "data": null,
+                        "render": function(data, type, full){
+                            return '《' + full.comic_title + '》 第 ' + full.jump_chapter + ' 章';
+                        }
+                    },
                     { "data": "sort" },
                     DT.COLUMN.STATUS
-                ],
-                initComplete: function(settings, json) {
-
-                }
+                ]
             });
         });
 
@@ -152,7 +165,7 @@
                                     actionUpload: ''
                                 }
                             }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
-                                var image_path = data.response.data.image_path;
+                                var image_path = data.response.data;
                                 $('input[name="banner_url"]').val(image_path);
                             });
                             form.render();
