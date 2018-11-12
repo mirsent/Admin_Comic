@@ -7,29 +7,29 @@ $(document).ajaxStart(function() {
 function dataToForm(obj, data) {
     $('#' + obj + ' [name]').each(function(i, element) {
         var elementName = element.name,
-            dataValue = data[elementName],
-            $this = $(this);
+        dataValue = data[elementName],
+        $this = $(this);
         switch (element.type) {
             case 'text':
             case 'number':
             case 'hidden':
             case 'textarea':
-                $this.val(dataValue);
-                break;
+            $this.val(dataValue);
+            break;
             case 'radio':
-                if ($this.val() == dataValue) $this.prop('checked', true);
-                break;
+            if ($this.val() == dataValue) $this.prop('checked', true);
+            break;
             case 'checkbox':
                 var checkboxName = elementName.substring(0, elementName.length - 2); // 去掉name后面的[]
                 if (data[checkboxName]) {
                     if ($.inArray($this.val(), data[checkboxName].split(',')) != '-1') $this.prop('checked', true);
                 }
                 break;
-            default:
+                default:
                 $this.find('option[value="' + dataValue + '"]').prop('selected', true);
                 break;
-        }
-    });
+            }
+        });
 }
 
 // toastr["success"]("content", "title");
@@ -92,7 +92,11 @@ var DT = {
             return '<span class="dt-ellipsis" title="'+data+'">'+data+'</span>';
         },
         IMG: function (data,type,full,meta) {
-            return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data+'"></a>';
+            if (data) {
+                return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data+'"></a>';
+            } else {
+                return '';
+            }
         },
         HEAD: function (data,type,full,meta) {
             return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail img-circle" src="'+data+'"></a>';
@@ -111,20 +115,20 @@ var DT = {
 };
 
 var DTSearchGroup =
-    '<div class="input-group">' +
-    '<input type="text" class="form-control pull-left fuzzy-search" placeholder="模糊查询">' +
-    '<span class="input-group-btn"><button type="button" class="btn waves-effect waves-light btn-info" id="fuzzySearch"><i class="fa fa-search"></i></button></span>'+
-    '<span class="input-group-btn"><button type="button" class="btn btn-default" title="高级查询" data-toggle="collapse" href="#searchCollapse"><i class="fa fa-angle-double-down"></i></button></span>' +
-    '</div>';
+'<div class="input-group">' +
+'<input type="text" class="form-control pull-left fuzzy-search" placeholder="模糊查询">' +
+'<span class="input-group-btn"><button type="button" class="btn waves-effect waves-light btn-info" id="fuzzySearch"><i class="fa fa-search"></i></button></span>'+
+'<span class="input-group-btn"><button type="button" class="btn btn-default" title="高级查询" data-toggle="collapse" href="#searchCollapse"><i class="fa fa-angle-double-down"></i></button></span>' +
+'</div>';
 
 // default setting
 // var height = document.body.clientHeight - $('.box-body').offset().top - 270 + 'px';
 $.extend($.fn.dataTable.defaults, {
     dom:
-        "<'row'<'col-sm-6'l><'search-item col-sm-6'>>" +
-        "<'row'<'col-sm-12'<'#searchCollapse.collapse'>>>" +
-        "<'row'<'col-sm-12'tr>>" +
-        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+    "<'row'<'col-sm-6'l><'search-item col-sm-6'>>" +
+    "<'row'<'col-sm-12'<'#searchCollapse.collapse'>>>" +
+    "<'row'<'col-sm-12'tr>>" +
+    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
     language: DT.DTLang, // 提示信息
     pageLength: 20, // 初始化页长度
     lengthMenu: [ [10, 20, 50, 100, -1], [10, 20, 50, 100, "所有"] ], // 页面显示条数的下拉框选项
@@ -137,10 +141,10 @@ $.extend($.fn.dataTable.defaults, {
     order: [], // 默认排序查询
     pagingType: "simple_numbers", // 分页样式：simple,simple_numbers,full,full_numbers
     columnDefs: [
-        {
-            "targets": -1,
-            "searchable": false
-        }
+    {
+        "targets": -1,
+        "searchable": false
+    }
     ]
 });
 
@@ -303,7 +307,7 @@ function swal_input(title,name,callback=function(){},input='text',inputOptions='
                 if (!value) {
                     swal.showValidationError(
                         name+'必填！'
-                    )
+                        )
                 }
                 resolve()
             })
@@ -345,7 +349,7 @@ function swal_notice(title,type='success'){
       showConfirmButton: false,
       allowOutsideClick: false,
       timer: 1500
-    })
+  })
 }
 
 // FileInput初始化
@@ -481,49 +485,49 @@ function watermark(settings) {
     //如果将水印列数设置为0，或水印列数设置过大，超过页面最大宽度，则重新计算水印列数和水印x轴间隔
     if (defaultSettings.watermark_cols == 0 ||
         (parseInt(defaultSettings.watermark_x
-　　　　+ defaultSettings.watermark_width *defaultSettings.watermark_cols
-　　　　+ defaultSettings.watermark_x_space * (defaultSettings.watermark_cols - 1))
-　　　　> page_width)) {
+            　　　　+ defaultSettings.watermark_width *defaultSettings.watermark_cols
+            　　　　+ defaultSettings.watermark_x_space * (defaultSettings.watermark_cols - 1))
+        　　　　> page_width)) {
         defaultSettings.watermark_cols =
-　　　　　　parseInt((page_width
-　　　　　　　　　　-defaultSettings.watermark_x
-　　　　　　　　　　+defaultSettings.watermark_x_space)
-　　　　　　　　　　/ (defaultSettings.watermark_width
-　　　　　　　　　　+ defaultSettings.watermark_x_space));
-        defaultSettings.watermark_x_space =
-　　　　　　parseInt((page_width
-　　　　　　　　　　- defaultSettings.watermark_x
-　　　　　　　　　　- defaultSettings.watermark_width
-　　　　　　　　　　* defaultSettings.watermark_cols)
-　　　　　　　　　　/ (defaultSettings.watermark_cols - 1));
-    }
+    　　　　　　parseInt((page_width
+        　　　　　　　　　　-defaultSettings.watermark_x
+        　　　　　　　　　　+defaultSettings.watermark_x_space)
+    　　　　　　　　　　/ (defaultSettings.watermark_width
+        　　　　　　　　　　+ defaultSettings.watermark_x_space));
+    defaultSettings.watermark_x_space =
+    　　　　　　parseInt((page_width
+        　　　　　　　　　　- defaultSettings.watermark_x
+        　　　　　　　　　　- defaultSettings.watermark_width
+        　　　　　　　　　　* defaultSettings.watermark_cols)
+    　　　　　　　　　　/ (defaultSettings.watermark_cols - 1));
+}
     //如果将水印行数设置为0，或水印行数设置过大，超过页面最大长度，则重新计算水印行数和水印y轴间隔
     if (defaultSettings.watermark_rows == 0 ||
         (parseInt(defaultSettings.watermark_y
-　　　　+ defaultSettings.watermark_height * defaultSettings.watermark_rows
-　　　　+ defaultSettings.watermark_y_space * (defaultSettings.watermark_rows - 1))
-　　　　> page_height)) {
+            　　　　+ defaultSettings.watermark_height * defaultSettings.watermark_rows
+            　　　　+ defaultSettings.watermark_y_space * (defaultSettings.watermark_rows - 1))
+        　　　　> page_height)) {
         defaultSettings.watermark_rows =
-　　　　　　parseInt((defaultSettings.watermark_y_space
-　　　　　　　　　　　+ page_height - defaultSettings.watermark_y)
-　　　　　　　　　　　/ (defaultSettings.watermark_height + defaultSettings.watermark_y_space));
-        defaultSettings.watermark_y_space =
-　　　　　　parseInt((page_height
-　　　　　　　　　　- defaultSettings.watermark_y
-　　　　　　　　　　- defaultSettings.watermark_height
-　　　　　　　　　　* defaultSettings.watermark_rows)
-　　　　　　　　　/ (defaultSettings.watermark_rows - 1));
-    }
-    var x;
-    var y;
-    for (var i = 0; i < defaultSettings.watermark_rows; i++) {
-        y = defaultSettings.watermark_y + (defaultSettings.watermark_y_space + defaultSettings.watermark_height) * i;
-        for (var j = 0; j < defaultSettings.watermark_cols; j++) {
-            x = defaultSettings.watermark_x + (defaultSettings.watermark_width + defaultSettings.watermark_x_space) * j;
+    　　　　　　parseInt((defaultSettings.watermark_y_space
+        　　　　　　　　　　　+ page_height - defaultSettings.watermark_y)
+    　　　　　　　　　　　/ (defaultSettings.watermark_height + defaultSettings.watermark_y_space));
+    defaultSettings.watermark_y_space =
+    　　　　　　parseInt((page_height
+        　　　　　　　　　　- defaultSettings.watermark_y
+        　　　　　　　　　　- defaultSettings.watermark_height
+        　　　　　　　　　　* defaultSettings.watermark_rows)
+    　　　　　　　　　/ (defaultSettings.watermark_rows - 1));
+}
+var x;
+var y;
+for (var i = 0; i < defaultSettings.watermark_rows; i++) {
+    y = defaultSettings.watermark_y + (defaultSettings.watermark_y_space + defaultSettings.watermark_height) * i;
+    for (var j = 0; j < defaultSettings.watermark_cols; j++) {
+        x = defaultSettings.watermark_x + (defaultSettings.watermark_width + defaultSettings.watermark_x_space) * j;
 
-            var mask_div = document.createElement('div');
-            mask_div.id = 'mask_div' + i + j;
-            mask_div.appendChild(document.createTextNode(defaultSettings.watermark_txt));
+        var mask_div = document.createElement('div');
+        mask_div.id = 'mask_div' + i + j;
+        mask_div.appendChild(document.createTextNode(defaultSettings.watermark_txt));
             //设置水印div倾斜显示
             mask_div.style.webkitTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";
             mask_div.style.MozTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";

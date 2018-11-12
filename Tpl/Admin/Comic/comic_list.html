@@ -13,7 +13,7 @@
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
-                        <th width="80">封面</th>
+                        <th width="200">封面</th>
                         <th>漫画名称</th>
                         <th>作者</th>
                         <th>发布类型</th>
@@ -23,6 +23,7 @@
                         <th>章节费用</th>
                         <th>推广次数</th>
                         <th>状态</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -242,6 +243,14 @@
                             var sStatus = full.status == C_STATUS_U ? '<span class="layui-badge layui-bg-green">上架</span> ' : '<span class="layui-badge layui-bg-green>下架</span>';
                             return sSerial + sFee + sTarget + sSpace + sStatus;
                         }
+                    },
+                    {
+                        "data": "status",
+                        "render": function(data,type,full){
+                            var sOut = '';
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update-chapter">更新目录</button>'
+                            return sOut;
+                        }
                     }
                 ],
                 initComplete: function(settings, json) {
@@ -337,6 +346,22 @@
                     submit_form("{:U('Comic/input_comic')}");
                 }
             });
+
+            $('.table').on('click', '.update-chapter', function(){
+                getSelectedData(oTable, function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Chapter/check_chapter')}",
+                        data: {
+                            comic_id: data.id
+                        },
+                        dataType:"json",
+                        success: function(res) {
+                            layui_detail('更新 '+data.title+' 目录', '__MODULE__/Chapter/chapter/comic_id/'+data.id, '700px');
+                        }
+                    });
+                })
+            })
         });
     </script>
 </block>
