@@ -21,6 +21,8 @@
                         <th>总章节</th>
                         <th>免费章节</th>
                         <th>章节费用</th>
+                        <th>需分享数</th>
+                        <th>最大分享换取章节</th>
                         <th>推广次数</th>
                         <th>状态</th>
                         <th>操作</th>
@@ -74,27 +76,38 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">分享兑换</label>
+                        <div class="layui-input-block">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" style="width: 140px;">
+                                    <input type="number" name="pre_chapter_share" placeholder="需分享数" autocomplete="off" lay-verify="required" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline" style="width: 150px;">
+                                    <input type="number" name="max_share_chapter" placeholder="最大分享可换章节" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">初始配置</label>
+                        <div class="layui-input-block">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="heat" placeholder="热门度" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="popularity" placeholder="人气数" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="collection" placeholder="收藏数" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
                         <label class="layui-form-label">排序</label>
                         <div class="layui-input-block">
                             <input type="number" name="sort" placeholder="请输入排序权值" autocomplete="off" value="1" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">热门度</label>
-                        <div class="layui-input-block">
-                            <input type="number" name="heat" placeholder="请输入热门度" autocomplete="off" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">人气数</label>
-                        <div class="layui-input-block">
-                            <input type="number" name="popularity" placeholder="请输入人气数" autocomplete="off" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">收藏数</label>
-                        <div class="layui-input-block">
-                            <input type="number" name="collection" placeholder="请输入收藏数" autocomplete="off" class="layui-input">
                         </div>
                     </div>
 
@@ -232,6 +245,8 @@
                     { "data": "total_chapter" },
                     { "data": "free_chapter" },
                     { "data": "pre_chapter_pay" },
+                    { "data": "pre_chapter_share" },
+                    { "data": "max_share_chapter" },
                     { "data": "spread_times" },
                     {
                         "data": "status",

@@ -25,9 +25,11 @@ class ChapterController extends AdminBaseController{
             for ($i=1; $i <= $diff; $i++) {
                 $newChapter = $chapterNExsist + $i;
                 $new[] = [
-                    'catalog'  => $newChapter,
-                    'comic_id' => $comicId,
-                    'status'   => C('STATUS_Y')
+                    'catalog'    => $newChapter,
+                    'comic_id'   => $comicId,
+                    'popularity' => rand_number(99,999),
+                    'create_at'  => date('Y-m-d'),
+                    'status'     => C('STATUS_Y')
                 ];
             }
             $chapter->addAll($new);
