@@ -6,11 +6,7 @@
     <include file="Public:theme_lte_css" />
     <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
     <style type="text/css">
-        @media screen and (max-width: 767px){
-            div.dataTables_wrapper div.dataTables_length, div.dataTables_wrapper div.dataTables_filter, div.dataTables_wrapper div.dataTables_info, div.dataTables_wrapper div.dataTables_paginate {
-                text-align: left;
-            }
-        }
+
     </style>
 </head>
 <body>
@@ -65,7 +61,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             oTable = $(".table").DataTable({
-                dom: "<'row'<'col-xs-6'l><'col-xs-6'f>> t <'row'<'col-xs-6'i><'col-xs-6'p>>",
+                dom: "<'row'<'col-xs-6'l><'col-xs-6 text-right'f>> t <'row'<'col-xs-6'i><'col-xs-6 text-right'p>>",
                 serverSide: false,
                 searching: true,
                 ajax: {
