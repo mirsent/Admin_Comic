@@ -17,4 +17,34 @@ class ChapterModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 获取漫画章节信息
+     * @param  int $comicId 漫画ID
+     * @param  int $chapter 章节
+     */
+    public function getChapterInfo($comicId, $chapter){
+        $cond = [
+            'comic_id' => $comicId,
+            'catalog'  => $chapter,
+        ];
+        $data = $this
+            ->alias('cp')
+            ->join('__COMICS__ c ON c.id = cp.comic_id')
+            ->field('chapter_cover,title,brief,total_chapter,pre_chapter_pay,pre_chapter_share,max_share_chapter')
+            ->where($cond)
+            ->find();
+        // 判断是否有封面
+        if (!$data['chapter_cover']) {
+            $cond_cover = [
+                'status'   => C('STATUS_Y'),
+                'comic_id' => $comicId
+            ];
+            $data['chapter_cover'] = M('comic_cover')
+                ->where($cond)
+                ->order('rand()')
+                ->getField('cover_url');
+        }
+        return $data;
+    }
+
 }
