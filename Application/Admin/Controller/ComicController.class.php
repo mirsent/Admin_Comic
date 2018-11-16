@@ -29,10 +29,10 @@ class ComicController extends AdminBaseController{
         $this->display();
     }
 
+
     ////////////
     // banner //
     ////////////
-
 
     /**
      * 漫画广告banner页面
@@ -99,6 +99,7 @@ class ComicController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
 
     ////////
     // 漫画 //
@@ -276,6 +277,58 @@ class ComicController extends AdminBaseController{
         ajax_return(1);
     }
 
+    /**
+     * 漫画分享图库页面
+     */
+    public function share_imgs(){
+        $cond = [
+            'status'   => C('STATUS_Y'),
+            'comic_id' => I('comic_id')
+        ];
+        $covers = M('comic_cover')->where($cond)->select();
+
+        $assign = [
+            'covers' => $covers
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
+     * 上传分享图片
+     */
+    public function upload_cover(){
+        $imgs = upload_multiple('image');
+        $comicId = I('comic_id');
+        for ($i=0; $i < count($imgs); $i++) {
+            $data[] = [
+                'comic_id'  => $comicId,
+                'cover_url' => $imgs[$i],
+                'status'    => C('STATUS_Y')
+            ];
+        }
+        $res = M('comic_cover')->addAll($data);
+
+        if ($res === false) {
+            ajax_return(0, '上传分享图失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 删除分享图片
+     */
+    public function delete_cover(){
+        $cond['id'] = I('key');
+        $data['status'] = C('STATUS_N');
+        $res = M('comic_cover')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除分享图片失败');
+        }
+        ajax_return(1);
+    }
+
 
     ////////
     // 评论 //
@@ -350,4 +403,5 @@ class ComicController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
 }

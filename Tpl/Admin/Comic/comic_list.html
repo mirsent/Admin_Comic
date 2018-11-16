@@ -264,6 +264,7 @@
                         "render": function(data,type,full){
                             var sOut = '';
                             sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update-chapter">更新目录</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm upload-share">分享图库</button>'
                             return sOut;
                         }
                     }
@@ -374,6 +375,25 @@
                         dataType:"json",
                         success: function(res) {
                             layui_detail('更新 '+data.title+' 目录', '__MODULE__/Chapter/chapter/comic_id/'+data.id, '700px');
+                        }
+                    });
+                })
+            })
+
+            // 更新章节
+            $('.table').on('click', '.upload-share', function(){
+                getSelectedData(oTable, function(data){
+                    layer.open({
+                        type: 2,
+                        shade: 0.8,
+                        maxmin: true,
+                        anim: 0,
+                        shadeClose: true,
+                        area: ['900px','710px'],
+                        title: data.title+' 分享图库',
+                        content: '__MODULE__/Comic/share_imgs/comic_id/'+data.id,
+                        success: function(layero, index){
+                            // layer.iframeAuto(index)
                         }
                     });
                 })

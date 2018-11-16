@@ -240,7 +240,7 @@ function layui_big_form(msg,callback=function(){},width='600px',contentId='actio
 }
 
 // 详情
-function layui_detail(msg,url,width='600px'){
+function layui_detail(msg,url,width='600px',height='80vh'){
     layer.open({
         type: 2,
         shade: 0.8,
@@ -250,7 +250,7 @@ function layui_detail(msg,url,width='600px'){
         title: msg,
         content: url,
         offset: '10vh',
-        area: [width, '80vh'],
+        area: [width, height],
         success: function(layero, index){
             // layer.iframeAuto(index)
         }

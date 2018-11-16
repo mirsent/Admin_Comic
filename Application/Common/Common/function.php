@@ -19,14 +19,14 @@ function p($data){
 }
 
 /**
- * 上传图片
+ * 上传单张图片
  */
-function upload_img($path){
+function upload_single($path){
     $path=trim($path,'.');
     $path=trim($path,'/');
     $config = array(
         'rootPath' => './Uploads/',
-        'savePath' => $path.'/'
+        'savePath' => $path.'/',
     );
     $upload = new \Think\Upload($config);// 实例化上传类
     $info = $upload -> upload();
@@ -36,6 +36,30 @@ function upload_img($path){
         foreach ($info as $key => $value) {
             $imagePath = $upload -> rootPath.$value['savepath'].$value['savename'];
             $fullImagePath .= $siteHost.ltrim($imagePath,'.');
+        }
+        return $fullImagePath;
+    }else{
+        return false;
+    }
+}
+/**
+ * 上传多张图片
+ */
+function upload_multiple($path){
+    $path=trim($path,'.');
+    $path=trim($path,'/');
+    $config = array(
+        'rootPath' => './Uploads/',
+        'savePath' => $path.'/',
+    );
+    $upload = new \Think\Upload($config);// 实例化上传类
+    $info = $upload -> upload();
+
+    $siteHost = 'http://'.$_SERVER['HTTP_HOST'].__ROOT__;
+    if ($info) {
+        foreach ($info as $key => $value) {
+            $imagePath = $upload -> rootPath.$value['savepath'].$value['savename'];
+            $fullImagePath[] .= $siteHost.ltrim($imagePath,'.');
         }
         return $fullImagePath;
     }else{

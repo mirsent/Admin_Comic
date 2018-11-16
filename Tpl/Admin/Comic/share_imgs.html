@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分享图库</title>
+    <include file="Public:theme_lte_css" />
+    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+    <style type="text/css">
+        .container-fluid{
+            padding: 15px;
+        }
+        .file-drop-zone{
+            height: 550px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <input type="file" name="imgs[]" multiple class="file-loading" id="uploadImg">
+    </div>
+
+    <include file="Public:base_js" />
+    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript">
+        layui.use('layer', function(){
+            var layer = layui.layer;
+
+            var covers = <?php echo json_encode($covers) ?>;
+            var preview = [],
+                previewConfig = [];
+            for (var i = 0; i < covers.length; i++) {
+                var config = {
+                    key: covers[i]['id'],
+                    url: "{:U('Comic/delete_cover')}"
+                };
+                previewConfig.push(config);
+                preview.push(covers[i]['cover_url']);
+            }
+            $("#uploadImg").fileinput({
+                uploadUrl: "{:U('Comic/upload_cover')}",
+                uploadAsync: false,
+                overwriteInitial: false,
+                browseOnZoneClick: true,
+                initialPreview: preview,
+                initialPreviewAsData: true,
+                initialPreviewFileType: 'image',
+                initialPreviewConfig: previewConfig,
+                purifyHtml: true,
+                uploadExtraData: {
+                    comic_id: "{:I('comic_id')}"
+                }
+            }).on('filesorted', function(e, params) {
+                console.log('File sorted params', params);
+            }).on('fileuploaded', function(e, params) {
+                layer.msg('上传图片成功');
+            }).on('filedeleted', function(event, key, jqXHR, data) {
+                layer.msg('删除图片成功');
+            });
+        });
+    </script>
+</body>
+</html>
