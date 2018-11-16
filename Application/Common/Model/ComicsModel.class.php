@@ -97,12 +97,14 @@ class ComicsModel extends BaseModel{
     public function checkCost($comicId, $chapter, $openid){
         $comicInfo = $this->find($comicId);
         $freeChapter = $comicInfo['free_chapter'];
+        $maxShareChapter = $comicInfo['max_share_chapter'];
+        $preChapterShare = $comicInfo['pre_chapter_share'];
 
         if ($chapter <= $freeChapter) {
             // 免费章节
-            return 1;
+            return ['status'=>1];
         } else {
-            // 付费章节
+            // 付费
             $cond_consume = [
                 'comic_id' => $comicId,
                 'openid'   => $openid,
@@ -110,12 +112,28 @@ class ComicsModel extends BaseModel{
                 'status'   => C('STATUS_Y')
             ];
             $consumeInfo = M('consume_order')->where($cond_consume)->find();
-            if ($historyInfo) {
-                // 已购买
-                return 2;
+
+            if ($chapter < $maxShareChapter) { // 可以分享兑换
+                // 分享
+                $cond_share = [
+                    'comic_id' => $comicId,
+                    'openid'   => $openid,
+                    'chapter'  => $chapter,
+                ];
+                $shareTimes = M('share_help')->where($cond_share)->getField('times');
+                if ($shareTimes >= $preChapterShare) {
+                    $isShare = 1;
+                } else {
+                    $needShare = $preChapterShare - $shareTimes;
+                }
+            }
+
+            if ($consumeInfo || $isShare) {
+                // 已购买/已分享
+                return ['status'=>2];
             } else {
                 // 未购买
-                return '-1';
+                return ['status'=>'-1','data'=>['need_share'=>$needShare]];
             }
         }
     }
