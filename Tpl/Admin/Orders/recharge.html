@@ -1,0 +1,100 @@
+<extend name="Public/base" />
+<block name="css">
+
+</block>
+<block name="header">充值订单 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>订单号</th>
+                        <th>读者</th>
+                        <th>活动内容</th>
+                        <th>充值金额</th>
+                        <th>充值时间</th>
+                        <th>订单状态</th>
+                        <th>途径</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        order_number: $('.search-order').val(),
+                        nickname: $('.search-reader').val(),
+                        search_date: $('.search-date').val(),
+                        channel: $('.search-channel').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Orders/get_recharge_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "order_number" },
+                    { "data": "nickname" },
+                    { "data": "activity_content" },
+                    { "data": "amount" },
+                    { "data": "recharge_time" },
+                    {
+                        "data": "status",
+                        "class": "text-center",
+                        "render": DT.RENDER.ORDER
+                    },
+                    {
+                        "data": "channel",
+                        "class": "text-center",
+                        "render": function(data,type,full){
+                            if (data == CHANNEL_G) {
+                                return '<span class="label label-primary">公众号</span>'
+                            } else {
+                                return '<span class="label label-info">小程序</span>'
+                            }
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="订单号" class="layui-input search-order"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="充值日期" class="layui-input picker-date search-date" readonly></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-channel"> <option value="">途径</option> <option value="'+CHANNEL_G+'">公众号</option><option value="'+CHANNEL_X+'">小程序</option> </select></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.render();
+                    });
+                }
+            });
+        });
+    </script>
+</block>

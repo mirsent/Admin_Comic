@@ -13,6 +13,7 @@
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
+                        <th>编号</th>
                         <th width="200">封面</th>
                         <th>漫画名称</th>
                         <th>作者</th>
@@ -233,6 +234,7 @@
                     });
                 },
                 columns: [
+                    { "data": "no"},
                     {
                         "data": "cover",
                         "orderable": false,
@@ -250,6 +252,7 @@
                     { "data": "spread_times" },
                     {
                         "data": "status",
+                        "orderable": false,
                         "render": function(data,type,full){
                             var sSerial = full.s_serial == C_SERIAL_L ? '<span class="layui-badge">连载中</span> ' : '<span class="layui-badge">已完结</span> ';
                             var sFee = full.s_fee == C_FEE_Y ? '<span class="layui-badge layui-bg-orange">收费</span> ' : '<span class="layui-badge layui-bg-orange">免费</span> ';
@@ -261,6 +264,7 @@
                     },
                     {
                         "data": "status",
+                        "orderable": false,
                         "render": function(data,type,full){
                             var sOut = '';
                             sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update-chapter">更新目录</button>'

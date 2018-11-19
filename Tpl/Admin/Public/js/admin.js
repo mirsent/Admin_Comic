@@ -98,6 +98,21 @@ var DT = {
                 return '';
             }
         },
+        ORDER: function (data,type,full,meta) {
+            switch (parseInt(data)) {
+                case ORDER_S_W:
+                    return '<span class="text-warning">待支付</span>'
+                    break;
+                case ORDER_S_P:
+                    return '<span class="text-success">已支付</span>'
+                    break;
+                case ORDER_S_C:
+                    return '<span class="text-danger">已取消</span>'
+                    break;
+                default:
+                    break;
+            }
+        },
         HEAD: function (data,type,full,meta) {
             return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail img-circle" src="'+data+'"></a>';
         },

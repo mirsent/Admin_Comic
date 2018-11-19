@@ -33,6 +33,7 @@ class ComicsModel extends BaseModel{
             ];
             $typeArr = $type->where($cond_type)->getField('comic_type_name', true);
             $data[$key]['type_names'] = implode('；', $typeArr);
+            $data[$key]['no'] = str_pad($value['id'], 5, 0, STR_PAD_LEFT);
         }
         return $data;
     }

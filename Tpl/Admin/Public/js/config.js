@@ -2,6 +2,10 @@ let STATUS_N = 0;
 let STATUS_Y = 1;
 let STATUS_B = 2;
 
+let ORDER_S_W = 1; // 待支付
+let ORDER_S_P = 2; // 已支付
+let ORDER_S_C = 3; // 已取消
+
 let C_SERIAL_L = 1; // 连载中
 let C_SERIAL_W = 2; // 已完结
 

@@ -152,14 +152,17 @@ class ComicController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 1: $ms->order('title '.$orderDir); break;
-                case 2: $ms->order('author '.$orderDir); break;
-                case 3: $ms->order('release_type_name '.$orderDir); break;
-                case 4: $ms->order('type_ids '.$orderDir); break;
-                case 5: $ms->order('total_chapter '.$orderDir); break;
-                case 6: $ms->order('free_chapter '.$orderDir); break;
-                case 7: $ms->order('pre_chapter_pay '.$orderDir); break;
-                case 8: $ms->order('spread_times '.$orderDir); break;
+                case 0: $ms->order('c.id '.$orderDir); break;
+                case 2: $ms->order('title '.$orderDir); break;
+                case 3: $ms->order('author '.$orderDir); break;
+                case 4: $ms->order('release_type_name '.$orderDir); break;
+                case 5: $ms->order('type_ids '.$orderDir); break;
+                case 6: $ms->order('total_chapter '.$orderDir); break;
+                case 7: $ms->order('free_chapter '.$orderDir); break;
+                case 8: $ms->order('pre_chapter_pay '.$orderDir); break;
+                case 9: $ms->order('pre_chapter_share '.$orderDir); break;
+                case 10: $ms->order('max_share_chapter '.$orderDir); break;
+                case 11: $ms->order('spread_times '.$orderDir); break;
                 default: break;
             }
         } else {

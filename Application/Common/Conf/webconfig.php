@@ -21,6 +21,10 @@ return array(
     'STATUS_Y' => 1, // 正常状态
     'STATUS_B' => 2, // 禁用状态
 
+    'ORDER_S_W' => 1, // 待支付
+    'ORDER_S_P' => 2, // 已支付
+    'ORDER_S_C' => 3, // 已取消
+
     'INDEX_SHOW' => 4, // 首页显示漫画数量
 
     'C_SERIAL_L' => 1, // 连载中
