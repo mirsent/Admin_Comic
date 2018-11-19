@@ -2,7 +2,7 @@
 <block name="css">
 
 </block>
-<block name="header">阅读记录 <small>管理</small></block>
+<block name="header">点赞 <small>管理</small></block>
 <block name="content">
     <div class="box box-primary">
         <div class="box-body">
@@ -11,8 +11,7 @@
                     <tr>
                         <th>漫画名称</th>
                         <th>读者昵称</th>
-                        <th>章节</th>
-                        <th>最后阅读时间</th>
+                        <th>点赞时间</th>
                         <th>途径</th>
                     </tr>
                 </thead>
@@ -43,7 +42,7 @@
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Reader/get_history_info')}",
+                        url: "{:U('Reader/get_likes_info')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -54,8 +53,7 @@
                 columns: [
                     { "data": "comic_title" },
                     { "data": "nickname" },
-                    { "data": "chapter" },
-                    { "data": "last_time" },
+                    { "data": "create_at" },
                     {
                         "data": "channel",
                         "class": "text-center",
@@ -72,7 +70,7 @@
                     var advancedHtml = '<form class="layui-form search-box">';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="最后阅读日期" class="layui-input picker-date search-date" readonly></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="收藏日期" class="layui-input picker-date search-date" readonly></div> ';
                     advancedHtml += '<div class="layui-inline"><select class="search-channel"> <option value="">途径</option> <option value="'+CHANNEL_G+'">公众号</option><option value="'+CHANNEL_X+'">小程序</option> </select></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
