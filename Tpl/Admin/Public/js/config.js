@@ -19,3 +19,6 @@ let C_STATUS_D = 2; // 下架
 
 let CHANNEL_G = 1; // 公众号
 let CHANNEL_X = 2; // 小程序
+
+let ORDER_R = 1; // 充值
+let ORDER_C = 2; // 消费

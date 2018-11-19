@@ -31,12 +31,14 @@ class HistoryModel extends BaseModel{
      * @param  int $comicId 漫画ID
      * @param  string $openid  读者openid
      * @param  int $chapter 阅读章节
+     * @param  int $channel 途径
      */
-    public function updateHistory($comicId, $chapter, $openid){
+    public function updateHistory($comicId, $chapter, $openid, $channel){
         $data = [
             'comic_id'  => $comicId,
             'openid'    => $openid,
             'chapter'   => $chapter,
+            'channel'   => $channel,
             'last_time' => date('Y-m-d H:i:s')
         ];
 

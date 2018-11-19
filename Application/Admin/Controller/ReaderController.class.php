@@ -10,7 +10,9 @@ class ReaderController extends AdminBaseController{
     {
         $ms = D('Collect');
 
-        $recordsTotal = $ms->count();
+        $cond['ct.status'] = C('STATUS_Y');
+
+        $recordsTotal = $ms->alias('ct')->where($cond)->count();
 
         // 搜索
         $search = I('search');
@@ -123,7 +125,9 @@ class ReaderController extends AdminBaseController{
     {
         $ms = D('Likes');
 
-        $recordsTotal = $ms->count();
+        $cond['l.status'] = C('STATUS_Y');
+
+        $recordsTotal = $ms->alias('l')->where($cond)->count();
 
         // 搜索
         $search = I('search');
@@ -163,6 +167,61 @@ class ReaderController extends AdminBaseController{
         $page = I('page');    // 第几页
 
         $infos = $ms->page($page, $limit)->getLikesData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 获取点赞信息
+     */
+    public function get_integral_info()
+    {
+        $ms = D('Integral');
+
+        $recordsTotal = $ms->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['nickname|content'] = array('like', '%'.$search.'%');
+        }
+        $cond['nickname'] = I('nickname');
+        $cond['method'] = I('method');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['create_at'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+        }
+
+        $recordsFiltered = $ms->getIntegralNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 0: $ms->order('nickname '.$orderDir); break;
+                case 1: $ms->order('content '.$orderDir); break;
+                case 2: $ms->order('method '.$orderDir); break;
+                case 3: $ms->order('create_at '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('create_at');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getIntegralData($cond);
 
         echo json_encode(array(
             "draw" => intval(I('draw')),

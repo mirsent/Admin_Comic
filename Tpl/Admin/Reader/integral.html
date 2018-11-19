@@ -1,0 +1,78 @@
+<extend name="Public/base" />
+<block name="css">
+
+</block>
+<block name="header">积分记录 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>读者昵称</th>
+                        <th>积分详情</th>
+                        <th>渠道</th>
+                        <th>变动时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        nickname: $('.search-reader').val(),
+                        method: $('.search-method').val(),
+                        create_at: $('.search-date').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Reader/get_integral_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "nickname" },
+                    { "data": "content" },
+                    { "data": "method" },
+                    { "data": "create_at" },
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-method"> <option value="">充值</option> <option value="'+ORDER_R+'">公众号</option><option value="'+ORDER_C+'">消费</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="变动时间" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.render();
+                    });
+                }
+            });
+        });
+    </script>
+</block>

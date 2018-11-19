@@ -126,6 +126,8 @@ class ComicsModel extends BaseModel{
                 } else {
                     $needShare = $preChapterShare - $shareTimes;
                 }
+            } else {
+                // todo 只能付费
             }
 
             if ($consumeInfo || $isShare) {

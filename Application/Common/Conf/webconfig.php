@@ -41,4 +41,7 @@ return array(
     'CHANNEL_G' => 1, // 公众号
     'CHANNEL_X' => 2, // 小程序
 
+    'ORDER_R' => 1, // 充值
+    'ORDER_C' => 2, // 消费
+
 );

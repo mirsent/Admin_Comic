@@ -188,11 +188,14 @@ class ComicController extends Controller {
      */
     public function get_comic_info(){
         $cond['c.id'] = I('comic_id');
+        $cond = [
+            'c.id' => I('comic_id')
+        ];
         $data = M('comics')
             ->alias('c')
             ->join('__COLLECT__ collect ON collect.comic_id = c.id', 'LEFT')
             ->join('__LIKES__ likes ON likes.comic_id = c.id', 'LEFT')
-            ->field('c.id as comic_id,cover,title,brief,type_ids,heat,popularity,total_chapter,s_serial,collect.id as is_collect,likes.id as is_like')
+            ->field('c.id as comic_id,cover,title,brief,type_ids,heat,popularity,total_chapter,s_serial,collect.status as is_collect,likes.status as is_like')
             ->where($cond)
             ->find();
         $cond_type = [
@@ -327,8 +330,9 @@ class ComicController extends Controller {
         $comicId = I('comic_id');
         $openid = I('openid');
         $chapter = I('chapter');
+        $channel = I('channel');
 
-        D('History')->updateHistory($comicId, $chapter, $openid); // 更新阅读历史
+        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
 
         $data['comics'] = D('Comics')->getComicDetail($comicId, $chapter);
         $data['chapter_title'] = '第'.$chapter.'章' ;
@@ -345,6 +349,7 @@ class ComicController extends Controller {
         $comicId = I('comic_id');
         $openid = I('openid');
         $chapter = I('chapter') + 1;
+        $channel = I('channel');
 
         $res = $comic->checkCost($comicId, $chapter, $openid);
 
@@ -356,7 +361,7 @@ class ComicController extends Controller {
             ajax_return('-1', '限制阅读', $comicInfo);
         }
 
-        D('History')->updateHistory($comicId, $chapter, $openid); // 更新阅读历史
+        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
         $data['comics'] = $comic->getComicDetail($comicId, $chapter);
         $data['chapter_title'] = '第'.$chapter.'章' ;
 
@@ -424,6 +429,26 @@ class ComicController extends Controller {
     }
 
     /**
+     * 取消点赞
+     */
+    public function cancel_like()
+    {
+        $cond = [
+            'comic_id' => I('comic_id'),
+            'openid'   => I('openid')
+        ];
+        $data = [
+            'status' => C('STATUS_N')
+        ];
+        $res = M('likes')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消点赞失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
      * 收藏
      * @param comic_id 漫画ID
      * @param openid 读者ID
@@ -461,6 +486,26 @@ class ComicController extends Controller {
 
         if ($res === false) {
             ajax_return(0, '收藏失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 取消收藏
+     */
+    public function cancel_collect()
+    {
+        $cond = [
+            'comic_id' => I('comic_id'),
+            'openid'   => I('openid')
+        ];
+        $data = [
+            'status' => C('STATUS_N')
+        ];
+        $res = M('collect')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消收藏失败');
         }
         ajax_return(1);
     }
