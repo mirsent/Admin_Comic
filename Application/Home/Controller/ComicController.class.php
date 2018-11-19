@@ -387,13 +387,35 @@ class ComicController extends Controller {
      * @param openid 读者ID
      */
     public function like(){
-        $data = [
-            'comic_id'  => I('comic_id'),
-            'openid'    => I('openid'),
-            'create_at' => date('Y-m-d H:i:s'),
-            'status'    => C('STATUS_Y')
+        $likes = M('likes');
+        $comicId = I('comic_id');
+        $openid = I('openid');
+        $channel = I('channel');
+        $now = date('Y-m-d H:i:s');
+
+        $cond = [
+            'comic_id' => $comicId,
+            'openid'   => $openid
         ];
-        $res = M('likes')->add($data);
+        $likesInfo = $likes->where($cond)->find();
+
+        if ($likesInfo) {
+            $data = [
+                'channel'   => $channel,
+                'create_at' => $now,
+                'status'    => C('STATUS_Y')
+            ];
+            $res = $likes->where($cond)->save($data);
+        } else {
+            $data = [
+                'comic_id'  => $comicId,
+                'openid'    => $openid,
+                'channel'   => $channel,
+                'create_at' => date('Y-m-d H:i:s'),
+                'status'    => C('STATUS_Y')
+            ];
+            $res = $likes->add($data);
+        }
 
         if ($res === false) {
             ajax_return(0, '点赞失败');
@@ -407,13 +429,35 @@ class ComicController extends Controller {
      * @param openid 读者ID
      */
     public function collect(){
-        $data = [
-            'comic_id'  => I('comic_id'),
-            'openid'    => I('openid'),
-            'create_at' => date('Y-m-d H:i:s'),
-            'status'    => C('STATUS_Y')
+        $collect = M('collect');
+        $comicId = I('comic_id');
+        $openid = I('openid');
+        $channel = I('channel');
+        $now = date('Y-m-d H:i:s');
+
+        $cond = [
+            'comic_id' => $comicId,
+            'openid'   => $openid
         ];
-        $res = M('collect')->add($data);
+        $collectInfo = $collect->where($cond)->find();
+
+        if ($collectInfo) {
+            $data = [
+                'create_at' => $now,
+                'channel'   => $channel,
+                'status'    => C('STATUS_Y')
+            ];
+            $res = $collect->where($cond)->save($data);
+        } else {
+            $data = [
+                'comic_id'  => $comicId,
+                'openid'    => $openid,
+                'create_at' => $now,
+                'channel'   => $channel,
+                'status'    => C('STATUS_Y')
+            ];
+            $res = $collect->add($data);
+        }
 
         if ($res === false) {
             ajax_return(0, '收藏失败');
