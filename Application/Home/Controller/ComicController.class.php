@@ -109,7 +109,7 @@ class ComicController extends Controller {
     /**
      * 按发布类型获取漫画列表
      * 1.按sort倒叙
-     * 2.限制数量
+     * 2.限制数量yuanche
      * 3.只get类型下设置漫画的
      */
     public function get_comic_by_release(){
@@ -123,7 +123,7 @@ class ComicController extends Controller {
         $comic = M('comics');
         foreach ($data as $key => $value) {
             $cond_comic = [
-                'status' => C('STATUS_Y'),
+                'status' => array('neq', C('STATUS_N')), // 上架+未开放
                 'release_type_id' => $value['release_type_id']
             ];
             $comicList = $comic
@@ -148,7 +148,7 @@ class ComicController extends Controller {
      * @param type 漫画类型 -1：全部
      */
     public function get_comic_list(){
-        $cond['c.status'] = C('C_STATUS_U');
+        $cond['c.status'] = array('neq', C('STATUS_N'));
 
         // 发布类型
         $release = I('release');
@@ -165,7 +165,7 @@ class ComicController extends Controller {
         $data = M('comics')
             ->alias('c')
             ->join('__RELEASE_TYPE__ rt ON rt.id = c.release_type_id')
-            ->field('c.*,release_type_name')
+            ->field('c.*,c.id as comic_id,release_type_name')
             ->order('sort desc')
             ->where(array_filter($cond))
             ->select();
@@ -187,11 +187,16 @@ class ComicController extends Controller {
      * 获取漫画信息
      */
     public function get_comic_info(){
-        $cond['c.id'] = I('comic_id');
+        $comic = M('comics');
+        $comicId = I('comic_id');
+
         $cond = [
-            'c.id' => I('comic_id')
+            'c.id' => $comicId
         ];
-        $data = M('comics')
+
+        $comic->alias('c')->where($cond)->setInc('popularity',1); // 查看+1
+
+        $data = $comic
             ->alias('c')
             ->join('__COLLECT__ collect ON collect.comic_id = c.id', 'LEFT')
             ->join('__LIKES__ likes ON likes.comic_id = c.id', 'LEFT')
@@ -425,6 +430,7 @@ class ComicController extends Controller {
         if ($res === false) {
             ajax_return(0, '点赞失败');
         }
+
         ajax_return(1);
     }
 

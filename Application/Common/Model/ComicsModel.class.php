@@ -141,4 +141,9 @@ class ComicsModel extends BaseModel{
         }
     }
 
+    public function likeComic($comicId)
+    {
+
+    }
+
 }

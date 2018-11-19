@@ -20,6 +20,7 @@ let C_SPACE_D = 2; // 短篇
 
 let C_STATUS_U = 1; // 上架
 let C_STATUS_D = 2; // 下架
+let C_STATUS_N = 3; // 未开放
 
 let CHANNEL_G = 1; // 公众号
 let CHANNEL_X = 2; // 小程序

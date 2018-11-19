@@ -185,6 +185,7 @@
                         <div class="layui-input-block">
                             <input type="radio" name="status" value="{:C('C_STATUS_U')}" title="上架" checked>
                             <input type="radio" name="status" value="{:C('C_STATUS_D')}" title="下架">
+                            <input type="radio" name="status" value="{:C('C_STATUS_N')}" title="未开放">
                         </div>
                     </div>
                 </div>
@@ -222,6 +223,7 @@
                         s_fee: $('.search-fee').val(),
                         s_target: $('.search-target').val(),
                         s_space: $('.search-space').val(),
+                        status: $('.search-status').val()
                     };
                     $.ajax({
                         type: "POST",
@@ -258,7 +260,22 @@
                             var sFee = full.s_fee == C_FEE_Y ? '<span class="layui-badge layui-bg-orange">收费</span> ' : '<span class="layui-badge layui-bg-orange">免费</span> ';
                             var sTarget = full.s_target == C_TARGET_M ? '<span class="layui-badge layui-bg-blue">男频</span> ' : '<span class="layui-badge layui-bg-blue">女频</span> ';
                             var sSpace = full.s_space == C_SPACE_C ? '<span class="layui-badge layui-bg-cyan">长篇</span> ' : '<span class="layui-badge layui-bg-cyan">短篇</span> ';
-                            var sStatus = full.status == C_STATUS_U ? '<span class="layui-badge layui-bg-green">上架</span> ' : '<span class="layui-badge layui-bg-green>下架</span>';
+                            var sStatus = '';
+
+                            switch (Number(full.status)) {
+                                case C_STATUS_U:
+                                    sStatus = '<span class="layui-badge layui-bg-green">上架</span>';
+                                    break;
+                                case C_STATUS_D:
+                                    sStatus = '<span class="layui-badge layui-bg-green">下架</span>';
+                                    break;
+                                case C_STATUS_N:
+                                    sStatus = '<span class="layui-badge layui-bg-green">未开放</span>';
+                                    break;
+                                default:
+                                    break;
+                            }
+
                             return sSerial + sFee + sTarget + sSpace + sStatus;
                         }
                     },
@@ -283,6 +300,7 @@
                     advancedHtml += '<div class="layui-inline"><select class="search-fee"> <option value="">是否收费</option> <option value="'+C_FEE_Y+'">收费</option><option value="'+C_FEE_N+'">免费</option> </select></div> ';
                     advancedHtml += '<div class="layui-inline"><select class="search-target"> <option value="">面向群体</option> <option value="'+C_TARGET_M+'">男频</option><option value="'+C_TARGET_F+'">女频</option> </select></div> ';
                     advancedHtml += '<div class="layui-inline"><select class="search-space"> <option value="">篇幅</option> <option value="'+C_SPACE_C+'">长篇</option><option value="'+C_SPACE_D+'">短篇</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-status"> <option value="">状态</option> <option value="'+C_STATUS_U+'">上架</option><option value="'+C_STATUS_D+'">下架</option><option value="'+C_STATUS_N+'">未开放</option> </select></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 

@@ -41,6 +41,7 @@ return array(
 
     'C_STATUS_U' => 1, // 上架
     'C_STATUS_D' => 2, // 下架
+    'C_STATUS_N' => 3, // 未开放
 
     'CHANNEL_G' => 1, // 公众号
     'CHANNEL_X' => 2, // 小程序

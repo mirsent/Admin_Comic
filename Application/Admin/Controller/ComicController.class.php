@@ -122,9 +122,8 @@ class ComicController extends AdminBaseController{
      */
     public function get_comic_info(){
         $ms = D('Comics');
-        $cond['c.status'] = C('C_STATUS_U');
 
-        $recordsTotal = $ms->alias('c')->where($cond)->count();
+        $recordsTotal = $ms->count();
 
         // 搜索
         $search = I('search');
@@ -142,6 +141,7 @@ class ComicController extends AdminBaseController{
         $cond['s_fee'] = I('s_fee');
         $cond['s_target'] = I('s_target');
         $cond['s_space'] = I('s_space');
+        $cond['c.status'] = I('status');
 
         $recordsFiltered = $ms->getComicNumber($cond);
 
