@@ -61,6 +61,8 @@ class ReaderController extends AdminBaseController{
         ), JSON_UNESCAPED_UNICODE);
     }
 
+
+
     /**
      * 获取阅读历史信息
      */
@@ -117,6 +119,8 @@ class ReaderController extends AdminBaseController{
             "data" => $infos
         ), JSON_UNESCAPED_UNICODE);
     }
+
+
 
     /**
      * 获取点赞信息
@@ -176,8 +180,10 @@ class ReaderController extends AdminBaseController{
         ), JSON_UNESCAPED_UNICODE);
     }
 
+
+
     /**
-     * 获取点赞信息
+     * 获取积分信息
      */
     public function get_integral_info()
     {
@@ -209,7 +215,8 @@ class ReaderController extends AdminBaseController{
                 case 0: $ms->order('nickname '.$orderDir); break;
                 case 1: $ms->order('content '.$orderDir); break;
                 case 2: $ms->order('method '.$orderDir); break;
-                case 3: $ms->order('create_at '.$orderDir); break;
+                case 3: $ms->order('points '.$orderDir); break;
+                case 4: $ms->order('create_at '.$orderDir); break;
                 default: break;
             }
         } else {

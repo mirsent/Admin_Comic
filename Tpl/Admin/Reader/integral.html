@@ -12,6 +12,7 @@
                         <th>读者昵称</th>
                         <th>积分详情</th>
                         <th>渠道</th>
+                        <th>积分变动</th>
                         <th>变动时间</th>
                     </tr>
                 </thead>
@@ -52,7 +53,26 @@
                 columns: [
                     { "data": "nickname" },
                     { "data": "content" },
-                    { "data": "method" },
+                    {
+                        "data": "method",
+                        "render": function(data){
+                            if (data == ORDER_R) {
+                                return '<span class="text-success">充值</span>'
+                            } else {
+                                return '<span class="text-danger">消费</span>'
+                            }
+                        }
+                    },
+                    {
+                        "data": "points",
+                        "render": function(data,type,full){
+                            if (full.method == ORDER_R) {
+                                return '<span class="text-success">+'+data+'</span>';
+                            } else {
+                                return '<span class="text-danger">-'+data+'</span>'
+                            }
+                        }
+                    },
                     { "data": "create_at" },
                 ],
                 initComplete: function(settings, json) {
