@@ -22,7 +22,7 @@ class CommentModel extends BaseModel{
             ->alias('c')
             ->join('__COMICS__ comic ON comic.id = c.comic_id')
             ->join('__READER__ r ON r.id = c.reader_id')
-            ->field('c.*,comic.title as comic_name,comic.cover as comic_img,r.nickname as reader_name,r.head as reader_img')
+            ->field('c.*,comic.title as comic_title,comic.cover as comic_img,r.nickname,r.head as reader_img')
             ->where(array_filter($cond))
             ->select();
         return $data;

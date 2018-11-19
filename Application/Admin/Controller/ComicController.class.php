@@ -346,9 +346,9 @@ class ComicController extends AdminBaseController{
         // 搜索
         $search = I('search');
         if (strlen($search)>0) {
-            $cond['name|nickname|comment_content'] = array('like', '%'.$search.'%');
+            $cond['title|nickname|comment_content'] = array('like', '%'.$search.'%');
         }
-        $cond['name'] = I('name');
+        $cond['title'] = I('title');
         $cond['nickname'] = I('nickname');
         $searchDate = I('search_date');
         if ($searchDate) {
@@ -364,7 +364,7 @@ class ComicController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 1: $ms->order('name '.$orderDir); break;
+                case 1: $ms->order('title '.$orderDir); break;
                 case 3: $ms->order('nickname '.$orderDir); break;
                 case 4: $ms->order('comment_content '.$orderDir); break;
                 case 5: $ms->order('comment_time '.$orderDir); break;

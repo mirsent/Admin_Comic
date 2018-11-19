@@ -1,6 +1,6 @@
 <extend name="Public/base" />
 <block name="css">
-    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+
 </block>
 <block name="header">收藏 <small>管理</small></block>
 <block name="content">
@@ -23,7 +23,6 @@
     </div>
 </block>
 <block name="js">
-    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             oTable = $(".table").DataTable({
@@ -39,6 +38,7 @@
                         title: $('.search-comic').val(),
                         nickname: $('.search-reader').val(),
                         search_date: $('.search-date').val(),
+                        channel: $('.search-channel').val()
                     };
                     $.ajax({
                         type: "POST",
@@ -71,6 +71,7 @@
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="收藏日期" class="layui-input picker-date search-date" readonly></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-channel"> <option value="">途径</option> <option value="'+CHANNEL_G+'">公众号</option><option value="'+CHANNEL_X+'">小程序</option> </select></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 
@@ -82,76 +83,6 @@
                         laydate.render({elem: '.picker-date'})
                         form.render();
                     });
-                }
-            });
-        });
-
-        /************************* document ready end *****************************/
-
-        layui.use(['layer', 'form', 'laydate'], function() {
-            var layer = layui.layer,
-            form = layui.form;
-            laydate = layui.laydate;
-
-            // 新增
-            $('#add').on('click', function() {
-                layui_form('添加漫画信息', function(){
-                    var oFileInput = new FileInput();
-                    oFileInput.Init("uploadImg", "{:U('Upload/upload_img')}");
-                    $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
-                        var image_path = data.response.data;
-                        $('input[name="cover"]').val(image_path);
-                    });
-                    form.render();
-                }, '900px');
-                form.render();
-            });
-
-            // 编辑
-            $('#edit').on('click', function(){
-                getSelectedData(oTable, function(data){
-                    layui_form('编辑漫画信息', function(){
-                        dataToForm('actionForm', data);
-                        $('#uploadImg').fileinput({
-                            language: 'zh',
-                            uploadUrl: "{:U('Upload/upload_img')}",
-                            showUpload: false,
-                            showCaption: false,
-                            showRemove: false,
-                            uploadAsync: false,
-                            maxFileSize : 10240,
-                            maxFileCount: 10,
-                            overwriteInitial: true,
-                            allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
-                            browseClass: "btn btn-default btn-block",
-                            dropZoneEnabled: false,
-                            enctype: 'multipart/form-data',
-                            browseLabel: '上传图片',
-                            previewClass:'previewPanel',
-                            initialPreview: ['<img src="'+data['cover']+'" class="img-thumbnail">'],
-                            layoutTemplates:{
-                                actionUpload: ''
-                            }
-                        }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
-                            var image_path = data.response.data.image_path;
-                            $('input[name="cover"]').val(image_path);
-                        });
-                        form.render();
-                    }, '900px');
-                });
-            });
-
-            // 提交
-            form.on('submit(submit)', function(data) {
-                if ($('#uploadImg').val()) {
-                    $('#uploadImg').fileinput('upload')
-                    .on("filebatchuploadsuccess", function(event, data) {
-                        if(data.response.status){
-                            submit_form("{:U('Comic/input_comic')}");
-                        }
-                    });
-                } else {
-                    submit_form("{:U('Comic/input_comic')}");
                 }
             });
         });

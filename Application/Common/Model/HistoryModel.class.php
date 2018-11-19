@@ -2,6 +2,30 @@
 namespace Common\Model;
 use Common\Model\BaseModel;
 class HistoryModel extends BaseModel{
+
+    public function getHistoryNumber($cond=[])
+    {
+        $data = $this
+            ->alias('h')
+            ->join('__COMICS__ c ON c.id = h.comic_id')
+            ->join('__READER__ r ON r.openid = h.openid')
+            ->where(array_filter($cond))
+            ->count();
+        return $data;
+    }
+
+    public function getHistoryData($cond=[])
+    {
+        $data = $this
+            ->alias('h')
+            ->join('__COMICS__ c ON c.id = h.comic_id')
+            ->join('__READER__ r ON r.openid = h.openid')
+            ->field('h.*,c.title as comic_title,r.nickname')
+            ->where(array_filter($cond))
+            ->select();
+        return $data;
+    }
+
     /**
      * 更新阅读历史
      * @param  int $comicId 漫画ID
