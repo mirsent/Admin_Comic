@@ -27,6 +27,27 @@ class HistoryModel extends BaseModel{
     }
 
     /**
+     * 获取指定读者历史记录
+     * @param  int $openid
+     */
+    public function getHistoryList($openid)
+    {
+        $cond['openid'] = $openid;
+        $data = $this
+            ->alias('h')
+            ->join('__COMICS__ c ON c.id = h.comic_id')
+            ->field('h.*,cover,title,brief,total_chapter')
+            ->where($cond)
+            ->select();
+
+        foreach ($data as $key => $value) {
+            $data[$key]['rate'] = intval($value['chapter'] / $value['total_chapter'] * 100);
+        }
+
+        return $data;
+    }
+
+    /**
      * 更新阅读历史
      * @param  int $comicId 漫画ID
      * @param  string $openid  读者openid

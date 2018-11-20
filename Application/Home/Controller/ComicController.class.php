@@ -189,20 +189,20 @@ class ComicController extends Controller {
     public function get_comic_info(){
         $comic = M('comics');
         $comicId = I('comic_id');
+        $openid = I('openid');
 
-        $cond = [
-            'c.id' => $comicId
+        $cond['id'] = $comicId;
+
+        $comic->where($cond)->setInc('popularity',1); // 查看+1
+        $data = $comic->where($cond)->field('*,id as comic_id')->find();
+
+        $cond_reader = [
+            'comic_id' => $comicId,
+            'openid'   => $openid
         ];
+        $data['is_collect'] = M('collect')->where($cond_reader)->getField('status');
+        $data['is_like'] = M('likes')->where($cond_reader)->getField('status');
 
-        $comic->alias('c')->where($cond)->setInc('popularity',1); // 查看+1
-
-        $data = $comic
-            ->alias('c')
-            ->join('__COLLECT__ collect ON collect.comic_id = c.id', 'LEFT')
-            ->join('__LIKES__ likes ON likes.comic_id = c.id', 'LEFT')
-            ->field('c.id as comic_id,cover,title,brief,type_ids,heat,popularity,total_chapter,s_serial,collect.status as is_collect,likes.status as is_like')
-            ->where($cond)
-            ->find();
         $cond_type = [
             'status' => C('STATUS_Y'),
             'id'     => array('in', $data['type_ids'])
@@ -385,6 +385,16 @@ class ComicController extends Controller {
         ajax_return(1, '章节封面', $data);
     }
 
+    /**
+     * 获取历史记录
+     * @param string openid
+     */
+    public function get_history_info()
+    {
+        $data = D('History')->getHistoryList(I('openid'));
+        ajax_return(1, '历史记录', $data);
+    }
+
 
 
     /**
@@ -397,11 +407,11 @@ class ComicController extends Controller {
      * @param openid 读者ID
      */
     public function like(){
-        $likes = M('likes');
+        $likes = D('Likes');
+        $likes->create();
+
         $comicId = I('comic_id');
         $openid = I('openid');
-        $channel = I('channel');
-        $now = date('Y-m-d H:i:s');
 
         $cond = [
             'comic_id' => $comicId,
@@ -410,27 +420,16 @@ class ComicController extends Controller {
         $likesInfo = $likes->where($cond)->find();
 
         if ($likesInfo) {
-            $data = [
-                'channel'   => $channel,
-                'create_at' => $now,
-                'status'    => C('STATUS_Y')
-            ];
-            $res = $likes->where($cond)->save($data);
+            $likes->status = C('STATUS_Y');
+            $res = $likes->where($cond)->save();
         } else {
-            $data = [
-                'comic_id'  => $comicId,
-                'openid'    => $openid,
-                'channel'   => $channel,
-                'create_at' => date('Y-m-d H:i:s'),
-                'status'    => C('STATUS_Y')
-            ];
-            $res = $likes->add($data);
+            $res = $likes->add();
         }
 
         if ($res === false) {
             ajax_return(0, '点赞失败');
         }
-
+        D('Comics')->likeComic($comicId);
         ajax_return(1);
     }
 
@@ -460,11 +459,11 @@ class ComicController extends Controller {
      * @param openid 读者ID
      */
     public function collect(){
-        $collect = M('collect');
+        $collect = D('Collect');
+        $collect->create();
+
         $comicId = I('comic_id');
         $openid = I('openid');
-        $channel = I('channel');
-        $now = date('Y-m-d H:i:s');
 
         $cond = [
             'comic_id' => $comicId,
@@ -473,21 +472,10 @@ class ComicController extends Controller {
         $collectInfo = $collect->where($cond)->find();
 
         if ($collectInfo) {
-            $data = [
-                'create_at' => $now,
-                'channel'   => $channel,
-                'status'    => C('STATUS_Y')
-            ];
+            $collect->status = C('STATUS_Y');
             $res = $collect->where($cond)->save($data);
         } else {
-            $data = [
-                'comic_id'  => $comicId,
-                'openid'    => $openid,
-                'create_at' => $now,
-                'channel'   => $channel,
-                'status'    => C('STATUS_Y')
-            ];
-            $res = $collect->add($data);
+            $res = $collect->add();
         }
 
         if ($res === false) {

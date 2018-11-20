@@ -3,6 +3,11 @@ namespace Common\Model;
 use Common\Model\BaseModel;
 class LikesModel extends BaseModel{
 
+    protected $_auto=array(
+        array('status','get_default_status',1,'callback'),
+        array('create_at','get_datetime',1,'callback')
+    );
+
     public function getLikesNumber($cond=[])
     {
         $data = $this

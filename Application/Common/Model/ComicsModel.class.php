@@ -141,9 +141,30 @@ class ComicsModel extends BaseModel{
         }
     }
 
+    /**
+     * 点赞
+     * @param  int $comicId 漫画ID
+     */
     public function likeComic($comicId)
     {
+        $cond['id'] = $comicId;
+        $res = $this
+            ->where($cond)
+            ->setInc('heat',1);
+        return $res;
+    }
 
+    /**
+     * 收藏
+     * @param  int $comicId 漫画ID
+     */
+    public function collectComic($comicId)
+    {
+        $cond['id'] = $comicId;
+        $res = $this
+            ->where($cond)
+            ->setInc('collection',1);
+        return $res;
     }
 
 }
