@@ -4,6 +4,114 @@ use Think\Controller;
 class ComicController extends Controller {
 
     /**
+     * 阅读
+     * 1.章节信息（图片）
+     * 2.分享相关（标题、封面、章节）
+     * 3.更新阅读历史
+     * 4.显示标题信息
+     */
+    public function reading(){
+        $comicId = I('comic_id');
+        $openid = I('openid');
+        $chapter = I('chapter');
+        $channel = I('channel');
+
+        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
+
+        $data['share_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 分享封面
+
+        $data['imgs'] = D('Comics')->getComicDetail($comicId, $chapter);
+
+        $data['chapter_title'] = '第'.$chapter.'章' ;
+
+        ajax_return(1, '阅读漫画', $data);
+    }
+
+    /**
+     * 验证阅读权限
+     * @return -1 付费 或 分享
+     * @return -2 付费
+     */
+    public function check_auth(){
+        $comic = D('Comics');
+
+        $comicId = I('comic_id');
+        $openid = I('openid');
+        $chapter = I('chapter');
+
+        $res = $comic->checkCost($comicId, $chapter, $openid);
+
+        $data['need_pay'] = $comic->getFieldById($comicId, 'pre_chapter_pay');
+        $data['need_share'] = $comic->getNeedShare($comicId, $chapter, $openid);
+
+        if ($res['status'] == '-1') {
+            ajax_return('-1', '付费、分享', $data);
+        }
+        if ($res['status'] == '-2') {
+            ajax_return('-2', '付费', $data);
+        }
+
+        ajax_return(1);
+    }
+
+    /**
+     * 获取解锁限制
+     * @param comic_id
+     * @param chapter
+     * @param openid
+     */
+    public function get_auth_info()
+    {
+        $comic = D('Comics');
+        $data = $comic->getComicInfo(I('comic_id'));
+        $data['need_share'] = $comic->getNeedShare(I('comic_id'), I('chapter'), I('openid'));
+        ajax_return(1, '解锁限制', $data);
+    }
+
+    /**
+     * 转发解锁次数
+     */
+    public function share_help()
+    {
+        $help = M('share_help');
+
+        $comicId = I('comic_id');
+        $chapter = I('chapter');
+        $openid = I('openid');
+
+        $cond = [
+            'comic_id' => $comicId,
+            'chapter'  => $chapter,
+            'openid'   => $openid
+        ];
+        $helpInfo = $help->where($cond)->find();
+
+        if ($helpInfo) {
+            $res = $help->where($cond)->setInc('times',1);
+        } else {
+            $data = [
+                'comic_id'   => $comicId,
+                'chapter'    => $chapter,
+                'openid'     => $openid,
+                'share_time' => date('Y-m-d H:i:s'),
+                'times'      => 1
+            ];
+            $res = $help->add($data);
+        }
+
+        if ($res === false) {
+            ajax_return(0, '分享解锁失败');
+        }
+        ajax_return(1);
+    }
+
+
+
+
+
+
+
+    /**
      * 登录
      */
 
@@ -172,6 +280,7 @@ class ComicController extends Controller {
 
         $type = M('comic_type');
         foreach ($data as $key => $value) {
+            $data[$key]['brief'] = strip_tags(htmlspecialchars_decode($value['brief'])); // 去掉html标记
             $cond_type = [
                 'status' => C('STATUS_Y'),
                 'id'     => array('in', $value['type_ids'])
@@ -195,6 +304,7 @@ class ComicController extends Controller {
 
         $comic->where($cond)->setInc('popularity',1); // 查看+1
         $data = $comic->where($cond)->field('*,id as comic_id')->find();
+        $data['brief'] = htmlspecialchars_decode($data['brief']);
 
         $cond_reader = [
             'comic_id' => $comicId,
@@ -223,7 +333,7 @@ class ComicController extends Controller {
      */
     public function get_comic_chapter(){
         $cond_comic['id'] = I('comic_id');
-        $comicInfo = M('comics')->where($cond)->find();
+        $comicInfo = M('comics')->where($cond_comic)->find();
         $freeChapter = $comicInfo['free_chapter'];
 
         $cond = [
@@ -233,6 +343,7 @@ class ComicController extends Controller {
         $data = M('chapter')
             ->where($cond)
             ->select();
+
         foreach ($data as $key => $value) {
             $chapterTitle = $value['chapter_title'] ? ' '.$value['chapter_title'] : '';
             $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;
@@ -268,82 +379,10 @@ class ComicController extends Controller {
         ajax_return(1, '章节', $chapter);
     }
 
-    /**
-     * 验证阅读权限
-     * @return -1 限制阅读
-     */
-    public function check_auth(){
-        $comic = D('Comics');
-
-        $comicId = I('comic_id');
-        $openid = I('openid');
-        $chapter = I('chapter');
-
-        $res = $comic->checkCost($comicId, $chapter, $openid);
-
-        if ($res['status'] == '-1') {
-            // 限制阅读
-            $comicInfo = $comic->getComicInfo($comicId); // 漫画信息 => 显示需要分享几名好友
-            $comicInfo['chapter_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 章节封面
-            $comicInfo['need_share'] = $res['data']['need_share']; // 需要分享数
-
-            ajax_return('-1', '限制阅读', $comicInfo);
-        }
-        ajax_return(1);
-    }
-
-    /**
-     * 分享帮助
-     */
-    public function share_help()
-    {
-        $help = M('share_help');
-        $comicId = I('comic_id');
-        $chapter = I('chapter');
-        $openid = I('openid');
-
-        $cond = [
-            'comic_id' => $comicId,
-            'chapter'  => $chapter,
-            'openid'   => $openid
-        ];
-        $helpInfo = $help->where($cond)->find();
-
-        if ($helpInfo) {
-            $res = $help->where($cond)->setInc('times',1);
-        } else {
-            $data = [
-                'comic_id' => $comicId,
-                'chapter'  => $chapter,
-                'openid'   => $openid,
-                'times'    => 1
-            ];
-            $res = $help->add($data);
-        }
-
-        if ($res === false) {
-            ajax_return(0, '分享帮助失败');
-        }
-        ajax_return(1);
-    }
 
 
-    /**
-     * 阅读
-     */
-    public function reading(){
-        $comicId = I('comic_id');
-        $openid = I('openid');
-        $chapter = I('chapter');
-        $channel = I('channel');
 
-        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
 
-        $data['comics'] = D('Comics')->getComicDetail($comicId, $chapter);
-        $data['chapter_title'] = '第'.$chapter.'章' ;
-
-        ajax_return(1, '漫画阅读', $data);
-    }
 
     /**
      * 下一章

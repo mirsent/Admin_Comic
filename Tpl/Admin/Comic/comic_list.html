@@ -1,6 +1,12 @@
 <extend name="Public/base" />
 <block name="css">
     <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+    <link rel="stylesheet" href="__STATICS__/summernote/summernote.css">
+    <style type="text/css">
+        .fee-show{
+            display: none;
+        }
+    </style>
 </block>
 <block name="header">漫画 <small>管理</small></block>
 <block name="content">
@@ -55,7 +61,14 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">简介</label>
                         <div class="layui-input-block">
-                            <textarea name="brief" placeholder="请输入简介" class="layui-textarea"></textarea>
+                            <textarea name="brief" placeholder="请输入简介" class="layui-textarea" id="summernote"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">费用</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="s_fee" value="{:C('C_FEE_Y')}" title="收费" lay-filter="fee">
+                            <input type="radio" name="s_fee" value="{:C('C_FEE_N')}" title="免费" lay-filter="fee" checked>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -64,19 +77,19 @@
                             <input type="number" name="total_chapter" placeholder="请输入总章节" autocomplete="off" lay-verify="required" class="layui-input">
                         </div>
                     </div>
-                    <div class="layui-form-item">
+                    <div class="layui-form-item fee-show">
                         <label class="layui-form-label">免费章节</label>
                         <div class="layui-input-block">
-                            <input type="number" name="free_chapter" placeholder="请输入免费章节" autocomplete="off" lay-verify="required" class="layui-input">
+                            <input type="number" name="free_chapter" placeholder="请输入免费章节" autocomplete="off" class="layui-input">
                         </div>
                     </div>
-                    <div class="layui-form-item">
+                    <div class="layui-form-item fee-show">
                         <label class="layui-form-label">章节费用</label>
                         <div class="layui-input-block">
-                            <input type="number" name="pre_chapter_pay" placeholder="请输入章节费用" autocomplete="off" lay-verify="required" class="layui-input">
+                            <input type="number" name="pre_chapter_pay" placeholder="请输入章节费用" autocomplete="off" class="layui-input">
                         </div>
                     </div>
-                    <div class="layui-form-item">
+                    <div class="layui-form-item fee-show">
                         <label class="layui-form-label">分享兑换</label>
                         <div class="layui-input-block">
                             <div class="layui-inline">
@@ -160,13 +173,6 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">费用</label>
-                        <div class="layui-input-block">
-                            <input type="radio" name="s_fee" value="{:C('C_FEE_Y')}" title="收费" checked>
-                            <input type="radio" name="s_fee" value="{:C('C_FEE_N')}" title="免费">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
                         <label class="layui-form-label">目标用户</label>
                         <div class="layui-input-block">
                             <input type="radio" name="s_target" value="{:C('C_TARGET_M')}" title="男频" checked>
@@ -203,6 +209,8 @@
 </block>
 <block name="js">
     <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script src="__STATICS__/summernote/summernote.min.js"></script>
+    <script src="__STATICS__/summernote/lang/summernote-zh-CN.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             oTable = $(".table").DataTable({
@@ -322,9 +330,21 @@
             form = layui.form;
             laydate = layui.laydate;
 
+            form.on('radio(fee)', function(data){
+                if (data.value == C_FEE_N) {
+                    // 免费
+                    $('.fee-show').hide();
+                } else {
+                    $('.fee-show').show();
+                }
+            });
+
             // 新增
             $('#add').on('click', function() {
                 layui_form('添加漫画信息', function(){
+                    $('#summernote').summernote({
+                        toolbar: []
+                    });
                     var oFileInput = new FileInput();
                     oFileInput.Init("uploadImg", "{:U('Upload/upload_img')}");
                     $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
@@ -340,7 +360,15 @@
             $('#edit').on('click', function(){
                 getSelectedData(oTable, function(data){
                     layui_form('编辑漫画信息', function(){
+                        if (data.s_fee == C_FEE_Y) {
+                            $('.fee-show').show();
+                        }
+
                         dataToForm('actionForm', data);
+
+                        $('#summernote').summernote({
+                            toolbar: []
+                        });
                         $('#uploadImg').fileinput({
                             language: 'zh',
                             uploadUrl: "{:U('Upload/upload_img')}",
@@ -396,7 +424,19 @@
                         },
                         dataType:"json",
                         success: function(res) {
-                            layui_detail('更新 '+data.title+' 目录', '__MODULE__/Chapter/chapter/comic_id/'+data.id, '700px');
+                            layer.open({
+                                type: 2,
+                                shade: 0.8,
+                                maxmin: true,
+                                anim: 5,
+                                shadeClose: true,
+                                title: '更新 '+data.title+' 目录',
+                                content: '__MODULE__/Chapter/chapter/comic_id/'+data.id,
+                                area: ['700px', '800px'],
+                                success: function(layero, index){
+                                    // layer.iframeAuto(index)
+                                }
+                            });
                         }
                     });
                 })
