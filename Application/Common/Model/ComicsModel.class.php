@@ -105,8 +105,13 @@ class ComicsModel extends BaseModel{
      * @param  int $comicId 漫画ID
      * @param  int $chapter 章节
      * @param  string $openid  字符串
-     * @return 1：免费 2：已购买 -1：未购买 -2：只能付费阅读
-     * @return need_share 还需要分享数
+     * @return 1：免费
+     *         2：已购买
+     *         3：已分享
+     *         -1：充值解锁 + 分享解锁
+     *         -2：充值解锁
+     *         -3：余额解锁 + 分享解锁
+     *         -4：余额解锁
      */
     public function checkCost($comicId, $chapter, $openid){
         $comicInfo = $this->find($comicId);
@@ -114,12 +119,13 @@ class ComicsModel extends BaseModel{
         $freeChapter = $comicInfo['free_chapter'];
         $maxShareChapter = $comicInfo['max_share_chapter'];
         $preChapterShare = $comicInfo['pre_chapter_share'];
+        $preChapterPay = $comicInfo['pre_chapter_pay'];
 
         if ($isFree == C('C_FEE_N') || $chapter <= $freeChapter) {
-            // 免费章节
+            // 1.免费章节
             return ['status'=>1];
         } else {
-            // 付费
+            // 是否付费
             $cond_consume = [
                 'comic_id' => $comicId,
                 'openid'   => $openid,
@@ -128,33 +134,47 @@ class ComicsModel extends BaseModel{
             ];
             $consumeInfo = M('consume_order')->where($cond_consume)->find();
 
+            // 2.已付费
+            if ($consumeInfo) {
+                return ['status'=>2];
+            }
+
+            // 判断余额
+            $readerInfo = M('reader')->where(['openid'=>$openid])->find();
+            $balance = $readerInfo['balance'];
+            if ($balance > $preChapterPay) {
+                $balancePay = 1;
+            } else {
+                $balancePay = 0;
+            }
+
             if ($chapter <= $maxShareChapter) { // 可以分享兑换
-                // 分享
+                // 是否分享
                 $cond_share = [
                     'comic_id' => $comicId,
                     'openid'   => $openid,
                     'chapter'  => $chapter,
                 ];
                 $shareTimes = M('share_help')->where($cond_share)->getField('times');
+                // 3. 已分享
                 if ($shareTimes >= $preChapterShare) {
-                    $isShare = 1;
+                    return ['status'=>3];
                 }
             } else {
-                // todo 只能付费
-                $cannotShare = 1;
+                // 4.余额解锁
+                if ($balancePay) {
+                    return ['status'=>'-4'];
+                }
+                // 5.充值解锁
+                return ['status'=>'-2'];
             }
 
-            if ($consumeInfo || $isShare) {
-                // 已购买/已分享
-                return ['status'=>2];
-            } else {
-                // 未购买
-                if ($cannotShare) {
-                    return ['status'=>'-2'];
-                } else {
-                    return ['status'=>'-1'];
-                }
+            // 6.余额解锁 + 分享解锁
+            if ($balancePay) {
+                return ['status'=>'-3'];
             }
+            // 7.充值解锁 + 分享解锁
+            return ['status'=>'-1'];
         }
     }
 

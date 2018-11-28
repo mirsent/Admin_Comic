@@ -18,6 +18,9 @@ return array(
 
     'FILTER_TEXT' => '我爱iman',
 
+    'ORDER_R' => 1, // 充值订单
+    'ORDER_C' => 2, // 消费订单
+
     /*状态*/
     'STATUS_N' => 0, // 删除状态
     'STATUS_Y' => 1, // 正常状态

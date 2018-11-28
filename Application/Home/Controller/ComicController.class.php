@@ -33,8 +33,8 @@ class ComicController extends Controller {
 
     /**
      * 验证阅读权限
-     * @return -1 付费 或 分享
-     * @return -2 付费
+     * @return -1 充值 或 分享
+     * @return -2 充值
      */
     public function check_auth(){
         $comic = D('Comics');
@@ -48,14 +48,7 @@ class ComicController extends Controller {
         $data['need_pay'] = $comic->getFieldById($comicId, 'pre_chapter_pay');
         $data['need_share'] = $comic->getNeedShare($comicId, $chapter, $openid);
 
-        if ($res['status'] == '-1') {
-            ajax_return('-1', '付费、分享', $data);
-        }
-        if ($res['status'] == '-2') {
-            ajax_return('-2', '付费', $data);
-        }
-
-        ajax_return(1);
+        ajax_return($res['status'], '-1：充值分享-2：充值-3：余额分享-4：余额', $data);
     }
 
     /**
@@ -110,6 +103,52 @@ class ComicController extends Controller {
     }
 
     /**
+     * 解锁
+     * @param comic_id 漫画ID
+     * @param chapter 章节
+     * @param openid 读者openid
+     * @param channel 渠道
+     * 1.生成订单
+     * 2.更新读者余额
+     * 3.更新积分详情
+     */
+    public function unlock()
+    {
+        $openid = I('openid');
+
+        // 1.生成订单
+        $consume = D('ConsumeOrder');
+        $consume->create();
+        $consume->order_number = generateOrderNo(C('ORDER_C'));
+
+        $comicInfo = M('comics')->find(I('comic_id'));
+        $needPay = $comicInfo['pre_chapter_pay'];
+        $consume->consumption = $needPay;
+
+        $res = $consume->add();
+
+        if ($res === false) {
+            ajax_return(0, '解锁失败');
+        }
+
+        // 2.更新读者余额
+        $cond_reader['openid'] = $openid;
+        M('reader')->where($cond_reader)->setDec('balance', $needPay);
+
+        // 3.更新积分详情
+        $data_integral = [
+            'openid'    => $openid,
+            'content'   => '解锁漫画'.$comicInfo['title'].'第'.I('chapter').'章',
+            'method'    => 2,
+            'points'    => $needPay,
+            'create_at' => date('Y-m-d H:i:s')
+        ];
+        M('integral')->add($data_integral);
+
+        ajax_return(1);
+    }
+
+    /**
      * 评论列表
      * @param comic_id 漫画ID
      */
@@ -149,6 +188,16 @@ class ComicController extends Controller {
             ajax_return(0, '评论失败');
         }
         ajax_return(1);
+    }
+
+    /**
+     * 获取读者信息
+     */
+    public function get_reader()
+    {
+        $cond['openid'] = I('openid');
+        $data = M('reader')->where($cond)->find();
+        ajax_return(1, '读者信息', $data);
     }
 
 
