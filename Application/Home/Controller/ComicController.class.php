@@ -1,6 +1,10 @@
 <?php
 namespace Home\Controller;
 use Think\Controller;
+
+require './vendor/autoload.php';
+use DfaFilter\SensitiveHelper;
+
 class ComicController extends Controller {
 
     /**
@@ -105,7 +109,47 @@ class ComicController extends Controller {
         ajax_return(1);
     }
 
+    /**
+     * 评论列表
+     * @param comic_id 漫画ID
+     */
+    public function get_comment()
+    {
+        $comicId = I('comic_id');
+        $data = D('Comment')->getCommentInfo($comicId);
+        ajax_return(1, '评论列表', $data);
+    }
 
+    /**
+     * 评论
+     * @param comic_id 漫画Id
+     * @param openid
+     * @param comment_content 评论内容
+     */
+    public function comment()
+    {
+        $comment = D('Comment');
+        $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/tests/data/words.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换为***为例
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+        $res = $comment->add();
+
+        if ($res === false) {
+            ajax_return(0, '评论失败');
+        }
+        ajax_return(1);
+    }
 
 
 

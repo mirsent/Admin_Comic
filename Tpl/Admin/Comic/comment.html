@@ -74,7 +74,7 @@
                     { "data": "comment_content" },
                     { "data": "comment_time" },
                     {
-                        "data": "s_show",
+                        "data": "status",
                         "class": "text-center",
                         "render": function(data,type,full){
                             if (data == STATUS_Y) {
@@ -107,11 +107,11 @@
                         laydate.render({elem: '.picker-date'})
                         form.on('switch(s-show)', function(data){
                             var obj = getCurRowData(oTable, this);
-                            var isShow;
+                            var status;
                             if (data.elem.checked) {
-                                isShow = STATUS_Y;
+                                status = STATUS_Y;
                             } else {
-                                isShow = STATUS_B;
+                                status = STATUS_B;
                             }
 
                             $.ajax({
@@ -119,7 +119,7 @@
                                 url: "{:U('Comic/set_comment')}",
                                 data: {
                                     id: obj.id,
-                                    s_show: isShow
+                                    status: status
                                 },
                                 dataType:"json",
                                 success: function(result) {

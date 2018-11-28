@@ -375,7 +375,7 @@ class ComicController extends AdminBaseController{
                 default: break;
             }
         } else {
-            $ms->order('comment_time');
+            $ms->order('comment_time desc');
         }
 
         // 分页
@@ -398,7 +398,7 @@ class ComicController extends AdminBaseController{
      */
     public function set_comment(){
         $cond['id'] = I('id');
-        $data['s_show'] = I('s_show');
+        $data['status'] = I('status');
         $res = M('comment')->where($cond)->save($data);
 
         if ($res === false) {
