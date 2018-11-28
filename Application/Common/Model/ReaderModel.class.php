@@ -7,6 +7,14 @@ class ReaderModel extends BaseModel{
         array('status','get_default_status',1,'callback')
     );
 
+    public function getReaderNumber($cond){
+        $data = $this
+            ->alis('r')
+            ->where(array_filter($cond))
+            ->count();
+        return $data;
+    }
+
     public function getReaderData($cond){
         $data = $this
             ->alis('r')

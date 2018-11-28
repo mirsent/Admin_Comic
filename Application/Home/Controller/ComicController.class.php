@@ -33,8 +33,13 @@ class ComicController extends Controller {
 
     /**
      * 验证阅读权限
-     * @return -1 充值 或 分享
-     * @return -2 充值
+     * @return 1：免费
+     *         2：已购买
+     *         3：已分享
+     *         -1：充值解锁 + 分享解锁
+     *         -2：充值解锁
+     *         -3：余额解锁 + 分享解锁
+     *         -4：余额解锁
      */
     public function check_auth(){
         $comic = D('Comics');
@@ -48,7 +53,7 @@ class ComicController extends Controller {
         $data['need_pay'] = $comic->getFieldById($comicId, 'pre_chapter_pay');
         $data['need_share'] = $comic->getNeedShare($comicId, $chapter, $openid);
 
-        ajax_return($res['status'], '-1：充值分享-2：充值-3：余额分享-4：余额', $data);
+        ajax_return($res['status'], '1：免费2：已购买3：已分享-1：充值分享-2：充值-3：余额分享-4：余额', $data);
     }
 
     /**
@@ -138,7 +143,7 @@ class ComicController extends Controller {
         // 3.更新积分详情
         $data_integral = [
             'openid'    => $openid,
-            'content'   => '解锁漫画'.$comicInfo['title'].'第'.I('chapter').'章',
+            'content'   => '解锁漫画《'.$comicInfo['title'].'》第'.I('chapter').'章',
             'method'    => 2,
             'points'    => $needPay,
             'create_at' => date('Y-m-d H:i:s')
@@ -228,12 +233,9 @@ class ComicController extends Controller {
         ];
         $readerInfo = $reader
             ->where($cond_reader)
-            ->field('openid,proxy_id,nickname,head,balance,own')
             ->find();
 
-        if ($readerInfo) {
-            $json = array_merge($json,$readerInfo);
-        } else {
+        if (!$readerInfo) {
             $now = date('Y-m-d H:i:s');
             $data_reader = [
                 'openid'          => $openid,
@@ -243,7 +245,10 @@ class ComicController extends Controller {
                 'updated_at'      => $now,
             ];
             $res = $reader->add($data_reader);
+            $readerInfo = $reader->find($res);
         }
+
+        $json = array_merge($json,$readerInfo);
 
         ajax_return(1, '凭证校验', $json);
     }
