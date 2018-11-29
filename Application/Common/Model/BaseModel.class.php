@@ -15,6 +15,12 @@ class BaseModel extends Model{
     public function get_datetime(){
         return date('Y-m-d H:i:s');
     }
+    public function get_date(){
+        return date('Y-m-d');
+    }
+    public function get_month(){
+        return date('Y-m');
+    }
 
     /**
      * 修改数据
