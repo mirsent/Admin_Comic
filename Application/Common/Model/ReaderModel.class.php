@@ -23,4 +23,34 @@ class ReaderModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 指定日期新增用户
+     */
+    public function getNewReaderNumber($date)
+    {
+        $cond = [
+            'status' => C('STATUS_Y'),
+            'registered_date' => $date
+        ];
+        $data = $this
+            ->where($cond)
+            ->count();
+        return $data;
+    }
+
+    /**
+     * 截止指定日期全部用户
+     */
+    public function getAllReaderNumber($date)
+    {
+        $cond = [
+            'status' => C('STATUS_Y'),
+            'registered_date' => array('elt', $date)
+        ];
+        $data = $this
+            ->where($cond)
+            ->count();
+        return $data;
+    }
+
 }

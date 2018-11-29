@@ -4,31 +4,112 @@
         .content-wrapper{
             background: #FFF;
         }
-        .clock-item{
-            display: flex;
-            justify-content: center;
-        }
     </style>
 </block>
 <block name="header"></block>
 <block name="content">
-    <div class="clock-item">
-        <canvas id="clock2_" width="500px" height="500px"></canvas>
+    <div class="row">
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeD}</h3>
+                    <p>当日充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeM}</h3>
+                    <p>当月充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeA}</h3>
+                    <p>累计充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h4>当月汇总统计</h4>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>充值金额(元)</th>
+                        <th>付费人数</th>
+                        <th>付费笔数</th>
+                        <th>新增用户</th>
+                        <th>累计用户</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
     </div>
 </block>
 <block name="js">
-    <script src="__STATICS__/canvasclock/js/canvas_clock.js"></script>
     <script type="text/javascript">
-        var  clockd2_={
-            "indicate": true,
-            "dial1_color": "#666600",
-            "time_24h": true,
-            "timeoffset":0,
-            "date_add":3,
-            "date_add_color": "#999",
-        };
-        var c = document.getElementById('clock2_');
-        cns2_ = c.getContext('2d');
-        clock_digital(500,cns2_,clockd2_);
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                dom: "<'row'<'col-sm-6'l><'col-sm-6 search-item'>> t <'row'<'col-sm-6'i><'col-sm-6'p>>",
+                serverSide: false,
+                searching: true,
+                ajax: function(data, callback, settings) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Statistics/get_index_statistics')}",
+                        data: {
+                            'search_date': $('.search-date').val()
+                        },
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "date" },
+                    { "data": "recharge" },
+                    { "data": "consume_person" },
+                    { "data": "consume_number" },
+                    { "data": "reader_new" },
+                    { "data": "reader_all" },
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form">';
+                    advancedHtml += '<div class="layui-inline" style="width: 160px;"><input type="text" placeholder="查询日期" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date', range: true})
+                        form.render();
+                    });
+                }
+            });
+        });
     </script>
 </block>

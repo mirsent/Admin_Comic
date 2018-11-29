@@ -31,4 +31,24 @@ class ConsumeOrderModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 指定日期付费人数
+     */
+    public function caclConsumePerson($date)
+    {
+        $cond['consume_date'] = $date;
+        $data = $this->where($cond)->field('openid')->distinct(true)->select();
+        return count($data);
+    }
+
+    /**
+     * 指定日期付款笔数
+     */
+    public function caclConsumeNumber($date)
+    {
+        $cond['consume_date'] = $date;
+        $data = $this->where($cond)->count();
+        return $data;
+    }
+
 }

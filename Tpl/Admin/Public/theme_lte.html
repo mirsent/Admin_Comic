@@ -57,6 +57,7 @@
             <section class="sidebar">
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header text-center">您好</li>
+                    <li><a href="{:U('Index/index')}"><i class="fa fa-home"></i> <span>欢迎页</span></a></li>
                     <foreach name="nav_data" item="v">
                         <!-- <neq name="v.nav_mca" value="Admin/ShowNav/Total">hidden-xs</neq> -->
                         <li class="treeview <if condition="(MODULE_NAME.'/ShowNav/'.CONTROLLER_NAME) eq $v['nav_mca']">active</if>">

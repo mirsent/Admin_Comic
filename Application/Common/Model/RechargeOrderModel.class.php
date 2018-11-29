@@ -28,4 +28,14 @@ class RechargeOrderModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 计算充值金额
+     */
+    public function caclRechargeMoney($cond=[])
+    {
+        $cond['status'] = C('ORDER_S_P'); // 已支付
+        $data = $this->where($cond)->sum('money');
+        return $data ?: 0;
+    }
+
 }
