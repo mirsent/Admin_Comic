@@ -22,7 +22,7 @@ class StatisticsController extends AdminBaseController{
         }
 
         while ($date_s<=$date_e){
-            $date = date('Y-m-d',$date_s);
+            $date = date('Y-m-d',$date_e);
             $cond_recharge['recharge_date'] = $date;
 
             $data[] = [
@@ -33,7 +33,7 @@ class StatisticsController extends AdminBaseController{
                 'reader_new' => $reader->getNewReaderNumber($date), // 新增用户
                 'reader_all' => $reader->getAllReaderNumber($date), // 累计用户
             ];
-            $date_s = strtotime('+1 day',$date_s);
+            $date_e = strtotime('-1 day',$date_e);
         }
 
         echo json_encode([

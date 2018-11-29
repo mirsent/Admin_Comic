@@ -239,6 +239,7 @@ class ComicController extends Controller {
             $now = date('Y-m-d H:i:s');
             $data_reader = [
                 'openid'          => $openid,
+                'registered_date' => date('Y-m-d'),
                 'registered_time' => $now,
                 'status'          => C('STATUS_Y'),
                 'created_at'      => $now,
