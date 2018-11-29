@@ -17,14 +17,12 @@ class ReaderController extends AdminBaseController{
         // 搜索
         $search = I('search');
         if (strlen($search)>0) {
-            $cond['title|nickname'] = array('like', '%'.$search.'%');
+            $cond['nickname'] = array('like', '%'.$search.'%');
         }
-        $cond['title'] = I('title');
         $cond['nickname'] = I('nickname');
-        $cond['channel'] = I('channel');
         $searchDate = I('search_date');
         if ($searchDate) {
-            $cond['create_at'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+            $cond['registered_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
         }
 
         $recordsFiltered = $ms->getReaderNumber($cond);
@@ -36,14 +34,14 @@ class ReaderController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 0: $ms->order('c.title '.$orderDir); break;
                 case 1: $ms->order('nickname '.$orderDir); break;
-                case 2: $ms->order('create_at '.$orderDir); break;
-                case 3: $ms->order('channel '.$orderDir); break;
+                case 2: $ms->order('amount '.$orderDir); break;
+                case 3: $ms->order('balance '.$orderDir); break;
+                case 4: $ms->order('registered_time '.$orderDir); break;
                 default: break;
             }
         } else {
-            $ms->order('create_at');
+            $ms->order('registered_time desc');
         }
 
         // 分页

@@ -9,7 +9,7 @@ class ReaderModel extends BaseModel{
 
     public function getReaderNumber($cond){
         $data = $this
-            ->alis('r')
+            ->alias('r')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -17,7 +17,7 @@ class ReaderModel extends BaseModel{
 
     public function getReaderData($cond){
         $data = $this
-            ->alis('r')
+            ->alias('r')
             ->where(array_filter($cond))
             ->select();
         return $data;

@@ -1,19 +1,19 @@
 <extend name="Public/base" />
 <block name="css">
-    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+
 </block>
-<block name="header">读者 <small>管理</small></block>
+<block name="header">充值记录 <small>管理</small></block>
 <block name="content">
     <div class="box box-primary">
         <div class="box-body">
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
-                        <th width="80">头像</th>
-                        <th>读者昵称</th>
-                        <th>总充值额</th>
-                        <th>余额</th>
-                        <th>注册时间</th>
+                        <th>日期</th>
+                        <th>读者</th>
+                        <th>充值金额(元)</th>
+                        <th>充值金币</th>
+                        <th>赠送金币</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,7 +24,6 @@
     </div>
 </block>
 <block name="js">
-    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             oTable = $(".table").DataTable({
@@ -37,13 +36,12 @@
                         order: data.order,
                         search: $('.fuzzy-search').val(),
 
-                        title: $('.search-comic').val(),
                         nickname: $('.search-reader').val(),
                         search_date: $('.search-date').val(),
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Reader/get_reader_info')}",
+                        url: "{:U('Orders/get_recharge_note')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -52,20 +50,16 @@
                     });
                 },
                 columns: [
-                    {
-                        "data": "head",
-                        "orderable": false,
-                        "render": DT.RENDER.HEAD
-                    },
+                    { "data": "recharge_date" },
                     { "data": "nickname" },
+                    { "data": "money" },
                     { "data": "amount" },
-                    { "data": "balance" },
-                    { "data": "registered_time" },
+                    { "data": "gift" },
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="注册日期" class="layui-input picker-date search-date" readonly></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="充值日期" class="layui-input picker-date search-date" readonly></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 
