@@ -226,4 +226,24 @@ class ComicsModel extends BaseModel{
         return $res;
     }
 
+    /**
+     * 获取漫画排行信息
+     */
+    public function getComicRank($cond)
+    {
+        $data = $this
+            ->field('id,title,created_at')
+            ->where(array_filter($cond))
+            ->select();
+
+        $consume = M('consume_order');
+        foreach ($data as $key => $value) {
+            $cond_consume['comic_id'] = $value['id'];
+            $data[$key]['number'] = $consume->where($cond_consume)->count();
+            $data[$key]['amount'] = $consume->where($cond_consume)->sum('consumption') ?: '0.00';
+        }
+
+        return $data;
+    }
+
 }

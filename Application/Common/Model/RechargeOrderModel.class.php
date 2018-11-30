@@ -38,7 +38,7 @@ class RechargeOrderModel extends BaseModel{
     {
         $cond['status'] = C('ORDER_S_P'); // 已支付
         $data = $this->where($cond)->sum('money');
-        return $data ?: 0;
+        return $data ?: '0.00';
     }
 
 }

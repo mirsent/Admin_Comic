@@ -1,0 +1,129 @@
+<extend name="Public/base" />
+<block name="css">
+    <style type="text/css">
+        .content-wrapper{
+            background: #FFF;
+        }
+    </style>
+</block>
+<block name="header"></block>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-4 col-xs-6">
+            <div class="info-box bg-yellow">
+                <span class="info-box-icon"><i class="fa fa-cny"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">今日充值</span>
+                    <span class="info-box-number">{$d.money}</span>
+
+                    <div class="progress">
+                        <div class="progress-bar" style="width: {$d.rate}%"></div>
+                    </div>
+                    <span class="progress-description">
+                        总订单：{$d.n_all}笔；已支付：{$d.n_pay}笔； 未支付：{$d.n_no}笔；
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="info-box bg-green">
+                <span class="info-box-icon"><i class="fa fa-cny"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">当月充值</span>
+                    <span class="info-box-number">{$m.money}</span>
+
+                    <div class="progress">
+                        <div class="progress-bar" style="width: {$m.rate}%"></div>
+                    </div>
+                    <span class="progress-description">
+                        总订单：{$m.n_all}笔；已支付：{$m.n_pay}笔； 未支付：{$m.n_no}笔；
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="info-box bg-aqua">
+                <span class="info-box-icon"><i class="fa fa-cny"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">累计充值</span>
+                    <span class="info-box-number">{$a.money}</span>
+
+                    <div class="progress">
+                        <div class="progress-bar" style="width: {$a.rate}%"></div>
+                    </div>
+                    <span class="progress-description">
+                        总订单：{$a.n_all}笔；已支付：{$a.n_pay}笔； 未支付：{$a.n_no}笔；
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h4>漫画消费排行</h4>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>漫画</th>
+                        <th>付费人数</th>
+                        <th>付费金币</th>
+                        <th>上架日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                dom: "<'row'<'col-sm-6'l><'col-sm-6 search-item'>> t <'row'<'col-sm-6'i><'col-sm-6'p>>",
+                serverSide: false,
+                searching: true,
+                order: [[2,'desc']],
+                ajax: function(data, callback, settings) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Statistics/get_comic_rank_info')}",
+                        data: {
+                            'title': $('.search-comic').val()
+                        },
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "title" },
+                    { "data": "number" },
+                    { "data": "amount" },
+                    { "data": "created_at" }
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form">';
+                    advancedHtml += '<div class="layui-inline" style="width: 160px;"><input type="text" placeholder="查询漫画" class="layui-input search-comic"></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        form.render();
+                    });
+                }
+            });
+        });
+    </script>
+</block>
