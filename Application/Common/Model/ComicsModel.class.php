@@ -239,8 +239,8 @@ class ComicsModel extends BaseModel{
         $consume = M('consume_order');
         foreach ($data as $key => $value) {
             $cond_consume['comic_id'] = $value['id'];
-            $data[$key]['number'] = $consume->where($cond_consume)->count();
-            $data[$key]['amount'] = $consume->where($cond_consume)->sum('consumption') ?: '0.00';
+            $data[$key]['number'] = $consume->where($cond_consume)->count(); // 付费人数
+            $data[$key]['amount'] = $consume->where($cond_consume)->sum('consumption') ?: '0.00'; // 付费金币
         }
 
         return $data;

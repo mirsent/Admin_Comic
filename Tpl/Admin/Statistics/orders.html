@@ -106,9 +106,18 @@
                 },
                 columns: [
                     { "data": "title" },
-                    { "data": "number" },
-                    { "data": "amount" },
-                    { "data": "created_at" }
+                    {
+                        "data": "number",
+                        "class": "text-right"
+                    },
+                    {
+                        "data": "amount",
+                        "class": "text-right"
+                    },
+                    {
+                        "data": "created_at",
+                        "class": "text-center"
+                    }
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form">';
