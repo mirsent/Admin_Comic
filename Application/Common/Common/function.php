@@ -95,11 +95,11 @@ function app_upload_image($path,$maxSize=52428800){
 
 /**
  * 生成订单号、卡券号 12位
- * @param $type 1,会员卡号；2：充值订单号；3：消费订单号；4：优惠券单号；
+ * @param $type 会员卡号\充值订单号\消费订单号\优惠券单号
  */
 function generateOrderNo($type){
-    $time = substr(time(),3);
-    $rand = rand_number(1111,9999);
+    $time = date('YmdHis');
+    $rand = rand_number(0,9);
     return $type.$time.$rand;
 }
 

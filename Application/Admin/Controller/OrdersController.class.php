@@ -37,13 +37,14 @@ class OrdersController extends AdminBaseController{
                 case 1: $ms->order('nickname '.$orderDir); break;
                 case 2: $ms->order('activity_content '.$orderDir); break;
                 case 3: $ms->order('money '.$orderDir); break;
-                case 4: $ms->order('recharge_time '.$orderDir); break;
-                case 5: $ms->order('channel '.$orderDir); break;
-                case 6: $ms->order('status '.$orderDir); break;
+                case 4: $ms->order('comic_id '.$orderDir.',chapter'); break;
+                case 5: $ms->order('recharge_time '.$orderDir); break;
+                case 6: $ms->order('channel '.$orderDir); break;
+                case 7: $ms->order('status '.$orderDir); break;
                 default: break;
             }
         } else {
-            $ms->order('recharge_time desc','status');
+            $ms->order('recharge_time desc,status');
         }
 
         // 分页

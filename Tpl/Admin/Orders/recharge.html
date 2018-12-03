@@ -13,6 +13,7 @@
                         <th>读者</th>
                         <th>活动内容</th>
                         <th>充值金额(元)</th>
+                        <th>充值章节</th>
                         <th>渠道</th>
                         <th>订单状态</th>
                         <th>充值时间</th>
@@ -58,6 +59,12 @@
                     { "data": "nickname" },
                     { "data": "activity_content" },
                     { "data": "money" },
+                    {
+                        "data": "title",
+                        "render": function(data,type,full){
+                            return data +' 第'+ full.chapter + ' 章';
+                        }
+                    },
                     { "data": "recharge_time" },
                     {
                         "data": "channel",

@@ -25,7 +25,8 @@ class RechargeOrderModel extends BaseModel{
         $data = $this
             ->alias('ro')
             ->join('__READER__ r ON r.openid = ro.openid')
-            ->field('ro.*,r.nickname')
+            ->join('__COMICS__ c ON c.id = ro.comic_id')
+            ->field('ro.*,r.nickname,title')
             ->where(array_filter($cond))
             ->select();
         return $data;

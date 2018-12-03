@@ -166,7 +166,7 @@ class ComicController extends AdminBaseController{
                 default: break;
             }
         } else {
-            $ms->order('sort desc', 'created_at');
+            $ms->order('sort desc,created_at');
         }
 
         // 分页
@@ -242,7 +242,7 @@ class ComicController extends AdminBaseController{
                 default: break;
             }
         } else {
-            $ms->order('sort desc', 'created_at');
+            $ms->order('sort desc,created_at');
         }
 
         // 分页
