@@ -1,15 +1,14 @@
 <?php
 namespace Common\Model;
 use Common\Model\BaseModel;
-/**
- * ModelName
- */
 class UserModel extends BaseModel{
 
     protected $_auto=array(
         array('user_psw','md5',1,'function'),
         array('user_psw','',2,'ignore'),
-        array('status','get_default_status',1,'callback')
+        array('status','get_default_status',1,'callback'),
+        array('created_at','get_datetime',1,'callback'),
+        array('updated_at','get_datetime',3,'callback')
     );
 
     /**

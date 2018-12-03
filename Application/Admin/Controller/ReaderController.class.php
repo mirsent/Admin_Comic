@@ -3,12 +3,25 @@ namespace Admin\Controller;
 use Common\Controller\AdminBaseController;
 class ReaderController extends AdminBaseController{
 
+    /**************************************** 读者列表 **************************************/
+
+    public function reader_list()
+    {
+        $this->display();
+    }
+
     /**
      * 获取读者信息
      */
     public function get_reader_info()
     {
         $ms = D('Reader');
+
+        // 权限
+        $admin = session(C('USER_AUTH_KEY'));
+        if ($admin['pid']) {
+
+        }
 
         $cond['r.status'] = C('STATUS_Y');
 
@@ -61,18 +74,53 @@ class ReaderController extends AdminBaseController{
 
     /**
      * 设置代理
+     * 1.更新reader状态
+     * 2.添加系统用户
+     * 3.添加代理组权限
      */
     public function set_proxy()
     {
-        $cond['id'] = I('id');
-        $data['is_proxy'] = 1;
-        $res = M('reader')->where($cond)->save($data);
+        $reader = M('reader');
+        $cond['id'] = I('reader_id');
+        $readerInfo = $reader->where($cond)->find();
 
-        if ($res === false) {
-            ajax_return(0, '设置代理失败');
+        if ($readerInfo['is_proxy'] == 1) {
+            ajax_return(1);
+        } else {
+            // 1.更新reader状态
+            $data['is_proxy'] = 1;
+            $res = $reader->where($cond)->save($data);
+
+            // 2.添加系统用户
+            $openid = I('openid');
+            $admin = session(C('USER_AUTH_KEY'));
+            $userId = $admin['id'];
+
+            $user = D('User');
+            $user->create();
+            $user->pid = $userId;
+            $user->user_name = substr($openid, '-5');
+            $user->user_psw = md5(C('USER_DEFAULT_PSW'));
+            $res_user = $user->add();
+
+            // 3.添加代理组权限
+            $data_access = [
+                'uid'      => $res_user,
+                'group_id' => C('GROUP_PROXY')
+            ];
+            M('auth_group_access')->add($data_access);
+
+            if ($res === false) {
+                ajax_return(0, '设置代理失败');
+            }
+            ajax_return(1);
         }
-        ajax_return(1);
     }
+
+
+
+
+    /**************************************** 收藏 **************************************/
 
     /**
      * 获取收藏信息
@@ -134,6 +182,9 @@ class ReaderController extends AdminBaseController{
 
 
 
+
+    /**************************************** 阅读历史 **************************************/
+
     /**
      * 获取阅读历史信息
      */
@@ -192,6 +243,9 @@ class ReaderController extends AdminBaseController{
     }
 
 
+
+
+    /**************************************** 点赞 **************************************/
 
     /**
      * 获取点赞信息
@@ -252,6 +306,9 @@ class ReaderController extends AdminBaseController{
     }
 
 
+
+
+    /**************************************** 积分详情 **************************************/
 
     /**
      * 获取积分信息

@@ -6,6 +6,8 @@ return array(
     /*认证相关*/
     'USER_AUTH_KEY'     => 'lte', // 用户认证SESSION标记
     'USER_AUTH_GATEWAY' => 'Public/login', // 默认认证网关
+    'USER_DEFAULT_PSW'  => '000000', // 默认密码
+    'GROUP_PROXY'       => 2, // 代理组
 
     'WX_CONFIG' => array(
         'APPID'      => 'wx4af7990f8faed2af',

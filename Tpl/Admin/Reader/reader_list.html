@@ -104,13 +104,13 @@
         // 设置代理
         $('#proxy').on('click', function() {
             getSelectedData(oTable, function(data){
-                console.log(data)
                 swal_action('确定设置'+data.nickname+'为代理吗？','',function(){
                     $.ajax({
                         type: "POST",
                         url: "{:U('Reader/set_proxy')}",
                         data: {
-                            'id': data.id
+                            'reader_id': data.id,
+                            'openid': data.openid
                         },
                         dataType:"json",
                         success: function(result) {
