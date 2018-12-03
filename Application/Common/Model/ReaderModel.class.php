@@ -4,7 +4,9 @@ use Common\Model\BaseModel;
 class ReaderModel extends BaseModel{
 
     protected $_auto=array(
-        array('status','get_default_status',1,'callback')
+        array('status','get_default_status',1,'callback'),
+        array('registered_date','get_date',1,'callback'),
+        array('registered_time','get_datetime',3,'callback'),
     );
 
     public function getReaderNumber($cond){

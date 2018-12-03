@@ -60,6 +60,21 @@ class ReaderController extends AdminBaseController{
     }
 
     /**
+     * 设置代理
+     */
+    public function set_proxy()
+    {
+        $cond['id'] = I('id');
+        $data['is_proxy'] = 1;
+        $res = M('reader')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '设置代理失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
      * 获取收藏信息
      */
     public function get_collect_info()

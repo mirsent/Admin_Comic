@@ -225,7 +225,7 @@ class ComicController extends Controller {
         $info = file_get_contents($url);
         $json = json_decode($info, true);
 
-        $reader = M('reader');
+        $reader = D('Reader');
         $openid = $json['openid'];
         $cond_reader = [
             'status' => C('STATUS_Y'),
@@ -236,16 +236,9 @@ class ComicController extends Controller {
             ->find();
 
         if (!$readerInfo) {
-            $now = date('Y-m-d H:i:s');
-            $data_reader = [
-                'openid'          => $openid,
-                'registered_date' => date('Y-m-d'),
-                'registered_time' => $now,
-                'status'          => C('STATUS_Y'),
-                'created_at'      => $now,
-                'updated_at'      => $now,
-            ];
-            $res = $reader->add($data_reader);
+            $reader->create();
+            $reader->openid = $openid;
+            $res = $reader->add();
             $readerInfo = $reader->find($res);
         }
 
