@@ -44,8 +44,8 @@ class ReaderController extends AdminBaseController{
 
         // 排序
         $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
+        $orderColumn = $orderObj['column'];
+        $orderDir = $orderObj['dir'];
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){

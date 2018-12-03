@@ -262,7 +262,7 @@ class ComicController extends Controller {
 
         $data = $reader
             ->where($cond)
-            ->field('openid,proxy_id,nickname,head,balance,own')
+            ->field('openid,proxy_openid,nickname,head,balance,own')
             ->find();
 
         if ($res === false) {
