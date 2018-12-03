@@ -7,6 +7,8 @@ class ReaderController extends AdminBaseController{
 
     public function reader_list()
     {
+        $admin = session(C('USER_AUTH_KEY'));
+        $this->assign(compact('admin'));
         $this->display();
     }
 
@@ -17,10 +19,10 @@ class ReaderController extends AdminBaseController{
     {
         $ms = D('Reader');
 
-        // 权限
+        // 代理登录
         $admin = session(C('USER_AUTH_KEY'));
         if ($admin['pid']) {
-
+            $cond['proxy_openid'] = $admin['openid'];
         }
 
         $cond['r.status'] = C('STATUS_Y');
