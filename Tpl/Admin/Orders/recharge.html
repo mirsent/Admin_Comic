@@ -65,7 +65,6 @@
                             return data +' 第'+ full.chapter + ' 章';
                         }
                     },
-                    { "data": "recharge_time" },
                     {
                         "data": "channel",
                         "class": "text-center",
@@ -81,7 +80,11 @@
                         "data": "status",
                         "class": "text-center",
                         "render": DT.RENDER.ORDER
-                    }
+                    },
+                    {
+                        "data": "recharge_time",
+                        "class": "text-center"
+                    },
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';

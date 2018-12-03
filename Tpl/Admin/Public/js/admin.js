@@ -93,7 +93,7 @@ var DT = {
         },
         IMG: function (data,type,full,meta) {
             if (data) {
-                return '<a href="'+data+'" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data+'"></a>';
+                return '<a href="'+data+'" class="img-box" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data+'"></a>';
             } else {
                 return '';
             }

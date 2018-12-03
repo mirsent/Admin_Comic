@@ -112,7 +112,8 @@ class ComicController extends AdminBaseController{
         $cond['status'] = C('STATUS_Y');
         $release_type = M('release_type')->where($cond)->select();
         $comic_type = M('comic_type')->where($cond)->select();
-        $assign = compact('release_type','comic_type');
+        $comic = M('comics')->where($cond)->field('id,title')->select();
+        $assign = compact('release_type','comic_type','comic');
         $this->assign($assign);
         $this->display();
     }
@@ -166,7 +167,7 @@ class ComicController extends AdminBaseController{
                 default: break;
             }
         } else {
-            $ms->order('sort desc,created_at');
+            $ms->order('sort desc,updated_at desc');
         }
 
         // 分页
@@ -182,6 +183,18 @@ class ComicController extends AdminBaseController{
             "recordsFiltered" => intval($recordsFiltered),
             "data" => $infos
         ), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 更新漫画
+     */
+    public function refresh_comic()
+    {
+        $comics = I('comic');
+        $cond['id'] = array('in', $comics);
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        M('comics')->where($cond)->save($data);
+        ajax_return(1);
     }
 
     /**

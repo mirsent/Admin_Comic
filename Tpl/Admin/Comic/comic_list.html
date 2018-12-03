@@ -3,6 +3,16 @@
     <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
     <link rel="stylesheet" href="__STATICS__/summernote/summernote.css">
     <style type="text/css">
+        .img-box{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+        }
+        .img-box img{
+            transform:
+        }
         .fee-show{
             display: none;
         }
@@ -14,13 +24,14 @@
         <div class="box-header with-border">
             <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
             <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="refresh"><i class="fa fa-refresh fa-fw"></i>更新</button>
         </div>
         <div class="box-body">
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
                         <th>编号</th>
-                        <th width="200">封面</th>
+                        <th width="180">封面</th>
                         <th>漫画名称</th>
                         <th>作者</th>
                         <th>发布类型</th>
@@ -29,8 +40,8 @@
                         <th>免费章节</th>
                         <th>章节费用</th>
                         <th>需分享数</th>
-                        <th>最大分享换取章节</th>
-                        <th>推广次数</th>
+                        <th>最大分享兑换章节</th>
+                        <!-- <th>推广次数</th> -->
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -206,6 +217,22 @@
             <input type="hidden" name="id">
         </form>
     </script>
+
+    <script type="text/html" id="refreshModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <foreach name="comic" item="vo" >
+                    <input type="checkbox" name="comic[ ]" value="{$vo.id}" title="{$vo.title}" lay-skin="primary">
+                </foreach>
+            </div>
+
+            <div class="layui-form-item">
+                <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="refreshSubmit">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
 </block>
 <block name="js">
     <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
@@ -251,15 +278,45 @@
                         "render": DT.RENDER.IMG
                     },
                     { "data": "title" },
-                    { "data": "author" },
+                    {
+                        "data": "author",
+                        "render": function(data){
+                            return data?data:'/';
+                        }
+                    },
                     { "data": "release_type_name" },
                     { "data": "type_names" },
-                    { "data": "total_chapter" },
-                    { "data": "free_chapter" },
-                    { "data": "pre_chapter_pay" },
-                    { "data": "pre_chapter_share" },
-                    { "data": "max_share_chapter" },
-                    { "data": "spread_times" },
+                    {
+                        "data": "total_chapter",
+                        "render": function(data){
+                            return '共'+data+'章';
+                        }
+                    },
+                    {
+                        "data": "free_chapter",
+                        "render": function(data){
+                            return '免费'+data+'章';
+                        }
+                    },
+                    {
+                        "data": "pre_chapter_pay",
+                        "render": function(data){
+                            return data == 0 ? '/' : '每章'+data+'金币';
+                        }
+                    },
+                    {
+                        "data": "pre_chapter_share",
+                        "render": function(data){
+                            return data == 0 ? '/' : '需分享'+data+'名好友';
+                        }
+                    },
+                    {
+                        "data": "max_share_chapter",
+                        "render": function(data){
+                            return data == 0 ? '/' : '可分享兑换到第'+data+'章';
+                        }
+                    },
+                    // { "data": "spread_times" },
                     {
                         "data": "status",
                         "orderable": false,
@@ -411,6 +468,16 @@
                 } else {
                     submit_form("{:U('Comic/input_comic')}");
                 }
+            });
+
+            // 更新漫画
+            $('#refresh').on('click', function(){
+                layui_form('更新漫画', function(){
+                    form.render();
+                },'500px','refreshModal')
+            })
+            form.on('submit(refreshSubmit)', function(data) {
+                submit_form("{:U('Comic/refresh_comic')}");
             });
 
             // 更新章节

@@ -373,7 +373,7 @@ class ComicController extends Controller {
             ->alias('c')
             ->join('__RELEASE_TYPE__ rt ON rt.id = c.release_type_id')
             ->field('c.*,c.id as comic_id,release_type_name')
-            ->order('sort desc')
+            ->order('sort desc,updated_at desc')
             ->where(array_filter($cond))
             ->select();
 
