@@ -53,21 +53,27 @@ class StatisticsController extends AdminBaseController{
         $cond_recharge_d['recharge_date'] = $today;
         $cond_recharge_m['recharge_month'] = $month;
 
+        // 代理登录
+        $admin = session(C('USER_AUTH_KEY'));
+        if ($admin['pid']) {
+            $cond_recharge_d['proxy_openid'] = $cond_recharge_m['proxy_openid'] = $cond_recharge_a['proxy_openid'] = $admin['openid'];
+        }
+
         // 充值金额
         $d['money'] = $recharge->caclRechargeMoney($cond_recharge_d);
         $m['money'] = $recharge->caclRechargeMoney($cond_recharge_m);
-        $a['money'] = $recharge->caclRechargeMoney();
+        $a['money'] = $recharge->caclRechargeMoney($cond_recharge_a);
 
         // 总订单
-        $d['n_all'] = $recharge->where($cond_recharge_d)->count();
-        $m['n_all'] = $recharge->where($cond_recharge_m)->count();
-        $a['n_all'] = $recharge->count();
+        $d['n_all'] = $recharge->getRechargeNumber($cond_recharge_d);
+        $m['n_all'] = $recharge->getRechargeNumber($cond_recharge_m);
+        $a['n_all'] = $recharge->getRechargeNumber($cond_recharge_a);
 
         // 已支付
-        $cond_pay['status'] = C('ORDER_S_P');
-        $d['n_pay'] = $recharge->where($cond_recharge_d)->where($cond_pay)->count();
-        $m['n_pay'] = $recharge->where($cond_recharge_m)->where($cond_pay)->count();
-        $a['n_pay'] = $recharge->where($cond_pay)->count();
+        $cond_recharge_d['ro.status'] = $cond_recharge_m['ro.status'] = $cond_recharge_a['ro.status'] = C('ORDER_S_P');
+        $d['n_pay'] = $recharge->getRechargeNumber($cond_recharge_d);
+        $m['n_pay'] = $recharge->getRechargeNumber($cond_recharge_m);
+        $a['n_pay'] = $recharge->getRechargeNumber($cond_recharge_a);
 
         // 未支付
         $d['n_no'] = $d['n_all'] - $d['n_pay'];

@@ -53,4 +53,17 @@ class ConsumeOrderModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 消费金额
+     */
+    public function caclConsumeMoney($cond=[])
+    {
+        $data = $this
+            ->alias('co')
+            ->join('__READER__ r ON r.openid = co.openid')
+            ->where($cond)
+            ->sum('consumption');
+        return $data?:'0.00';
+    }
+
 }

@@ -236,11 +236,18 @@ class ComicsModel extends BaseModel{
             ->where(array_filter($cond))
             ->select();
 
-        $consume = M('consume_order');
+        $consume = D('ConsumeOrder');
+
+        // 代理登录
+        $admin = session(C('USER_AUTH_KEY'));
+        if ($admin['pid']) {
+            $cond_consume['proxy_openid'] = $admin['openid'];
+        }
+
         foreach ($data as $key => $value) {
             $cond_consume['comic_id'] = $value['id'];
-            $data[$key]['number'] = $consume->where($cond_consume)->count(); // 付费人数
-            $data[$key]['amount'] = $consume->where($cond_consume)->sum('consumption') ?: '0.00'; // 付费金币
+            $data[$key]['number'] = $consume->getConsumeNumber($cond_consume); // 付费人数
+            $data[$key]['amount'] = $consume->caclConsumeMoney($cond_consume); // 付费金币
         }
 
         return $data;

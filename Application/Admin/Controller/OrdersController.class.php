@@ -9,7 +9,13 @@ class OrdersController extends AdminBaseController{
     {
         $ms = D('RechargeOrder');
 
-        $recordsTotal = $ms->count();
+        // 代理登录
+        $admin = session(C('USER_AUTH_KEY'));
+        if ($admin['pid']) {
+            $cond['proxy_openid'] = $admin['openid'];
+        }
+
+        $recordsTotal = $ms->getRechargeNumber($cond);
 
         // 搜索
         $search = I('search');
@@ -130,9 +136,15 @@ class OrdersController extends AdminBaseController{
     {
         $ms = D('ConsumeOrder');
 
+        // 代理登录
+        $admin = session(C('USER_AUTH_KEY'));
+        if ($admin['pid']) {
+            $cond['proxy_openid'] = $admin['openid'];
+        }
+
         $cond['co.status'] = C('STATUS_Y');
 
-        $recordsTotal = $ms->alias('co')->where($cond)->count();
+        $recordsTotal = $ms->getConsumeNumber($cond);
 
         // 搜索
         $search = I('search');
