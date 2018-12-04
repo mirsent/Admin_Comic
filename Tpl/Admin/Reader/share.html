@@ -1,0 +1,83 @@
+<extend name="Public/base" />
+<block name="css">
+
+</block>
+<block name="header">分享 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>漫画</th>
+                        <th>读者昵称</th>
+                        <th>分享时间</th>
+                        <th>分享次数</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        title: $('.search-comic').val(),
+                        nickname: $('.search-reader').val(),
+                        search_date: $('.search-date').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Reader/get_share_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    {
+                        "data": "title",
+                        "render": function(data,type,full){
+                            return data + ' 第' + full.chapter + '章';
+                        }
+                    },
+                    { "data": "nickname" },
+                    { "data": "share_time", "class": "text-center" },
+                    { "data": "times", "class": "text-right" },
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="分享日期" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.render();
+                    });
+                }
+            });
+        });
+    </script>
+</block>
