@@ -14,9 +14,9 @@ class UserModel extends BaseModel{
     /**
      * 根据条件获取用户列表
      */
-    public function getUserList($map){
+    public function getUserList($cond){
         $data = $this
-            ->where($map)
+            ->where($cond)
             ->select();
         return $data;
     }
@@ -24,12 +24,12 @@ class UserModel extends BaseModel{
     /**
      * 获取用户详细信息
      */
-    public function getUserInfo($map){
+    public function getUserInfo($cond){
         $data = $this
             ->alias('u')
             ->join('__AUTH_GROUP_ACCESS__ aga ON aga.uid = u.id','LEFT')
             ->field('u.*,aga.*')
-            ->where($map)
+            ->where($cond)
             ->select();
         return $data;
     }
@@ -37,9 +37,9 @@ class UserModel extends BaseModel{
     /**
      * 根据条件获取用户信息
      */
-    public function getUserData($map){
+    public function getUserData($cond){
         $data = $this
-            ->where($map)
+            ->where($cond)
             ->find();
         return $data;
     }

@@ -1,0 +1,58 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__STATICS__/treeview/bootstrap-treeview.min.css">
+    <style type="text/css">
+
+    </style>
+</block>
+<block name="header">关系 <small>架构</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="nickInput" placeholder="搜索 ...">
+                </div>
+                <button type="button" class="btn btn-default" id="search">Search</button>
+            </form>
+        </div>
+        <div class="box-body">
+            <div id="tree"></div>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script src="__STATICS__/treeview/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#tree').treeview({data: getTree()});
+        });
+
+        $('#search').on('click', function(){
+            var searchName = $('#nickInput').val();
+            if (searchName) {
+                $('#tree').treeview('search', [ searchName, {
+                    ignoreCase: true,
+                    exactMatch: false,
+                    revealResults: true,
+                }]);
+            }
+        })
+
+        function getTree() {
+            var tree;
+            $.ajax({
+                type: "POST",
+                url: "{:U('Distribution/get_distribution_tree')}",
+                async: false,
+                dateType: "json",
+                success: function(res){
+                    tree = res;
+                    console.log(tree)
+                }
+            })
+            console.log(tree)
+            return tree;
+        }
+</script>
+</block>

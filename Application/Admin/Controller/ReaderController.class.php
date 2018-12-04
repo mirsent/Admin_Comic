@@ -12,7 +12,7 @@ class ReaderController extends AdminBaseController{
         $this->display();
     }
 
-    /**
+    /**git pu
      * 获取读者信息
      */
     public function get_reader_info()
