@@ -9,28 +9,36 @@
     <link rel="shortcut icon" href="__IMG__/favicon.ico">
     <link rel="stylesheet" href="__BOWER__/bootstrap/dist/css/bootstrap.min.css">
     <link href="__ADMIN_CSS__/animate.css" rel="stylesheet">
+    <link href="__ADMIN_CSS__/util.css" rel="stylesheet">
     <link href="__ADMIN_CSS__/login.css" rel="stylesheet">
     <!--[if lt IE 9]>
     <meta http-equiv="refresh" content="0;ie.html" />
     <![endif]-->
 </head>
 
-<body class="signin">
-    <div class="signinpanel animated flipInX">
-        <div class="row">
-            <div class="col-sm-12">
-                <form id="loginform">
-                    <h4 class="no-margins">登录：</h4>
-                    <p class="m-t-md">欢迎登录{:C('title')}</p>
-                    <div class="v-group">
-                        <input type="text" name="user_name" class="form-control uname" placeholder="用户名" required>
+<body>
+    <div class="limiter">
+        <div class="container-login100">
+            <div class="wrap-login100 p-b-20">
+                <form class="login100-form validate-form" id="loginform">
+                    <span class="login100-form-title p-b-70">
+                        Welcome
+                    </span>
+
+                    <div class="wrap-input100 validate-input m-t-85 m-b-35" data-validate = "Enter username">
+                        <input class="input100 uname" type="text" name="user_name" required>
+                        <span class="focus-input100" data-placeholder="Username"></span>
                     </div>
-                    <div class="v-group">
-                        <input type="password" name="user_psw" class="form-control pword m-b" placeholder="密码" required>
+
+                    <div class="wrap-input100 validate-input m-b-50" data-validate="Enter password">
+                        <input class="input100 pword" type="password" name="user_psw" required>
+                        <span class="focus-input100" data-placeholder="Password"></span>
                     </div>
-                    <!-- <a href="{:U('Register/index')}" class="register">还没有帐号？点我注册！</a> -->
-                    <div class="v-group" style="margin-top: 20px;">
-                        <button id="loginBtn" class="btn btn-success btn-block">登录</button>
+
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn" id="loginBtn">
+                            Login
+                        </button>
                     </div>
                 </form>
             </div>
@@ -38,6 +46,7 @@
     </div>
     <script src="__BOWER__/jquery/dist/jquery.min.js"></script>
     <script src="__STATICS__/validate/jquery.validate.min.js"></script>
+    <script src="__ADMIN_JS__/login.js"></script>
     <script type="text/javascript">
         $(function(){
             //表单验证控件
