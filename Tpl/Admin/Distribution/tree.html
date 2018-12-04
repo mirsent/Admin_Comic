@@ -16,7 +16,7 @@
                 <button type="button" class="btn btn-default" id="search">Search</button>
             </form>
         </div>
-        <div class="box-body">
+        <div class ="box-body">
             <div id="tree"></div>
         </div>
     </div>
@@ -34,7 +34,7 @@
                 $('#tree').treeview('search', [ searchName, {
                     ignoreCase: true,
                     exactMatch: false,
-                    revealResults: true,
+                    revealResults: true
                 }]);
             }
         })
@@ -48,10 +48,8 @@
                 dateType: "json",
                 success: function(res){
                     tree = res;
-                    console.log(tree)
                 }
             })
-            console.log(tree)
             return tree;
         }
 </script>

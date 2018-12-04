@@ -42,4 +42,18 @@ class RechargeOrderModel extends BaseModel{
         return $data ?: '0.00';
     }
 
+    /**
+     * 计算代理充值金额
+     */
+    public function caclProxyRechargeMoney($cond=[])
+    {
+        $cond['ro.status'] = C('ORDER_S_P');
+        $data = $this
+            ->alias('ro')
+            ->join('__READER__ r ON r.openid = ro.openid')
+            ->where($cond)
+            ->sum('ro.money');
+        return $data ?: '0.00';
+    }
+
 }

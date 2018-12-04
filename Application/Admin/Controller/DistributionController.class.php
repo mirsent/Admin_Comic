@@ -52,4 +52,63 @@ class DistributionController extends AdminBaseController{
             return null;
         }
     }
+
+    /************************** 代理列表 ************************** */
+
+    public function distribution_list()
+    {
+        // 获取代理的读者
+        $cond = [
+            'proxy_openid' => array('exp', 'is not null'),
+            'status'       => C('STATUS_Y')
+        ];
+        $readers = M('reader')->where($cond)->getField('openid',true);
+
+        $today = date('Y-m-d');
+        $month = date('Y-m');
+
+        $recharge = D('RechargeOrder');
+        $cond_recharge_d = [
+            'recharge_date' => $today,
+            'openid'        => array('in',$readers)
+        ];
+        $cond_recharge_m = [
+            'recharge_month' => $month,
+            'openid'         => array('in',$readers)
+        ];
+        $cond_recharge_a['openid'] = array('in',$readers);
+
+        $rechargeD = $recharge->caclRechargeMoney($cond_recharge_d);
+        $rechargeM = $recharge->caclRechargeMoney($cond_recharge_m);
+        $rechargeA = $recharge->caclRechargeMoney($cond_recharge_a);
+
+        $this->assign(compact('rechargeD','rechargeM','rechargeA'));
+
+        $this->display();
+    }
+
+    public function get_proxy_info()
+    {
+        $recharge = D('RechargeOrder');
+        $today = date('Y-m-d');
+        $month = date('Y-m');
+        $cond_recharge_d['recharge_date'] = $today;
+        $cond_recharge_m['recharge_month'] = $month;
+
+        $cond = [
+            'status'   => C('STATUS_Y'),
+            'is_proxy' => 1
+        ];
+        $data = M('reader')->where($cond)->field('id,openid,nickname')->select();
+
+        foreach ($data as $key => $value) {
+            $cond_recharge_d['proxy_openid'] = $cond_recharge_m['proxy_openid'] = $cond_recharge_a['proxy_openid'] = $value['openid'];
+            $data[$key]['today'] = $recharge->caclProxyRechargeMoney($cond_recharge_d);
+            $data[$key]['month'] = $recharge->caclProxyRechargeMoney($cond_recharge_m);
+            $data[$key]['all'] = $recharge->caclProxyRechargeMoney($cond_recharge_a);
+        }
+        echo json_encode([
+            "data" => $data
+        ], JSON_UNESCAPED_UNICODE);
+    }
 }

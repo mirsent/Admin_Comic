@@ -1,0 +1,120 @@
+<extend name="Public/base" />
+<block name="css">
+    <style type="text/css">
+        .content-wrapper {
+            background: #FFF;
+        }
+    </style>
+</block>
+<block name="header"></block>
+<block name="content">
+    <div class="row">
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeD}</h3>
+                    <p>当日充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeM}</h3>
+                    <p>当月充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{$rechargeA}</h3>
+                    <p>累计充值</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-credit-card"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h4>代理统计</h4>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>代理</th>
+                        <th>当日充值</th>
+                        <th>当月充值</th>
+                        <th>累计充值</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function () {
+            oTable = $(".table").DataTable({
+                dom: "<'row'<'col-sm-6'l><'col-sm-6'f>> t <'row'<'col-sm-6'i><'col-sm-6'p>>",
+                serverSide: false,
+                searching: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Distribution/get_proxy_info')}",
+                        data: {
+                            'search_date': $('.search-date').val()
+                        },
+                        dataType: "json",
+                        success: function (result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "nickname" },
+                    {
+                        "data": "today",
+                        "class": "text-right"
+                    },
+                    {
+                        "data": "month",
+                        "class": "text-right"
+                    },
+                    {
+                        "data": "all",
+                        "class": "text-right"
+                    },
+                ],
+                initComplete: function (settings, json) {
+                    var advancedHtml = '<form class="layui-form">';
+                    advancedHtml += '<div class="layui-inline" style="width: 160px;"><input type="text" placeholder="查询日期" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function () {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({ elem: '.picker-date', range: true })
+                        form.render();
+                    });
+                }
+            });
+        });
+    </script>
+</block>
