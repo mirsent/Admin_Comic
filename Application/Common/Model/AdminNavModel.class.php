@@ -1,9 +1,6 @@
 <?php
 namespace Common\Model;
 use Common\Model\BaseModel;
-/**
- * 菜单操作model
- */
 class AdminNavModel extends BaseModel{
 
 	protected $_auto=array(

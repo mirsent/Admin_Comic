@@ -21,7 +21,7 @@
         <div class="box-header with-border">
             <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
             <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
-            <button type="button" class="btn btn-default" id="refresh"><i class="fa fa-refresh fa-fw"></i>更新</button>
+            <button type="button" class="btn btn-default" id="refresh"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
         </div>
         <div class="box-body">
             <table class="table table-bordered table-hover table-single">
@@ -39,6 +39,7 @@
                         <th>需分享数</th>
                         <th>最大分享兑换章节</th>
                         <!-- <th>推广次数</th> -->
+                        <th>更新时间</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -315,6 +316,13 @@
                     },
                     // { "data": "spread_times" },
                     {
+                        "data": "updated_at",
+                        "class": "text-center",
+                        "render": function(data){
+                            return data.substring(0,10)
+                        }
+                    },
+                    {
                         "data": "status",
                         "orderable": false,
                         "render": function(data,type,full){
@@ -346,7 +354,9 @@
                         "orderable": false,
                         "render": function(data,type,full){
                             var sOut = '';
-                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update-chapter">更新目录</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm recommend">推荐</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update">更新</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update-chapter">刷新目录</button>'
                             sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm upload-share">分享图库</button>'
                             return sOut;
                         }
@@ -467,7 +477,7 @@
                 }
             });
 
-            // 更新漫画
+            // 批量更新漫画
             $('#refresh').on('click', function(){
                 layui_form('更新漫画', function(){
                     form.render();
@@ -477,7 +487,49 @@
                 submit_form("{:U('Comic/refresh_comic')}");
             });
 
-            // 更新章节
+            // 更新漫画
+            $('.table').on('click', '.update', function(){
+                getSelectedData(oTable, function(data){
+                    console.log(data)
+                    swal_action('确认更新漫画', '《 '+data.title+' 》', function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "{:U('Comic/refresh_comic')}",
+                            data: {
+                                comic: data.id
+                            },
+                            dataType:"json",
+                            success: function(res) {
+                                toastr["success"]("更新成功", "");
+                                DTdraw(oTable);
+                            }
+                        });
+                    }, 'question');
+                })
+            })
+
+            // 推荐漫画
+            $('.table').on('click', '.recommend', function(){
+                getSelectedData(oTable, function(data){
+                    swal_action('确认推荐漫画', '《 '+data.title+' 》', function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "{:U('Comic/recommend_comic')}",
+                            data: {
+                                comic: data.id
+                            },
+                            dataType:"json",
+                            success: function(res) {
+                                toastr["success"]("推荐成功", "");
+                                DTdraw(oTable);
+                            }
+                        });
+                    }, 'question');
+
+                })
+            })
+
+            // 刷新漫画章节
             $('.table').on('click', '.update-chapter', function(){
                 getSelectedData(oTable, function(data){
                     $.ajax({

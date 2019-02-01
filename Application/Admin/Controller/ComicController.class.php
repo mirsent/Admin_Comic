@@ -167,7 +167,7 @@ class ComicController extends AdminBaseController{
                 default: break;
             }
         } else {
-            $ms->order('sort desc,updated_at desc');
+            $ms->order('updated_at desc,sort desc');
         }
 
         // 分页
@@ -194,6 +194,23 @@ class ComicController extends AdminBaseController{
         $cond['id'] = array('in', $comics);
         $data['updated_at'] = date('Y-m-d H:i:s');
         M('comics')->where($cond)->save($data);
+        ajax_return(1);
+    }
+
+    /**
+     * 推荐漫画
+     */
+    public function recommend_comic()
+    {
+        $comics = explode(',', I('comic'));
+        foreach ($comics as $key => $value) {
+            $data[] = [
+                'comic_id'       => $value,
+                'recommend_time' => date('Y-m-d H:i:s'),
+                'status'         => C('STATUS_Y')
+            ];
+        }
+        M('recommend')->addAll($data);
         ajax_return(1);
     }
 
@@ -341,6 +358,53 @@ class ComicController extends AdminBaseController{
 
         if ($res === false) {
             ajax_return(0, '删除分享图片失败');
+        }
+        ajax_return(1);
+    }
+
+
+    ////////
+    // 推荐 //
+    ////////
+
+    /**
+     * 获取推荐漫画
+     */
+    public function get_recommend_info(){
+        $ms = D('Recommend');
+        $cond['r.status'] = C('STATUS_Y');
+        $infos = $ms->getRecommendData($cond);
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 排序
+     */
+    public function order_recommend()
+    {
+        $cond['id'] = I('id');
+        $data['sort'] = I('sort');
+        $res = M('recommend')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '排序失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 取消推荐
+     */
+    public function cancel_recommend()
+    {
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('recommend')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消推荐失败');
         }
         ajax_return(1);
     }
