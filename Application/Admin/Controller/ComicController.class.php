@@ -411,6 +411,72 @@ class ComicController extends AdminBaseController{
 
 
     ////////
+    // 专题 //
+    ////////
+
+    public function subject(){
+        $cond['status'] = C('STATUS_Y');
+        $comic = M('comics')->where($cond)->field('id, title')->select();
+
+        $assign = [
+            'comic' => $comic
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    public function get_subject_info(){
+        $subject = D('Subject');
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $subject->where($cond)->select();
+        $comic = D('Comics');
+        foreach ($infos as $key => $value) {
+            $infos[$key]['comics_arr'] =$comic->getComicsIdsArr($value['comic_ids']);
+            $infos[$key]['comics'] = $comic->getComicsByIds($value['comic_ids']);
+        }
+
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 编辑专题
+     */
+    public function input_subject(){
+        $subject = D('Subject');
+        $subject->create();
+        $subject->comic_ids = implode(',', I('comic_ids'));
+        $id = I('id');
+
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $subject->where($cond)->save();
+        } else {
+            $res = $subject->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '编辑专题失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 删除专题
+     */
+    public function delete_subject(){
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('subject')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除专题失败');
+        }
+        ajax_return(1);
+    }
+
+    ////////
     // 评论 //
     ////////
 

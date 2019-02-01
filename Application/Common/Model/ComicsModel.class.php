@@ -39,6 +39,30 @@ class ComicsModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 根据id获取漫画 ；
+     */
+    public function getComicsByIds($comics){
+        $cond = [
+            'status' => C('STATUS_Y'),
+            'id'     => array('in',$comics)
+        ];
+        $data = $this->where($cond)->getField('title',true);
+        return implode('；',$data);
+    }
+
+    /**
+     * 获取漫画id数组
+     */
+    public function getComicsIdsArr($comics){
+        $cond = [
+            'status' => C('STATUS_Y'),
+            'id'     => array('in',$comics)
+        ];
+        $data = $this->where($cond)->getField('id',true);
+        return $data;
+    }
+
     public function addComic($data){
         if (!$data = $this->create($data)) {
             return false;
