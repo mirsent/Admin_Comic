@@ -304,6 +304,60 @@ class ComicController extends Controller {
     }
 
     /**
+     * 漫画专题
+     */
+    public function get_subject_comic()
+    {
+        $cond['status'] = C('STATUS_Y');
+        $data = M('subject')->where($cond)->select();
+        $comic = M('comics');
+        foreach ($data as $key => $value) {
+            $cond_comic = [
+                'status' => C('STATUS_Y'),
+                'id'     => array('in', $value['comic_ids'])
+            ];
+            $arr = $comic->limit(8)->where($cond_comic)->getField('cover', true);
+            $count = count($arr); // 包含漫画数
+            switch ($count) {
+                case 2:
+                    $top = [$arr[0], $arr[1], $arr[0], $arr[1] ];
+                    $bottom = [$arr[1], $arr[0], $arr[1], $arr[0] ];
+                    break;
+                case 3:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[0] ];
+                    $bottom = [$arr[1], $arr[2], $arr[0], $arr[1] ];
+                    break;
+                case 4:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
+                    $bottom = [$arr[1], $arr[2], $arr[3], $arr[0] ];
+                    break;
+                case 5:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
+                    $bottom = [$arr[4], $arr[0], $arr[1], $arr[2] ];
+                    break;
+                case 6:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
+                    $bottom = [$arr[4], $arr[5], $arr[0], $arr[1] ];
+                    break;
+                case 7:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
+                    $bottom = [$arr[4], $arr[5], $arr[6], $arr[0] ];
+                    break;
+                case 8:
+                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
+                    $bottom = [$arr[4], $arr[5], $arr[6], $arr[7] ];
+                    break;
+
+                default:
+                    break;
+            }
+            $data[$key]['top'] = array_merge($top,$top);
+            $data[$key]['bottom'] = array_merge($bottom,$bottom);
+        }
+        ajax_return(1, '专题', $data);
+    }
+
+    /**
      * 获取漫画类型
      */
     public function get_comic_type()
@@ -466,7 +520,13 @@ class ComicController extends Controller {
 
         foreach ($data as $key => $value) {
             $chapterTitle = $value['chapter_title'] ? ' '.$value['chapter_title'] : '';
-            $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;
+            // 判断是否只有一章
+            if (count($data) == 1) {
+                $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;
+            } else {
+                $data[$key]['catalog_name'] = '全一册'.$chapterTitle;
+            }
+
             if ($value['catalog'] > $freeChapter) {
                 $data[$key]['is_fee'] = 1;
             }
