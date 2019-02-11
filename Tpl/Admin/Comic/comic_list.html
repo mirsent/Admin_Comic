@@ -28,6 +28,7 @@
                 <thead>
                     <tr>
                         <th>编号</th>
+                        <th width="100">图标</th>
                         <th width="180">封面</th>
                         <th>漫画名称</th>
                         <th>作者</th>
@@ -146,34 +147,6 @@
                             <textarea name="share_brief" placeholder="请输入分享简介" class="layui-textarea"></textarea>
                         </div>
                     </div>
-                </div>
-                <div class="layui-col-md6">
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">封面</label>
-                        <div class="layui-input-block">
-                            <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
-                            <input type="hidden" name="cover">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">发布类型</label>
-                        <div class="layui-input-block">
-                            <select name="release_type_id" lay-verify="required" lay-search>
-                                <option value=""></option>
-                                <foreach name="release_type" item="v">
-                                    <option value="{$v.id}">{$v.release_type_name}</option>
-                                </foreach>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">漫画分类</label>
-                        <div class="layui-input-block">
-                            <foreach name="comic_type" item="v">
-                                <input type="checkbox" name="type_ids[]" title="{$v.comic_type_name}" value="{$v.id}" lay-skin="primary">
-                            </foreach>
-                        </div>
-                    </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">连载状态</label>
                         <div class="layui-input-block">
@@ -201,6 +174,42 @@
                             <input type="radio" name="status" value="{:C('C_STATUS_U')}" title="上架" checked>
                             <input type="radio" name="status" value="{:C('C_STATUS_D')}" title="下架">
                             <input type="radio" name="status" value="{:C('C_STATUS_N')}" title="未开放">
+                        </div>
+                    </div>
+                </div>
+                <!-- 右侧 -->
+                <div class="layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">封面</label>
+                        <div class="layui-input-block">
+                            <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
+                            <input type="hidden" name="cover">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图标</label>
+                        <div class="layui-input-block">
+                            <input type="file" name="img2" class="layui-input file-loading" id="uploadImg2">
+                            <input type="hidden" name="head">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">发布类型</label>
+                        <div class="layui-input-block">
+                            <select name="release_type_id" lay-verify="required" lay-search>
+                                <option value=""></option>
+                                <foreach name="release_type" item="v">
+                                    <option value="{$v.id}">{$v.release_type_name}</option>
+                                </foreach>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">漫画分类</label>
+                        <div class="layui-input-block">
+                            <foreach name="comic_type" item="v">
+                                <input type="checkbox" name="type_ids[]" title="{$v.comic_type_name}" value="{$v.id}" lay-skin="primary">
+                            </foreach>
                         </div>
                     </div>
                 </div>
@@ -270,6 +279,11 @@
                 },
                 columns: [
                     { "data": "no"},
+                    {
+                        "data": "head",
+                        "orderable": false,
+                        "render": DT.RENDER.IMG
+                    },
                     {
                         "data": "cover",
                         "orderable": false,
@@ -415,6 +429,11 @@
                         var image_path = data.response.data;
                         $('input[name="cover"]').val(image_path);
                     });
+                    oFileInput.Init("uploadImg2", "{:U('Upload/upload_img')}");
+                    $('#uploadImg2').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                        var image_path = data.response.data;
+                        $('input[name="head"]').val(image_path);
+                    });
                     form.render();
                 }, '900px');
                 form.render();
@@ -458,6 +477,31 @@
                             var image_path = data.response.data;
                             $('input[name="cover"]').val(image_path);
                         });
+                        $('#uploadImg2').fileinput({
+                            language: 'zh',
+                            uploadUrl: "{:U('Upload/upload_img')}",
+                            showUpload: false,
+                            showCaption: false,
+                            showRemove: false,
+                            uploadAsync: false,
+                            maxFileSize : 10240,
+                            maxFileCount: 10,
+                            overwriteInitial: true,
+                            allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                            browseClass: "btn btn-default btn-block",
+                            dropZoneEnabled: false,
+                            enctype: 'multipart/form-data',
+                            browseLabel: '上传图片',
+                            previewClass:'previewPanel',
+                            initialPreview: [data['head']],
+                            initialPreviewAsData: true,
+                            layoutTemplates:{
+                                actionUpload: ''
+                            }
+                        }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                            var image_path = data.response.data;
+                            $('input[name="head"]').val(image_path);
+                        });
                         form.render();
                     }, '900px');
                 });
@@ -467,6 +511,22 @@
             form.on('submit(submit)', function(data) {
                 if ($('#uploadImg').val()) {
                     $('#uploadImg').fileinput('upload')
+                    .on("filebatchuploadsuccess", function(event, data) {
+                        if(data.response.status){
+                            if ($('#uploadImg2').val()) {
+                                $('#uploadImg2').fileinput('upload')
+                                .on("filebatchuploadsuccess", function(event, data) {
+                                    if(data.response.status){
+                                        submit_form("{:U('Comic/input_comic')}");
+                                    }
+                                });
+                            } else {
+                                submit_form("{:U('Comic/input_comic')}");
+                            }
+                        }
+                    });
+                } else if ($('#uploadImg2').val()) {
+                    $('#uploadImg2').fileinput('upload')
                     .on("filebatchuploadsuccess", function(event, data) {
                         if(data.response.status){
                             submit_form("{:U('Comic/input_comic')}");

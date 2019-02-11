@@ -28,6 +28,9 @@ table.dataTable tbody tr.selected {
 .table td{
     vertical-align: middle !important;
 }
+.table .img-thumbnail{
+    border: none;
+}
 .search-box{
     border-radius: 3px;
     margin: 0 0 20px 0;

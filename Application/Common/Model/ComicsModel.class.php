@@ -6,7 +6,7 @@ class ComicsModel extends BaseModel{
     protected $_auto=array(
         array('status','get_default_status',1,'callback'),
         array('created_at','get_datetime',1,'callback'),
-        array('updated_at','get_datetime',3,'callback')
+        array('updated_at','get_datetime',1,'callback')
     );
 
     public function getComicNumber($cond){
