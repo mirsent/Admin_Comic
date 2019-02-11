@@ -10,6 +10,7 @@ class ChapterModel extends BaseModel{
     public function getChapterData($cond){
         $data = $this
             ->where(array_filter($cond))
+            ->order('catalog')
             ->select();
         foreach ($data as $key => $value) {
             $data[$key]['catalog_name'] = '第'.$value['catalog'].'章';

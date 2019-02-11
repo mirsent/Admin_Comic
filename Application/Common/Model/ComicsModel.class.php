@@ -39,6 +39,14 @@ class ComicsModel extends BaseModel{
         return $data;
     }
 
+    public function getComicApiData($cond){
+        $data = $this
+            ->where(array_filter($cond))
+            ->field('id,cover,title,brief,popularity,date_format(updated_at, "%m.%d") as date')
+            ->select();
+        return $data;
+    }
+
     /**
      * 根据id获取漫画 ；
      */

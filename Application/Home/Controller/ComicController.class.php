@@ -209,9 +209,9 @@ class ComicController extends Controller {
 
 
 
-    /**
-     * 登录
-     */
+    ////////
+    // 登录 //
+    ////////
 
     /**
      * 登录凭证校验
@@ -272,9 +272,36 @@ class ComicController extends Controller {
     }
 
 
+
+
+    ////////
+    // 漫画 //
+    ////////
+
     /**
-     * 漫画
+     * 获取最新漫画
+     * 5条
      */
+    public function get_new_comic()
+    {
+        $cond['status'] = C('STATUS_Y');
+        $data = D('Comics')->order('updated_at desc')->limit(5)->getComicApiData($cond);
+        foreach ($data as $key => $value) {
+            $data[$key]['brief'] = htmlspecialchars_decode($value['brief']);
+        }
+        ajax_return(1, '最新漫画', $data);
+    }
+
+    /**
+     * 获取推荐漫画
+     * 2条
+     */
+    public function get_recommend_comic()
+    {
+        $cond['r.status'] = C('STATUS_Y');
+        $data = D('Recommend')->order('sort')->limit(2)->getRecommendData($cond);
+        ajax_return(1, '推荐漫画', $data);
+    }
 
     /**
      * 获取漫画类型
@@ -434,6 +461,7 @@ class ComicController extends Controller {
         ];
         $data = M('chapter')
             ->where($cond)
+            ->order('catalog')
             ->select();
 
         foreach ($data as $key => $value) {
@@ -470,10 +498,6 @@ class ComicController extends Controller {
 
         ajax_return(1, '章节', $chapter);
     }
-
-
-
-
 
 
     /**
@@ -528,9 +552,10 @@ class ComicController extends Controller {
 
 
 
-    /**
-     * 读者
-     */
+
+    ////////
+    // 读者 //
+    ////////
 
     /**
      * 点赞
