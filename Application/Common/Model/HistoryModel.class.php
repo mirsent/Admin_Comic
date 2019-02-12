@@ -63,6 +63,10 @@ class HistoryModel extends BaseModel{
             'last_time' => date('Y-m-d H:i:s')
         ];
 
+        $cond_comic['id'] = $comicId;
+        $typeIds = M('comics')->where($cond_comic)->getField('type_ids');
+        $data['type_ids'] = $typeIds;
+
         $cond = [
             'comic_id' => $comicId,
             'openid'   => $openid,

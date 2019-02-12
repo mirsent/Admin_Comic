@@ -8,7 +8,7 @@ class RecommendModel extends BaseModel{
         $data = $this
             ->alias('r')
             ->join('__COMICS__ c ON c.id = r.comic_id')
-            ->field('r.*,head,cover,title,brief,popularity')
+            ->field('c.id,head,cover,title,brief,popularity')
             ->where(array_filter($cond))
             ->select();
         return $data;

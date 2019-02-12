@@ -299,8 +299,38 @@ class ComicController extends Controller {
     public function get_recommend_comic()
     {
         $cond['r.status'] = C('STATUS_Y');
-        $data = D('Recommend')->order('sort')->limit(2)->getRecommendData($cond);
+        $data = D('Recommend')->order('r.sort')->limit(2)->getRecommendData($cond);
         ajax_return(1, '推荐漫画', $data);
+    }
+
+    /**
+     * 猜你喜欢
+     * 3条
+     * @param openid
+     */
+    public function get_like_comic()
+    {
+        $cond['openid'] = I('openid');
+        $typeArr = M('history')->where($cond)->getField('type_ids', true);
+        $types = array_values(array_unique(explode(',', implode(',', $typeArr))));
+
+        $comic = M('comics');
+        $comicIds = [];
+        for ($i=0; $i < count($types); $i++) {
+            $cond_comic = [
+                'status' => C('STATUS_Y'),
+                '_string' => 'FIND_IN_SET('.$types[$i].',type_ids)'
+            ];
+            $ids = $comic->where($cond_comic)->getField('id', true);
+            $comicIds = array_unique(array_merge($comicIds, $ids));
+        }
+
+        $cond_comic = [
+            'id' => array('in', $comicIds)
+        ];
+        $data = D('Comics')->order('rand()')->limit(3)->getComicApiData($cond_comic);
+
+        ajax_return(1, '喜欢漫画', $data);
     }
 
     /**
@@ -522,9 +552,9 @@ class ComicController extends Controller {
             $chapterTitle = $value['chapter_title'] ? ' '.$value['chapter_title'] : '';
             // 判断是否只有一章
             if (count($data) == 1) {
-                $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;
-            } else {
                 $data[$key]['catalog_name'] = '全一册'.$chapterTitle;
+            } else {
+                $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;
             }
 
             if ($value['catalog'] > $freeChapter) {
