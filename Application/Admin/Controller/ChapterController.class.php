@@ -27,6 +27,7 @@ class ChapterController extends AdminBaseController{
                 $new[] = [
                     'catalog'    => $newChapter,
                     'comic_id'   => $comicId,
+                    'chapter'    => '',
                     'popularity' => rand_number(99,999),
                     'create_at'  => date('Y-m-d'),
                     'status'     => C('STATUS_Y')

@@ -42,7 +42,7 @@ class ComicsModel extends BaseModel{
     public function getComicApiData($cond){
         $data = $this
             ->where(array_filter($cond))
-            ->field('id,type_ids,cover,title,brief,popularity,date_format(updated_at, "%m.%d") as date')
+            ->field('id,type_ids,head,cover,title,brief,popularity,date_format(updated_at, "%m.%d") as date')
             ->select();
         return $data;
     }

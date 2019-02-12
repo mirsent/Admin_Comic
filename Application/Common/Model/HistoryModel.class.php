@@ -36,16 +36,24 @@ class HistoryModel extends BaseModel{
         $data = $this
             ->alias('h')
             ->join('__COMICS__ c ON c.id = h.comic_id')
-            ->field('h.*,cover,title,brief,total_chapter')
+            ->field('h.*,head,cover,title,brief,total_chapter')
             ->where($cond)
             ->select();
 
+        $chapter = M('chapter');
         foreach ($data as $key => $value) {
+            $cond_chapter = [
+                'comic_id' => $value['comic_id'],
+                'catalog'  => $value['chapter']
+            ];
+            $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title');
+            $data[$key]['chapter_name'] = toChineseNumber($value['chapter']);
             $data[$key]['rate'] = intval($value['chapter'] / $value['total_chapter'] * 100);
         }
 
         return $data;
     }
+
 
     /**
      * 更新阅读历史

@@ -103,6 +103,29 @@ function generateOrderNo($type){
     return $type.$time.$rand;
 }
 
+function toChineseNumber($money){
+    $money = round($money,2);
+    $cnynums = array("零","一","二","三","四","五","六","七","八","九");
+    $cnygrees = array("十","百","千","万");
+    list($int,$dec) = explode(".",$money,2);
+    $dec = array_filter(array($dec[1],$dec[0]));
+    $ret = array_merge($dec,array(implode("",cnyMapUnit(str_split($int),$cnygrees)),""));
+    $ret = implode("",$ret);
+    return str_replace(array_keys($cnynums),$cnynums,$ret);
+}
+function cnyMapUnit($list,$units) {
+    $ul=count($units);
+    $xs=array();
+    foreach (array_reverse($list) as $x) {
+        $l=count($xs);
+        if ($x!="0" || !($l%4))
+            $n=($x=='0'?'':$x).($units[($l-1)%$ul]);
+        else $n=is_numeric($xs[0][0])?$x:'';
+            array_unshift($xs,$n);
+    }
+    return $xs;
+}
+
 /**
  * 地址->经纬度
  */
