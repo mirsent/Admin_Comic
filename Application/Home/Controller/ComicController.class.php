@@ -394,15 +394,27 @@ class ComicController extends Controller {
     {
         $all[] = [
             'id'              => '-1',
-            'comic_type_name' => '全部',
-            'is_on'           => true
+            'comic_type_name' => '全部'
         ];
         $cond['status'] = C('STATUS_Y');
         $data = M('comic_type')
             ->where($cond)
-            ->field('*,null as is_on')
             ->select();
-        ajax_return(1, '漫画类型', array_merge($all, $data));
+
+        $data = array_merge($all, $data);
+
+        $count = count($data);
+        $mod = 6-$count%6;
+
+        $place[] = [
+            'id'              => '-2',
+            'comic_type_name' => '占位'
+        ];
+        for ($i=0; $i < $mod; $i++) {
+            $data = array_merge($data, $place);
+        }
+
+        ajax_return(1, '漫画类型', $data);
     }
 
     /**
@@ -459,13 +471,7 @@ class ComicController extends Controller {
      * @param type 漫画类型 -1：全部
      */
     public function get_comic_list(){
-        $cond['c.status'] = array('neq', C('STATUS_N'));
-
-        // 发布类型
-        $release = I('release');
-        if ($release) {
-            $cond['release_type_id'] = $release;
-        }
+        $cond['status'] = array('neq', C('STATUS_N'));
 
         // 漫画类型
         $type = I('type');
@@ -473,13 +479,7 @@ class ComicController extends Controller {
             $cond['_string'] = 'FIND_IN_SET('.$type.', type_ids)';
         }
 
-        $data = M('comics')
-            ->alias('c')
-            ->join('__RELEASE_TYPE__ rt ON rt.id = c.release_type_id')
-            ->field('c.*,c.id as comic_id,release_type_name')
-            ->order('sort desc,updated_at desc')
-            ->where(array_filter($cond))
-            ->select();
+        $data = D(Comics)->getComicApiData($cond);
 
         $type = M('comic_type');
         foreach ($data as $key => $value) {
