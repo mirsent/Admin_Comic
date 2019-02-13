@@ -43,6 +43,38 @@ function upload_single($path){
     }
 }
 /**
+ * 剪切图片
+ */
+function upload_single_crop($path,$x,$y,$w,$h,$aw,$ah,$cw,$ch){
+    $path=trim($path,'.');
+    $path=trim($path,'/');
+    $config = array(
+        'rootPath' => './Uploads/',
+        'savePath' => $path.'/',
+    );
+    $upload = new \Think\Upload($config);// 实例化上传类
+    $info = $upload -> upload();
+
+    $siteHost = 'http://'.$_SERVER['HTTP_HOST'].__ROOT__;
+    if ($info) {
+        foreach ($info as $key => $value) {
+            $imagePath = $upload -> rootPath.$value['savepath'].$value['savename'];
+
+            $image = new \Think\Image();
+            $rateW = $aw/$cw;
+            $rateH = $ah/$ch;
+            $image->open($imagePath);
+            $image->crop($rateW*$w,$rateH*$h,$rateW*$x,$rateH*$y)->save($imagePath);
+
+            $fullImagePath .= $siteHost.ltrim($imagePath,'.');
+        }
+        return $fullImagePath;
+    }else{
+        return false;
+    }
+}
+
+/**
  * 上传多张图片
  */
 function upload_multiple($path){

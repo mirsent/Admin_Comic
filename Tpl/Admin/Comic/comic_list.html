@@ -2,6 +2,7 @@
 <block name="css">
     <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
     <link rel="stylesheet" href="__STATICS__/summernote/summernote.css">
+    <link rel="stylesheet" href="__STATICS__/jcrop/jcrop.css">
     <style type="text/css">
         .img-box{
             display: flex;
@@ -191,6 +192,14 @@
                         <div class="layui-input-block">
                             <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
                             <input type="hidden" name="cover">
+                            <input type="hidden" name="aw">
+                            <input type="hidden" name="ah">
+                            <input type="hidden" name="cw">
+                            <input type="hidden" name="ch">
+                            <input type="hidden" name="w">
+                            <input type="hidden" name="h">
+                            <input type="hidden" name="x">
+                            <input type="hidden" name="y">
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -250,6 +259,7 @@
 </block>
 <block name="js">
     <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script src="__STATICS__/jcrop/jcrop.js"></script>
     <script src="__STATICS__/summernote/summernote.min.js"></script>
     <script src="__STATICS__/summernote/lang/summernote-zh-CN.min.js"></script>
     <script type="text/javascript">
@@ -461,7 +471,7 @@
                         });
                         $('#uploadImg').fileinput({
                             language: 'zh',
-                            uploadUrl: "{:U('Upload/upload_img')}",
+                            uploadUrl: "{:U('Upload/upload_img_crop')}",
                             showUpload: false,
                             showCaption: false,
                             showRemove: false,
@@ -475,15 +485,60 @@
                             enctype: 'multipart/form-data',
                             browseLabel: '上传图片',
                             previewClass:'previewPanel',
-                            initialPreview: [data['cover']],
-                            initialPreviewAsData: true,
+                            initialPreview: '<img src="'+data['cover']+'" class="kv-preview-data file-preview-image" id="jcrop" />',
+                            initialPreviewAsData: false,
+                            previewTemplates:{
+                                image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                        '   <div class="kv-file-content">' +
+                                        '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop" title="{caption}" alt="{caption}" {style}>\n' +
+                                        '   </div>\n' +
+                                        '</div>\n',
+                            },
                             layoutTemplates:{
                                 actionUpload: ''
+                            },
+                            uploadExtraData: function(previewId, index) {
+                                var obj = {
+                                    aw: $('[name="aw"]').val(),
+                                    ah: $('[name="ah"]').val(),
+                                    cw: $('[name="cw"]').val(),
+                                    ch: $('[name="ch"]').val(),
+                                    x: $('[name="x"]').val(),
+                                    y: $('[name="y"]').val(),
+                                    w: $('[name="w"]').val(),
+                                    h: $('[name="h"]').val()
+                                };
+                                return obj;
                             }
+                        }).on('fileloaded', function(event) {
+                            Jcrop.load('jcrop').then(img => {
+                                $("<img/>")
+                                    .attr("src", $("#jcrop").attr("src"))
+                                    .load(function() {
+                                        $('[name="aw"]').val(this.width);
+                                        $('[name="ah"]').val(this.height);
+                                    });
+
+                                var jcp = Jcrop.attach(img,{multi:true});
+                                const rect = Jcrop.Rect.sizeOf(jcp.el);
+
+                                $('[name="cw"]').val(rect.w);
+                                $('[name="ch"]').val(rect.h);
+                                jcp.newWidget(rect);
+                                jcp.focus();
+
+                                jcp.listen('crop.change',(widget,e) => {
+                                    $('[name="x"]').val(widget.pos.x);
+                                    $('[name="y"]').val(widget.pos.y);
+                                    $('[name="w"]').val(widget.pos.w);
+                                    $('[name="h"]').val(widget.pos.h);
+                                });
+                            });
                         }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                             var image_path = data.response.data;
                             $('input[name="cover"]').val(image_path);
                         });
+
                         $('#uploadImg2').fileinput({
                             language: 'zh',
                             uploadUrl: "{:U('Upload/upload_img')}",
