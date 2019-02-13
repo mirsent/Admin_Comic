@@ -22,10 +22,14 @@ class AdminBaseController extends BaseController{
             if(!$result) $this->error('您没有权限访问');
         }
 
+        $cond_gather['status'] = C('APPLY_I');
+        $gatherCount = M('gather')->where($cond_gather)->count();
+
         // 分配菜单数据
         $nav_data=D('AdminNav')->getTreeData('level','order_num,id');
         $assign=array(
             'nav_data' => $nav_data,
+            'gather_count' => $gatherCount
         );
         $this->assign($assign);
     }

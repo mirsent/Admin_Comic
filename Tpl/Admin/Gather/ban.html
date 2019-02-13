@@ -1,0 +1,120 @@
+<extend name="Public/base" />
+<block name="css">
+
+</block>
+<block name="header">画册驳回 <small>列表</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="pass">通过</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-striped table-hover table-single">
+                <thead>
+                    <tr>
+                        <th width="500">图片</th>
+                        <th>标题</th>
+                        <th>喜欢数</th>
+                        <th>发布人</th>
+                        <th>发布时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        gather_title: $('.search-title').val(),
+                        nickname: $('.search-publisher').val(),
+                        search_date: $('.search-date').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Gather/get_gather_ban_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    {
+                        "data": "url",
+                        "orderable": false,
+                        "render": DT.RENDER.IMG
+                    },
+                    { "data": "gather_title" },
+                    { "data": "like" },
+                    { "data": "nickname" },
+                    { "data": "publish_time" },
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="画册标题" class="layui-input search-title"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="发布人" class="layui-input search-publisher"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="发布日期" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.render();
+                    });
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        // 通过
+        $('#pass').on('click', function() {
+            getSelectedData(oTable, function(data){
+                swal.queue([{
+                    title: '确认通过此画册？',
+                    imageUrl: data.url,
+                    confirmButtonText: '确定',
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{:U('Gather/pass_gather')}",
+                                data: {
+                                    id: data.id
+                                },
+                                dataType:"json",
+                                success: function(result) {
+                                    if (result.status == 1) {
+                                        toastr["success"]("操作成功", "");
+                                        swal.close();
+                                        DTdraw(oTable);
+                                    }
+                                }
+                            });
+                        })
+                    }
+                }]);
+            });
+        });
+    </script>
+</block>

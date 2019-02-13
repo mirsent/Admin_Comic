@@ -441,8 +441,70 @@
                         toolbar: []
                     });
                     var oFileInput = new FileInput();
-                    oFileInput.Init("uploadImg", "{:U('Upload/upload_img')}");
-                    $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                    $('#uploadImg').fileinput({
+                        language: 'zh',
+                        uploadUrl: "{:U('Upload/upload_img_crop')}",
+                        showUpload: false,
+                        showCaption: false,
+                        showRemove: false,
+                        uploadAsync: false,
+                        maxFileSize : 10240,
+                        maxFileCount: 10,
+                        overwriteInitial: true,
+                        allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                        browseClass: "btn btn-default btn-block",
+                        dropZoneEnabled: false,
+                        enctype: 'multipart/form-data',
+                        browseLabel: '上传图片',
+                        previewClass:'previewPanel',
+                        previewTemplates:{
+                            image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                    '   <div class="kv-file-content">' +
+                                    '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop" title="{caption}" alt="{caption}" {style}>\n' +
+                                    '   </div>\n' +
+                                    '</div>\n',
+                        },
+                        layoutTemplates:{
+                            actionUpload: ''
+                        },
+                        uploadExtraData: function(previewId, index) {
+                            var obj = {
+                                aw: $('[name="aw"]').val(),
+                                ah: $('[name="ah"]').val(),
+                                cw: $('[name="cw"]').val(),
+                                ch: $('[name="ch"]').val(),
+                                x: $('[name="x"]').val(),
+                                y: $('[name="y"]').val(),
+                                w: $('[name="w"]').val(),
+                                h: $('[name="h"]').val()
+                            };
+                            return obj;
+                        }
+                    }).on('fileloaded', function(event) {
+                        Jcrop.load('jcrop').then(img => {
+                            $("<img/>")
+                                .attr("src", $("#jcrop").attr("src"))
+                                .load(function() {
+                                    $('[name="aw"]').val(this.width);
+                                    $('[name="ah"]').val(this.height);
+                                });
+
+                            var jcp = Jcrop.attach(img,{multi:true});
+                            const rect = Jcrop.Rect.sizeOf(jcp.el);
+
+                            $('[name="cw"]').val(rect.w);
+                            $('[name="ch"]').val(rect.h);
+                            jcp.newWidget(rect);
+                            jcp.focus();
+
+                            jcp.listen('crop.change',(widget,e) => {
+                                $('[name="x"]').val(widget.pos.x);
+                                $('[name="y"]').val(widget.pos.y);
+                                $('[name="w"]').val(widget.pos.w);
+                                $('[name="h"]').val(widget.pos.h);
+                            });
+                        });
+                    }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                         var image_path = data.response.data;
                         $('input[name="cover"]').val(image_path);
                     });
