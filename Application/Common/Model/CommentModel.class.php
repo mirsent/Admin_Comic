@@ -34,17 +34,46 @@ class CommentModel extends BaseModel{
      */
     public function getCommentInfo($comicId)
     {
+
         $cond = [
-            'c.status' => C('STATUS_Y'),
+            'status'   => C('STATUS_Y'),
             'comic_id' => $comicId
         ];
-        $data = $this
+        $count = $this->where($cond)->count();
+
+        $cond_main = [
+            'c.status' => C('STATUS_Y'),
+            'comic_id' => $comicId,
+            'level'    => 1
+        ];
+        $comment = $this
             ->alias('c')
             ->join('__READER__ r ON r.openid = c.openid')
             ->field('c.*,nickname,head')
             ->order('comment_time desc')
-            ->where($cond)
+            ->where($cond_main)
             ->select();
+
+        foreach ($comment as $key => $value) {
+            $cond_sub = [
+                'c.status' => C('STATUS_Y'),
+                'comic_id' => $comicId,
+                'level'    => 2
+            ];
+            $comment[$key]['sub'] = $this
+                ->alias('c')
+                ->join('__READER__ r ON r.openid = c.openid')
+                ->field('c.*,nickname,head')
+                ->order('comment_time desc')
+                ->where($cond_sub)
+                ->select();
+        }
+
+        $data = [
+            'count'   => $count,
+            'comment' => $comment
+        ];
+
         return $data;
     }
 

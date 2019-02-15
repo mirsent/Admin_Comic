@@ -8,6 +8,15 @@ use DfaFilter\SensitiveHelper;
 class ComicController extends Controller {
 
     /**
+     * 上传图片
+     */
+    public function upload_img()
+    {
+        $path = upload_single('gather');
+        echo $path;
+    }
+
+    /**
      * 阅读
      * 1.章节信息（图片）
      * 2.分享相关（标题、封面、章节）
@@ -178,7 +187,7 @@ class ComicController extends Controller {
         $content = I('comment_content');
 
         // 获取感词库文件路径
-        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/tests/data/words.txt';
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
 
         // get one helper
         $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
@@ -187,6 +196,38 @@ class ComicController extends Controller {
         $filterContent = $handle->replace($content, C('FILTER_TEXT'));
 
         $comment->comment_content = $filterContent;
+        $comment->level = 1; // 主评论
+        $comment->pid = 0;
+        $res = $comment->add();
+
+        if ($res === false) {
+            ajax_return(0, '评论失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 回复评论
+     * @param level 2
+     */
+    public function reply()
+    {
+        $comment = D('Comment');
+        $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换为***为例
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+        $comment->level = 2;
         $res = $comment->add();
 
         if ($res === false) {

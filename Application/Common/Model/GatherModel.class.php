@@ -24,7 +24,7 @@ class GatherModel extends BaseModel{
         $data = $this
             ->alias('g')
             ->join('__READER__ r ON r.id = g.publisher_id')
-            ->field('g.*,nickname')
+            ->field('g.*,head,nickname')
             ->where(array_filter($cond))
             ->select();
         return $data;
