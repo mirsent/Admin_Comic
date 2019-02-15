@@ -98,4 +98,18 @@ class ReaderController extends Controller {
 
         ajax_return(1, '回复内容', $data);
     }
+
+    /**
+     * 获取通知
+     */
+    public function get_notice()
+    {
+        $cond = [
+            'status'    => C('STATUS_Y'),
+            'reader_id' => I('reader_id')
+        ];
+        $data = M('notice')->order('notice_time desc')->where($cond)->select();
+
+        ajax_return(1, '通知消息', $data);
+    }
 }
