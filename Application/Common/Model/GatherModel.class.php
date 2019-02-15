@@ -5,7 +5,7 @@ class GatherModel extends BaseModel{
 
     protected $_auto=array(
         array('status','get_default_status',1,'callback'),
-        array('like','0'),
+        array('likes','0'),
         array('publish_time','get_datetime',1,'callback')
     );
 

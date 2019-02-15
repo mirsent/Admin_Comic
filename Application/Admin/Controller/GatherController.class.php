@@ -35,7 +35,7 @@ class GatherController extends AdminBaseController {
             $i = intval($orderColumn);
             switch($i){
                 case 1: $ms->order('gather_title '.$orderDir); break;
-                case 2: $ms->order('like '.$orderDir); break;
+                case 2: $ms->order('likes '.$orderDir); break;
                 case 3: $ms->order('nickname '.$orderDir); break;
                 case 4: $ms->order('publish_time '.$orderDir); break;
                 default: break;
@@ -130,7 +130,7 @@ class GatherController extends AdminBaseController {
             $i = intval($orderColumn);
             switch($i){
                 case 1: $ms->order('gather_title '.$orderDir); break;
-                case 2: $ms->order('like '.$orderDir); break;
+                case 2: $ms->order('likes '.$orderDir); break;
                 case 3: $ms->order('nickname '.$orderDir); break;
                 case 4: $ms->order('publish_time '.$orderDir); break;
                 default: break;
@@ -188,7 +188,7 @@ class GatherController extends AdminBaseController {
             $i = intval($orderColumn);
             switch($i){
                 case 1: $ms->order('gather_title '.$orderDir); break;
-                case 2: $ms->order('like '.$orderDir); break;
+                case 2: $ms->order('likes '.$orderDir); break;
                 case 3: $ms->order('nickname '.$orderDir); break;
                 case 4: $ms->order('publish_time '.$orderDir); break;
                 default: break;

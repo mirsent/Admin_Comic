@@ -80,6 +80,24 @@ class ReaderController extends Controller {
     }
 
     /**
+     * 画册点喜欢
+     * @param gather_id 画册ID
+     * @param reader_id 读者ID
+     */
+    public function like_gather()
+    {
+        // 画册like+1
+        $cond_gather['id'] = I('gather_id');
+        M('gather')->where($cond_gather)->setInc('likes');
+
+        $like = D('GatherLikes');
+        $like->create();
+        $like->add();
+
+        ajax_return(1);
+    }
+
+    /**
      * 获取回复内容
      * @param reply_openid
      */
