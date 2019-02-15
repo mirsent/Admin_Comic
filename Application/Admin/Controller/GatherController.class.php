@@ -214,9 +214,21 @@ class GatherController extends AdminBaseController {
 
     public function pass_gather()
     {
+        $gather = M('gather');
+
         $cond['id'] = I('id');
         $data['status'] = C('APPLY_P');
-        $res = M('gather')->where($cond)->save($data);
+        $res = $gather->where($cond)->save($data);
+
+        $gatherInfo = $gather->where($cond)->find();
+
+        $data_notice = [
+            'reader_id' => $gatherInfo['publisher_id'],
+            'content' => '发布的画册 '.$gatherInfo['gather_title'].' 通过审核！',
+            'notice_time' => date('Y-m-d H:i:s'),
+            'status' => C('STATUS_Y')
+        ];
+        M('notice')->add($data_notice);
 
         if ($res === false) {
             ajax_return(0, '通过画册失败');
@@ -226,9 +238,21 @@ class GatherController extends AdminBaseController {
 
     public function ban_gather()
     {
+        $gather = M('gather');
+
         $cond['id'] = I('id');
         $data['status'] = C('APPLY_B');
-        $res = M('gather')->where($cond)->save($data);
+        $res = $gather->where($cond)->save($data);
+
+        $gatherInfo = $gather->where($cond)->find();
+
+        $data_notice = [
+            'reader_id' => $gatherInfo['publisher_id'],
+            'content' => '发布的画册 '.$gatherInfo['gather_title'].' 未通过审核...',
+            'notice_time' => date('Y-m-d H:i:s'),
+            'status' => C('STATUS_Y')
+        ];
+        M('notice')->add($data_notice);
 
         if ($res === false) {
             ajax_return(0, '驳回画册失败');
