@@ -130,4 +130,153 @@ class ReaderController extends Controller {
 
         ajax_return(1, '通知消息', $data);
     }
+
+    ////////
+    // 点赞 //
+    ////////
+
+    /**
+     * 点赞
+     * @param comic_id 漫画ID
+     * @param openid 读者ID
+     */
+    public function like(){
+        $likes = D('Likes');
+        $likes->create();
+
+        $comicId = I('comic_id');
+        $openid = I('openid');
+
+        $cond = [
+            'comic_id' => $comicId,
+            'openid'   => $openid
+        ];
+        $likesInfo = $likes->where($cond)->find();
+
+        if ($likesInfo) {
+            $likes->status = C('STATUS_Y');
+            $res = $likes->where($cond)->save();
+        } else {
+            $res = $likes->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '点赞失败');
+        }
+        D('Comics')->likeComic($comicId);
+        ajax_return(1);
+    }
+
+    /**
+     * 取消点赞
+     */
+    public function cancel_like()
+    {
+        $cond = [
+            'comic_id' => I('comic_id'),
+            'openid'   => I('openid')
+        ];
+        $data = [
+            'status' => C('STATUS_N')
+        ];
+        $res = M('likes')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消点赞失败');
+        }
+        ajax_return(1);
+    }
+
+    ////////
+    // 收藏 //
+    ////////
+
+    /**
+     * 收藏
+     * @param comic_id 漫画ID
+     * @param openid 读者ID
+     */
+    public function collect(){
+        $collect = D('Collect');
+        $collect->create();
+
+        $comicId = I('comic_id');
+        $openid = I('openid');
+
+        $cond = [
+            'comic_id' => $comicId,
+            'openid'   => $openid
+        ];
+        $collectInfo = $collect->where($cond)->find();
+
+        if ($collectInfo) {
+            $collect->status = C('STATUS_Y');
+            $res = $collect->where($cond)->save($data);
+        } else {
+            $res = $collect->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '收藏失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 取消收藏
+     */
+    public function cancel_collect()
+    {
+        $cond = [
+            'comic_id' => I('comic_id'),
+            'openid'   => I('openid')
+        ];
+        $data = [
+            'status' => C('STATUS_N')
+        ];
+        $res = M('collect')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消收藏失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 我的收藏
+     */
+    public function get_collect_comic()
+    {
+        $cond = [
+            'ct.status' => C('STATUS_Y'),
+            'openid'    => I('openid')
+        ];
+        $data = M('collect')
+            ->alias('ct')
+            ->join('__COMICS__ c ON c.id = ct.comic_id')
+            ->field('comic_id,head,title,total_chapter')
+            ->where($cond)
+            ->select();
+
+        $history = M('history');
+        $chapter = M('chapter');
+        foreach ($data as $key => $value) {
+            // 阅读历史
+            $cond_history = [
+                'comic_id' => $value['comic_id'],
+                'openid'   => I('openid')
+            ];
+            $lastChapter = $history->where($cond_history)->getField('chapter');
+            $data[$key]['remain_chapter'] = $value['total_chapter'] - $lastChapter;
+
+            // 章节标题
+            $cond_chapter = [
+                'comic_id' => $value['comic_id'],
+                'catalog'  => $value['total_chapter']
+            ];
+            $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title');
+        }
+
+        ajax_return(1, '我的收藏', $data);
+    }
 }

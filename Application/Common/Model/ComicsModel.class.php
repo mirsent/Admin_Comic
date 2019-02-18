@@ -285,4 +285,33 @@ class ComicsModel extends BaseModel{
         return $data;
     }
 
+
+    /**
+     * 猜你喜欢
+     * @param  char $openid
+     */
+    public function getLikeComic($openid)
+    {
+        $cond['openid'] = $openid;
+        $typeArr = M('history')->where($cond)->getField('type_ids', true);
+        $types = array_values(array_unique(explode(',', implode(',', $typeArr))));
+
+        $comicIds = [];
+        for ($i=0; $i < count($types); $i++) {
+            $cond_comic = [
+                'status' => C('STATUS_Y'),
+                '_string' => 'FIND_IN_SET('.$types[$i].',type_ids)'
+            ];
+            $ids = $this->where($cond_comic)->getField('id', true);
+            $comicIds = array_unique(array_merge($comicIds, $ids));
+        }
+
+        $cond_comic = [
+            'id' => array('in', $comicIds)
+        ];
+        $data = $this->order('rand()')->limit(3)->getComicApiData($cond_comic);
+
+        return $data;
+    }
+
 }
