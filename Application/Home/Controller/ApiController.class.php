@@ -16,7 +16,7 @@ class ApiController extends Controller {
 
         // 推荐
         $cond_recommend['r.status'] = C('STATUS_Y');
-        $recommendData = D('Recommend')->order('r.sort')->limit(2)->getRecommendData($cond_recommend);
+        $recommendData = D('Recommend')->order('r.sort')->getRecommendData($cond_recommend);
         foreach ($recommendData as $key => $value) {
             $recommendData[$key]['brief'] = strip_tags(htmlspecialchars_decode($value['brief']));
         }

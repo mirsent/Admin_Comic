@@ -200,7 +200,7 @@ class ComicController extends AdminBaseController{
     /**
      * 推荐漫画
      */
-    public function recommend_comic()
+    public function recommend_comics()
     {
         $comics = explode(',', I('comic'));
         foreach ($comics as $key => $value) {
@@ -211,6 +211,26 @@ class ComicController extends AdminBaseController{
             ];
         }
         M('recommend')->addAll($data);
+        ajax_return(1);
+    }
+    public function recommend_comic()
+    {
+        $comicId = I('comic_id');
+        $date = date('Y-m-d H:i:s');
+
+        $cond['comic_id'] = $comicId;
+        $recommendInfo = M('recommend') ->where($cond)->find();
+
+        if ($recommendInfo) {
+            M('recommend')->where($cond)->save(['recommend_time'=>$date]);
+        } else {
+            $data = [
+                'comic_id'       => $comicId,
+                'recommend_time' => $date,
+                'status'         => C('STATUS_Y')
+            ];
+            M('recommend')->add($data);
+        }
         ajax_return(1);
     }
 
