@@ -30,4 +30,16 @@ class GatherModel extends BaseModel{
         return $data;
     }
 
+    public function getGatherDetail($id)
+    {
+        $cond['g.id'] = $id;
+        $data = $this
+            ->alias('g')
+            ->join('__READER__ r ON r.id = g.publisher_id')
+            ->field('g.*,head,nickname')
+            ->where($cond)
+            ->find();
+        return $data;
+    }
+
 }

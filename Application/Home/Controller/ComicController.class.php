@@ -319,33 +319,6 @@ class ComicController extends Controller {
     // 漫画 //
     ////////
 
-    /**
-     * 获取最新漫画
-     * 5条
-     */
-    public function get_new_comic()
-    {
-        $cond['status'] = C('STATUS_Y');
-        $data = D('Comics')->order('updated_at desc')->limit(5)->getComicApiData($cond);
-        foreach ($data as $key => $value) {
-            $data[$key]['brief'] = htmlspecialchars_decode($value['brief']);
-        }
-        ajax_return(1, '最新漫画', $data);
-    }
-
-    /**
-     * 获取推荐漫画
-     * 2条
-     */
-    public function get_recommend_comic()
-    {
-        $cond['r.status'] = C('STATUS_Y');
-        $data = D('Recommend')->order('r.sort')->limit(2)->getRecommendData($cond);
-        foreach ($data as $key => $value) {
-            $data[$key]['brief'] = strip_tags(htmlspecialchars_decode($value['brief'])); // 去掉html标记
-        }
-        ajax_return(1, '推荐漫画', $data);
-    }
 
     /**
      * 猜你喜欢
@@ -354,25 +327,7 @@ class ComicController extends Controller {
      */
     public function get_like_comic()
     {
-        $cond['openid'] = I('openid');
-        $typeArr = M('history')->where($cond)->getField('type_ids', true);
-        $types = array_values(array_unique(explode(',', implode(',', $typeArr))));
-
-        $comic = M('comics');
-        $comicIds = [];
-        for ($i=0; $i < count($types); $i++) {
-            $cond_comic = [
-                'status' => C('STATUS_Y'),
-                '_string' => 'FIND_IN_SET('.$types[$i].',type_ids)'
-            ];
-            $ids = $comic->where($cond_comic)->getField('id', true);
-            $comicIds = array_unique(array_merge($comicIds, $ids));
-        }
-
-        $cond_comic = [
-            'id' => array('in', $comicIds)
-        ];
-        $data = D('Comics')->order('rand()')->limit(3)->getComicApiData($cond_comic);
+        $data = D('Comics')->getLikeComic(I('openid'));
 
         ajax_return(1, '喜欢漫画', $data);
     }
@@ -382,52 +337,7 @@ class ComicController extends Controller {
      */
     public function get_subject_comic()
     {
-        $cond['status'] = C('STATUS_Y');
-        $data = M('subject')->where($cond)->select();
-        $comic = M('comics');
-        foreach ($data as $key => $value) {
-            $cond_comic = [
-                'status' => C('STATUS_Y'),
-                'id'     => array('in', $value['comic_ids'])
-            ];
-            $arr = $comic->limit(8)->where($cond_comic)->getField('head', true);
-            $count = count($arr); // 包含漫画数
-            switch ($count) {
-                case 2:
-                    $top = [$arr[0], $arr[1], $arr[0], $arr[1] ];
-                    $bottom = [$arr[1], $arr[0], $arr[1], $arr[0] ];
-                    break;
-                case 3:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[0] ];
-                    $bottom = [$arr[1], $arr[2], $arr[0], $arr[1] ];
-                    break;
-                case 4:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
-                    $bottom = [$arr[1], $arr[2], $arr[3], $arr[0] ];
-                    break;
-                case 5:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
-                    $bottom = [$arr[4], $arr[0], $arr[1], $arr[2] ];
-                    break;
-                case 6:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
-                    $bottom = [$arr[4], $arr[5], $arr[0], $arr[1] ];
-                    break;
-                case 7:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
-                    $bottom = [$arr[4], $arr[5], $arr[6], $arr[0] ];
-                    break;
-                case 8:
-                    $top = [$arr[0], $arr[1], $arr[2], $arr[3] ];
-                    $bottom = [$arr[4], $arr[5], $arr[6], $arr[7] ];
-                    break;
-
-                default:
-                    break;
-            }
-            $data[$key]['top'] = array_merge($top,$top);
-            $data[$key]['bottom'] = array_merge($bottom,$bottom);
-        }
+        $data = D('Subject')->getSubject();
         ajax_return(1, '专题', $data);
     }
 

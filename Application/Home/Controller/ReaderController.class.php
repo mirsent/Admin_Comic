@@ -40,6 +40,10 @@ class ReaderController extends Controller {
     // 画册 //
     ////////
 
+    /**
+     * 获取画册信息
+     * @param reader_id 读者ID
+     */
     public function get_gather()
     {
         $cond['g.status'] = C('APPLY_P');
@@ -48,7 +52,18 @@ class ReaderController extends Controller {
         $left = [];
         $right = [];
 
+        $readerId = I('reader_id');
+        $like = M('gather_likes');
         foreach ($gathers as $key => $value) {
+            $gathers[$key]['url'] = explode(',', $value['url'])[0];
+
+            $cond_like = [
+                'gather_id' => $value['id'],
+                'reader_id' => $readerId,
+                'status'    => C('STATUS_Y')
+            ];
+            $gathers[$key]['is_like'] = $like->where($cond_like)->find();
+
             if ($key%2 == 0) {
                 $left[] = $gathers[$key];
             } else {
@@ -62,6 +77,26 @@ class ReaderController extends Controller {
         ];
 
         ajax_return(1, '画册', $data);
+    }
+
+    /**
+     * 获取画册详情
+     * @param gather_id 画册ID
+     */
+    public function get_gather_detail()
+    {
+        $data = D('Gather')->getGatherDetail(I('gather_id'));
+
+        $data['url'] = explode(',',$data['url']);
+
+        $cond_like = [
+            'gather_id' => $data['id'],
+            'reader_id' => I('reader_id'),
+            'status'    => C('STATUS_Y')
+        ];
+        $data['is_like'] = M('gather_likes')->where($cond_like)->find();
+
+        ajax_return(1, '画册详情', $data);
     }
 
     /**
@@ -93,6 +128,26 @@ class ReaderController extends Controller {
         $like = D('GatherLikes');
         $like->create();
         $like->add();
+
+        ajax_return(1);
+    }
+
+    /**
+     * 画册取消喜欢
+     * @param gather_id 画册ID
+     * @param reader_id 读者ID
+     */
+    public function cancel_like_gather()
+    {
+        // 画册like+1
+        $cond_gather['id'] = I('gather_id');
+        M('gather')->where($cond_gather)->setDec('likes');
+
+        $cond_like = [
+            'gather_id' => I('gather_id'),
+            'reader_id' => I('reader_id')
+        ];
+        M('gather_likes')->where($cond_like)->save(['status'=>C('STATUS_N')]);
 
         ajax_return(1);
     }
