@@ -27,6 +27,9 @@ class GatherModel extends BaseModel{
             ->field('g.*,head,nickname')
             ->where(array_filter($cond))
             ->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['url_arr'] = explode(',',$value['url']);
+        }
         return $data;
     }
 

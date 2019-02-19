@@ -1,6 +1,22 @@
 <extend name="Public/base" />
 <block name="css">
-
+    <style type="text/css">
+        .imgs{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .imgs .img-box{
+            width: 120px;
+            height: 80px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .imgs img{
+            width: 120px;
+        }
+    </style>
 </block>
 <block name="header">画册申请 <small>列表</small></block>
 <block name="content">
@@ -13,7 +29,7 @@
             <table class="table table-bordered table-striped table-hover table-single">
                 <thead>
                     <tr>
-                        <th width="400">图片</th>
+                        <th width="600">图片</th>
                         <th>标题</th>
                         <th>喜欢数</th>
                         <th>发布人</th>
@@ -56,9 +72,16 @@
                 },
                 columns: [
                     {
-                        "data": "url",
+                        "data": "url_arr",
                         "orderable": false,
-                        "render": DT.RENDER.IMG
+                        "render": function (data,type,full,meta) {
+                            var sOut = '<div class="imgs">';
+                            for (var i = 0; i < data.length; i++) {
+                                sOut += '<a href="'+data[i]+'" class="img-box" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data[i]+'"></a>'
+                            }
+                            sOut += '</div>'
+                            return sOut
+                        }
                     },
                     { "data": "gather_title" },
                     { "data": "likes" },
