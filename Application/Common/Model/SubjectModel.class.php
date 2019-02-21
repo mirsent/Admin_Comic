@@ -17,6 +17,7 @@ class SubjectModel extends BaseModel{
                 'id'     => array('in', $value['comic_ids'])
             ];
             $arr = $comic->limit(8)->where($cond_comic)->getField('head', true);
+            $data[$key]['comics'] = $comic->where($cond_comic)->field('id,head,title,brief,popularity')->select();
             $count = count($arr); // 包含漫画数
             switch ($count) {
                 case 2:

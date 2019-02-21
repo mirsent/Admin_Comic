@@ -294,21 +294,31 @@ class ComicsModel extends BaseModel{
     {
         $cond['openid'] = $openid;
         $typeArr = M('history')->where($cond)->getField('type_ids', true);
-        $types = array_values(array_unique(explode(',', implode(',', $typeArr))));
 
-        $comicIds = [];
-        for ($i=0; $i < count($types); $i++) {
+        if ($typeArr) {
+            $types = array_values(array_unique(explode(',', implode(',', $typeArr))));
+
+            $comicIds = [];
+            for ($i=0; $i < count($types); $i++) {
+                $cond_comic = [
+                    'status' => C('STATUS_Y'),
+                    '_string' => 'FIND_IN_SET('.$types[$i].',type_ids)'
+                ];
+                $ids = $this->where($cond_comic)->getField('id', true);
+                $comicIds = array_unique(array_merge($comicIds, $ids));
+            }
+
             $cond_comic = [
-                'status' => C('STATUS_Y'),
-                '_string' => 'FIND_IN_SET('.$types[$i].',type_ids)'
+                'id' => array('in', $comicIds),
+                'status' => C('STATUS_Y')
             ];
-            $ids = $this->where($cond_comic)->getField('id', true);
-            $comicIds = array_unique(array_merge($comicIds, $ids));
+        } else {
+            $cond_comic = [
+                'status' => C('STATUS_Y')
+            ];
         }
 
-        $cond_comic = [
-            'id' => array('in', $comicIds)
-        ];
+
         $data = $this->order('rand()')->limit(3)->getComicApiData($cond_comic);
 
         return $data;

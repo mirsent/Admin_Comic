@@ -4,6 +4,12 @@ use Think\Controller;
 
 class ReaderController extends Controller {
 
+    public function get_reader_info()
+    {
+        $data = M('reader')->find(I('reader_id'));
+        ajax_return(1, '读者信息', $data);
+    }
+
     /**
      * 消费记录
      */

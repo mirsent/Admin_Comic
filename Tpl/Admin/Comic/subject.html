@@ -15,7 +15,8 @@
                 <thead>
                     <tr>
                         <th>专题名称</th>
-                        <th width="80%">包含漫画</th>
+                        <th width="500">专题简介</th>
+                        <th>包含漫画</th>
                         <th>状态</th>
                     </tr>
                 </thead>
@@ -32,6 +33,12 @@
                 <label class="layui-form-label">专题名称</label>
                 <div class="layui-input-block">
                     <input type="text" name="subject_name" placeholder="请输入专题名称" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">专题简介</label>
+                <div class="layui-input-block">
+                    <textarea name="subject_brief" placeholder="请输入专题简介" lay-verify="required" class="layui-textarea"></textarea>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -74,6 +81,7 @@
                 ajax: "{:U('Comic/get_subject_info')}",
                 columns: [
                     { "data": "subject_name" },
+                    { "data": "subject_brief" },
                     { "data": "comics" },
                     DT.COLUMN.STATUS
                 ],
