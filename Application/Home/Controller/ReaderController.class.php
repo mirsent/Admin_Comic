@@ -2,6 +2,9 @@
 namespace Home\Controller;
 use Think\Controller;
 
+require './vendor/autoload.php';
+use DfaFilter\SensitiveHelper;
+
 class ReaderController extends Controller {
 
     public function get_reader_info()
@@ -60,15 +63,23 @@ class ReaderController extends Controller {
 
         $readerId = I('reader_id');
         $like = M('gather_likes');
+        $comment = M('gather_comment');
         foreach ($gathers as $key => $value) {
             $gathers[$key]['url'] = explode(',', $value['url'])[0];
 
+            // 是否喜欢
             $cond_like = [
                 'gather_id' => $value['id'],
                 'reader_id' => $readerId,
                 'status'    => C('STATUS_Y')
             ];
             $gathers[$key]['is_like'] = $like->where($cond_like)->find();
+
+            $cond_comment = [
+                'gather_id' => $value['id'],
+                'status'    => C('STATUS_Y')
+            ];
+            $gathers[$key]['comments'] = $comment->where($cond_comment)->count();
 
             if ($key%2 == 0) {
                 $left[] = $gathers[$key];
@@ -83,6 +94,77 @@ class ReaderController extends Controller {
         ];
 
         ajax_return(1, '画册', $data);
+    }
+
+    /**
+     * 获取画册评论
+     * @param gather_id 画册ID
+     */
+    public function get_gather_comment()
+    {
+        $gatherId = I('gather_id');
+        $data = D('GatherComment')->getCommentInfo($gatherId);
+        ajax_return(1, '评论列表', $data);
+    }
+
+    /**
+     * 评论
+     */
+    public function comment()
+    {
+        $comment = D('GatherComment');
+        $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换为***为例
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+        $comment->level = 1; // 主评论
+        $comment->pid = 0;
+        $res = $comment->add();
+
+        if ($res === false) {
+            ajax_return(0, '评论失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 回复评论
+     * @param level 2
+     */
+    public function reply()
+    {
+        $comment = D('GatherComment');
+        $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换为***为例
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+        $comment->level = 2;
+        $res = $comment->add();
+
+        if ($res === false) {
+            ajax_return(0, '评论失败');
+        }
+        ajax_return(1);
     }
 
     /**
@@ -170,7 +252,7 @@ class ReaderController extends Controller {
             ->alias('c')
             ->join('__READER__ r ON r.openid = c.openid')
             ->join('__COMICS__ comic ON comic.id = c.comic_id')
-            ->field('c.*,nickname,r.head,title')
+            ->field('c.*,nickname,r.head,title,comic.title as comic_title')
             ->order('comment_time desc')
             ->where($cond)
             ->select();

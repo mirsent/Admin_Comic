@@ -50,7 +50,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">图片</label>
                 <div class="layui-input-block">
-                    <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
+                    <input type="file" name="img[]" multiple class="layui-input file-loading" id="uploadImg">
                     <input type="hidden" name="url">
                 </div>
             </div>
@@ -153,7 +153,7 @@
                     area: '600px',
                     success: function(layero, index){
                         var oFileInput = new FileInput();
-                        oFileInput.Init("uploadImg", "{:U('Upload/upload_img')}");
+                        oFileInput.Init("uploadImg", "{:U('Upload/upload_multiple')}");
                         $('#uploadImg').on("filebatchuploadsuccess", function (event, data, previewId, index) {
                             var image_path = data.response.data;
                             $('input[name="url"]').val(image_path);
@@ -172,12 +172,25 @@
                         title: '编辑画册信息',
                         content: $('#actionModal').html(),
                         offset: '100px',
-                        area: '600px',
+                        area: '900px',
                         success: function(layero, index){
                             dataToForm('actionForm', data);
+
+                            var imgs = data.url_arr;
+                            var preview = [],
+                                previewConfig = [];
+                            for (var i = 0; i < imgs.length; i++) {
+                                var config = {
+                                    key: i,
+                                    url: "{:U('Gather/delete_gather_img')}"
+                                };
+                                previewConfig.push(config);
+                                preview.push(imgs[i]);
+                            }
+
                             $('#uploadImg').fileinput({
                                 language: 'zh',
-                                uploadUrl: "{:U('Upload/upload_img')}",
+                                uploadUrl: "{:U('Upload/upload_multiple')}",
                                 showUpload: false,
                                 showCaption: false,
                                 showRemove: false,
@@ -191,7 +204,9 @@
                                 enctype: 'multipart/form-data',
                                 browseLabel: '上传图片',
                                 previewClass:'previewPanel',
-                                initialPreview: ['<img src="'+data['url']+'" class="img-thumbnail">'],
+                                initialPreview: preview,
+                                initialPreviewAsData: true,
+                                initialPreviewConfig: previewConfig,
                                 layoutTemplates:{
                                     actionUpload: ''
                                 }
