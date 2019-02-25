@@ -182,7 +182,11 @@
                             for (var i = 0; i < imgs.length; i++) {
                                 var config = {
                                     key: i,
-                                    url: "{:U('Gather/delete_gather_img')}"
+                                    url: "{:U('Gather/delete_gather_img')}",
+                                    extra: {
+                                        gather_id: data.id,
+                                        url: data.url
+                                    }
                                 };
                                 previewConfig.push(config);
                                 preview.push(imgs[i]);

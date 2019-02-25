@@ -96,6 +96,28 @@ class GatherController extends AdminBaseController {
         ajax_return(1);
     }
 
+    /**
+     * 删除画册图片
+     */
+    public function delete_gather_img()
+    {
+        $index = I('key');
+        $gatherId = I('gather_id');
+
+        $urlArr = explode(',', I('url'));
+        array_splice($urlArr, $index, 1);
+        $url = implode(',', $urlArr);
+
+        $cond['id'] = $gatherId;
+        $data['url'] = $url;
+        $res = M('gather')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除画册图片失败');
+        }
+        ajax_return(1);
+    }
+
 
     /**
      * 获取画册申请列表信息
