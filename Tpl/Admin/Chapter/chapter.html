@@ -105,6 +105,12 @@
 
         /************************* document ready end *****************************/
 
+        document.onkeydown = function () {
+            if (window.event && window.event.keyCode == 13) {
+                window.event.returnValue = false;
+            }
+        }
+
         layui.use(['layer', 'form'], function() {
             var layer = layui.layer,
             form = layui.form;
