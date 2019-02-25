@@ -5,6 +5,7 @@
     <title>更新章节</title>
     <include file="Public:theme_lte_css" />
     <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+    <link rel="stylesheet" href="__STATICS__/jcrop/jcrop.css">
     <style type="text/css">
         @media screen and (max-width: 767px){
             div.dataTables_wrapper div.dataTables_length,
@@ -53,6 +54,14 @@
                 <div class="layui-input-block">
                     <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
                     <input type="hidden" name="chapter_cover">
+                    <input type="hidden" name="aw">
+                    <input type="hidden" name="ah">
+                    <input type="hidden" name="cw">
+                    <input type="hidden" name="ch">
+                    <input type="hidden" name="w">
+                    <input type="hidden" name="h">
+                    <input type="hidden" name="x">
+                    <input type="hidden" name="y">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -67,6 +76,7 @@
 
     <include file="Public:base_js" />
     <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script src="__STATICS__/jcrop/jcrop.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -102,19 +112,18 @@
             // 编辑
             $('#edit').on('click', function() {
                 getSelectedData(oTable, function(data){
-                    var previewUrl = data.cover ? data.cover : '';
+                    dataToForm('actionForm', data);
                     layer.open({
                         type: 1,
                         shadeClose: true,
                         title: '编辑'+data.catalog_name+'信息',
                         content: $('#actionModal').html(),
-                        offset: '100px',
-                        area: '600px',
+                        area: ['600px', '700px'],
                         success: function(layero, index){
                             dataToForm('actionForm', data);
                             $('#uploadImg').fileinput({
                                 language: 'zh',
-                                uploadUrl: "{:U('Upload/upload_img')}",
+                                uploadUrl: "{:U('Upload/upload_img_crop')}",
                                 showUpload: false,
                                 showCaption: false,
                                 showRemove: false,
@@ -128,10 +137,58 @@
                                 enctype: 'multipart/form-data',
                                 browseLabel: '上传图片',
                                 previewClass:'previewPanel',
-                                initialPreview: [previewUrl],
+                                previewTemplates:{
+                                    image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                            '   <div class="kv-file-content">' +
+                                            '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop" title="{caption}" alt="{caption}" {style}>\n' +
+                                            '   </div>\n' +
+                                            '</div>\n',
+                                },
                                 layoutTemplates:{
                                     actionUpload: ''
+                                },
+                                uploadExtraData: function(previewId, index) {
+                                    var obj = {
+                                        aw: $('[name="aw"]').val(),
+                                        ah: $('[name="ah"]').val(),
+                                        cw: $('[name="cw"]').val(),
+                                        ch: $('[name="ch"]').val(),
+                                        x: $('[name="x"]').val(),
+                                        y: $('[name="y"]').val(),
+                                        w: $('[name="w"]').val(),
+                                        h: $('[name="h"]').val()
+                                    };
+                                    return obj;
                                 }
+                            }).on('fileloaded', function(event) {
+                                console.log(111)
+                                Jcrop.load('jcrop').then(img => {
+                                    // 图片真实尺寸
+                                    $("<img/>")
+                                        .attr("src", $("#jcrop").attr("src"))
+                                        .load(function() {
+                                            var w = this.width,
+                                                h = this.height;
+                                            $('[name="aw"]').val(w);
+                                            $('[name="ah"]').val(h);
+
+                                            var jcp = Jcrop.attach(img,{multi:true,aspectRatio: 16 / 9});
+                                            const rect = Jcrop.Rect.sizeOf(jcp.el);
+                                            const rectA = Jcrop.Rect.fromPoints([0,0],[w,w*9/16]);
+
+                                            $('[name="cw"]').val(rect.w);
+                                            $('[name="ch"]').val(rect.h);
+                                            jcp.newWidget(rectA);
+                                            jcp.focus();
+
+                                            jcp.listen('crop.update',(widget,e) => {
+                                                $('[name="x"]').val(widget.pos.x);
+                                                $('[name="y"]').val(widget.pos.y);
+                                                $('[name="w"]').val(widget.pos.w);
+                                                $('[name="h"]').val(widget.pos.h);
+                                            });
+                                        });
+                                });
                             }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                                 var image_path = data.response.data;
                                 $('input[name="chapter_cover"]').val(image_path);
