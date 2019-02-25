@@ -11,6 +11,7 @@ class ChapterController extends AdminBaseController{
         $path = "Uploads/comic/".$comicId."/*";
         $chapterN = count(glob($path)); // 章节数量
 
+        // 库中章节
         $chapter = M('chapter');
         $cond_chapter = [
             'status'   => C('STATUS_Y'),
@@ -34,6 +35,15 @@ class ChapterController extends AdminBaseController{
                 ];
             }
             $chapter->addAll($new);
+
+            // 更新最大章节
+            $comic = M('comics');
+            $cond_comic['id'] = $comicId;
+            $totalChapter = $comic->where($cond_comic)->getField('total_chapter');
+            if ($chapterN > $totalChapter) {
+                $comic->where($cond_comic)->save(['total_chapter'=>$totalChapter]);
+            }
+
             ajax_return(2, '新增目录');
         } else if ($diff < 0) {
             // 回退

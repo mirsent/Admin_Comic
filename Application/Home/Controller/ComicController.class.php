@@ -504,8 +504,8 @@ class ComicController extends Controller {
 
         foreach ($data as $key => $value) {
             $chapterTitle = $value['chapter_title'] ? ' '.$value['chapter_title'] : '';
-            // 判断是否只有一章
-            if (count($data) == 1) {
+            // 判断是否只有一章(完结)
+            if (count($data) == 1 && $comicInfo['s_serial'] == C('C_SERIAL_W')) {
                 $data[$key]['catalog_name'] = '全一册'.$chapterTitle;
             } else {
                 $data[$key]['catalog_name'] = '第'.$value['catalog'].'章'.$chapterTitle;

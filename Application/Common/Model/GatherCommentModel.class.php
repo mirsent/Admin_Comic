@@ -12,7 +12,7 @@ class GatherCommentModel extends BaseModel{
         $data = $this
             ->alias('gc')
             ->join('__GATHER__ g ON g.id = gc.gather_id')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.openid = gc.openid')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -22,9 +22,13 @@ class GatherCommentModel extends BaseModel{
         $data = $this
             ->alias('gc')
             ->join('__GATHER__ g ON g.id = gc.gather_id')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.openid = gc.openid')
+            ->field('gc.*,gather_title,url,nickname,head')
             ->where(array_filter($cond))
             ->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['url'] = explode(',',$value['url'])[0];
+        }
         return $data;
     }
 
