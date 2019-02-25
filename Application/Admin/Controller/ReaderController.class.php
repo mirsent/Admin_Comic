@@ -309,6 +309,66 @@ class ReaderController extends AdminBaseController{
 
 
 
+    /**************************************** 画册点赞 **************************************/
+
+    /**
+     * 获取点赞信息
+     */
+    public function get_gather_likes_info()
+    {
+        $ms = D('GatherLikes');
+
+        $cond['l.status'] = C('STATUS_Y');
+
+        $recordsTotal = $ms->alias('l')->where($cond)->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['gather_title|nickname'] = array('like', '%'.$search.'%');
+        }
+        $cond['gather_title'] = I('gather_title');
+        $cond['nickname'] = I('nickname');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['like_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+        }
+
+        $recordsFiltered = $ms->getLikesNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 0: $ms->order('gather_title '.$orderDir); break;
+                case 1: $ms->order('nickname '.$orderDir); break;
+                case 2: $ms->order('like_time '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('like_time desc');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getLikesData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+    }
+
+
+
 
     /**************************************** 积分详情 **************************************/
 
