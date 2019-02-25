@@ -207,6 +207,14 @@
                         <div class="layui-input-block">
                             <input type="file" name="img2" class="layui-input file-loading" id="uploadImg2">
                             <input type="hidden" name="head">
+                            <input type="hidden" name="aw2">
+                            <input type="hidden" name="ah2">
+                            <input type="hidden" name="cw2">
+                            <input type="hidden" name="ch2">
+                            <input type="hidden" name="w2">
+                            <input type="hidden" name="h2">
+                            <input type="hidden" name="x2">
+                            <input type="hidden" name="y2">
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -440,7 +448,9 @@
                     $('#summernote').summernote({
                         toolbar: []
                     });
-                    var oFileInput = new FileInput();
+                    // var oFileInput = new FileInput();
+
+                    // 封面
                     $('#uploadImg').fileinput({
                         language: 'zh',
                         uploadUrl: "{:U('Upload/upload_img_crop')}",
@@ -482,34 +492,106 @@
                         }
                     }).on('fileloaded', function(event) {
                         Jcrop.load('jcrop').then(img => {
+                            // 图片真实尺寸
                             $("<img/>")
                                 .attr("src", $("#jcrop").attr("src"))
                                 .load(function() {
-                                    $('[name="aw"]').val(this.width);
-                                    $('[name="ah"]').val(this.height);
+                                    var w = this.width,
+                                        h = this.height;
+                                    $('[name="aw"]').val(w);
+                                    $('[name="ah"]').val(h);
+
+                                    var jcp = Jcrop.attach(img,{multi:true,aspectRatio: 16 / 9});
+                                    const rect = Jcrop.Rect.sizeOf(jcp.el);
+                                    const rectA = Jcrop.Rect.fromPoints([0,0],[w,w*9/16]);
+
+                                    $('[name="cw"]').val(rect.w);
+                                    $('[name="ch"]').val(rect.h);
+                                    jcp.newWidget(rectA);
+                                    jcp.focus();
+
+                                    jcp.listen('crop.update',(widget,e) => {
+                                        $('[name="x"]').val(widget.pos.x);
+                                        $('[name="y"]').val(widget.pos.y);
+                                        $('[name="w"]').val(widget.pos.w);
+                                        $('[name="h"]').val(widget.pos.h);
+                                    });
                                 });
-
-                            var jcp = Jcrop.attach(img,{multi:true});
-                            const rect = Jcrop.Rect.sizeOf(jcp.el);
-
-                            $('[name="cw"]').val(rect.w);
-                            $('[name="ch"]').val(rect.h);
-                            jcp.newWidget(rect);
-                            jcp.focus();
-
-                            jcp.listen('crop.change',(widget,e) => {
-                                $('[name="x"]').val(widget.pos.x);
-                                $('[name="y"]').val(widget.pos.y);
-                                $('[name="w"]').val(widget.pos.w);
-                                $('[name="h"]').val(widget.pos.h);
-                            });
                         });
                     }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                         var image_path = data.response.data;
                         $('input[name="cover"]').val(image_path);
                     });
-                    oFileInput.Init("uploadImg2", "{:U('Upload/upload_img')}");
-                    $('#uploadImg2').on("filebatchuploadsuccess", function (event, data, previewId, index) {
+
+                    // 图标
+                    $('#uploadImg2').fileinput({
+                        language: 'zh',
+                        uploadUrl: "{:U('Upload/upload_img_crop')}",
+                        showUpload: false,
+                        showCaption: false,
+                        showRemove: false,
+                        uploadAsync: false,
+                        maxFileSize : 10240,
+                        maxFileCount: 10,
+                        overwriteInitial: true,
+                        allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                        browseClass: "btn btn-default btn-block",
+                        dropZoneEnabled: false,
+                        enctype: 'multipart/form-data',
+                        browseLabel: '上传图片',
+                        previewClass:'previewPanel',
+                        previewTemplates:{
+                            image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                    '   <div class="kv-file-content">' +
+                                    '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop2" title="{caption}" alt="{caption}" {style}>\n' +
+                                    '   </div>\n' +
+                                    '</div>\n',
+                        },
+                        layoutTemplates:{
+                            actionUpload: ''
+                        },
+                        uploadExtraData: function(previewId, index) {
+                            var obj = {
+                                aw: $('[name="aw2"]').val(),
+                                ah: $('[name="ah2"]').val(),
+                                cw: $('[name="cw2"]').val(),
+                                ch: $('[name="ch2"]').val(),
+                                x: $('[name="x2"]').val(),
+                                y: $('[name="y2"]').val(),
+                                w: $('[name="w2"]').val(),
+                                h: $('[name="h2"]').val()
+                            };
+                            return obj;
+                        }
+                    }).on('fileloaded', function(event) {
+                        Jcrop.load('jcrop2').then(img => {
+                            // 图片真实尺寸
+                            $("<img/>")
+                                .attr("src", $("#jcrop2").attr("src"))
+                                .load(function() {
+                                    var w = this.width,
+                                        h = this.height;
+                                    $('[name="aw2"]').val(w);
+                                    $('[name="ah2"]').val(h);
+
+                                    var jcp = Jcrop.attach(img,{multi:true,aspectRatio: 1});
+                                    const rect = Jcrop.Rect.sizeOf(jcp.el);
+                                    const rectA = Jcrop.Rect.fromPoints([0,0],[w,w]);
+
+                                    $('[name="cw2"]').val(rect.w);
+                                    $('[name="ch2"]').val(rect.h);
+                                    jcp.newWidget(rectA);
+                                    jcp.focus();
+
+                                    jcp.listen('crop.update',(widget,e) => {
+                                        $('[name="x2"]').val(widget.pos.x);
+                                        $('[name="y2"]').val(widget.pos.y);
+                                        $('[name="w2"]').val(widget.pos.w);
+                                        $('[name="h2"]').val(widget.pos.h);
+                                    });
+                                });
+                        });
+                    }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
                         var image_path = data.response.data;
                         $('input[name="head"]').val(image_path);
                     });
