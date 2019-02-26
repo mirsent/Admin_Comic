@@ -7,9 +7,29 @@ use DfaFilter\SensitiveHelper;
 
 class ReaderController extends Controller {
 
+    /**
+     * 获取读者信息
+     * @param reader_id 读者ID
+     */
     public function get_reader_info()
     {
-        $data = M('reader')->find(I('reader_id'));
+        $readerId = I('reader_id');
+
+        $data = M('reader')->find($readerId);
+        // 发布画册
+        $cond_gather = [
+            'publisher_id' => $readerId,
+            'status'       => C('APPLY_P')
+        ];
+        $publishGatherN = M('gather')->where($cond_gather)->count();
+        // 喜欢的画册
+        $cond_gather_like = [
+            'reader_id' => $readerId,
+            'status'    => C('STATUS_Y')
+        ];
+        $likeGatherN = M('gather_likes')->where($cond_gather_like)->count();
+        $data['gather_n'] = $publishGatherN + $likeGatherN;
+
         ajax_return(1, '读者信息', $data);
     }
 
@@ -94,6 +114,40 @@ class ReaderController extends Controller {
         ];
 
         ajax_return(1, '画册', $data);
+    }
+
+    /**
+     * 获取读者画册
+     * @param reader_id 读者ID
+     */
+    public function get_raeder_gather_info()
+    {
+        $readerId = I('reader_id');
+        // 发布画册
+        $cond_gather = [
+            'publisher_id' => $readerId,
+            'g.status'     => C('APPLY_P')
+        ];
+        $publishGather = D('Gather')->getGatherData($cond_gather);
+        // 喜欢的画册
+        $cond_gather_like = [
+            'reader_id' => $readerId,
+            'l.status'  => C('STATUS_Y')
+        ];
+        $likeGather = D('GatherLikes')->getLikesData($cond_gather_like);
+        foreach ($likeGather as $key => $value) {
+            $cond_like = [
+                'status'    => C('STATUS_Y'),
+                'gather_id' => $value['gather_id']
+            ];
+            $likeGather[$key]['like_number'] = D('GatherLikes')->where($cond_like)->count();
+        }
+
+        $data = [
+            'publish' => $publishGather,
+            'like'    => $likeGather
+        ];
+        ajax_return(1, '读者画册', $data);
     }
 
     /**

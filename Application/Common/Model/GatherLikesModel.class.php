@@ -24,10 +24,14 @@ class GatherLikesModel extends BaseModel{
         $data = $this
             ->alias('l')
             ->join('__GATHER__ g ON g.id = l.gather_id')
+            ->join('__READER__ reader ON reader.id = g.publisher_id')
             ->join('__READER__ r On r.id = l.reader_id')
-            ->field('l.*,gather_title,r.nickname')
+            ->field('l.*,gather_title,url,r.nickname,reader.nickname as publisher')
             ->where(array_filter($cond))
             ->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['url_arr'] = explode(',',$value['url']);
+        }
         return $data;
     }
 
