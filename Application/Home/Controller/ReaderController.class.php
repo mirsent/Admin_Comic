@@ -476,4 +476,65 @@ class ReaderController extends Controller {
 
         ajax_return(1, '我的收藏', $data);
     }
+
+
+    ////////
+    // 需求 //
+    ////////
+
+    /**
+     * 获取需求
+     * @param reader_id 读者ID
+     */
+    public function get_wish()
+    {
+        $cond['w.status'] = array('neq', C('STATUS_N'));
+        $data = D('Wish')->getWishData($cond);
+
+        $like = M('wish_likes');
+        foreach ($data as $key => $value) {
+            $cond_like = [
+                'status'  => C('STATUS_Y'),
+                'wish_id' => $value['id']
+            ];
+            $cond_reader['reader_id'] = I('reader_id');
+            $data[$key]['number_like'] = $like->where($cond_like)->count();
+            $data[$key]['is_like'] = $like->where($cond_reader)->where($cond_like)->find();
+        }
+
+        ajax_return(1, '需求', $data);
+    }
+
+    /**
+     * 发布需求
+     * @param reader_id 读者ID
+     * @param wish_title 需求
+     */
+    public function wish()
+    {
+        $wish = D('Wish');
+        $wish->create();
+        $res = $wish->add();
+
+        $wishLikes = D('WishLikes');
+        $wishLikes->create();
+        $wishLikes->wish_id = $res;
+        $wishLikes->add();
+
+        ajax_return(1, '发布需求');
+    }
+
+    /**
+     * 需求点赞
+     * @param reader_id 读者ID
+     * @param wish_id 需求ID
+     */
+    public function wish_like()
+    {
+        $wishLikes = D('WishLikes');
+        $wishLikes->create();
+        $wishLikes->add();
+
+        ajax_return(1, '需求点赞');
+    }
 }
