@@ -484,4 +484,88 @@ class ReaderController extends AdminBaseController{
             "data" => $infos
         ), JSON_UNESCAPED_UNICODE);
     }
+
+
+
+    /**************************************** 读者期望 **************************************/
+
+    public function get_wish_info()
+    {
+        $ms = D('Wish');
+
+        $cond['w.status'] = array('neq', C('STATUS_N'));
+
+        $recordsTotal = $ms->alias('w')->where($cond)->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['wish_title|nickname'] = array('like', '%'.$search.'%');
+        }
+        $cond['wish_title'] = I('wish_title');
+        $cond['nickname'] = I('nickname');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['wish_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+        }
+
+        $recordsFiltered = $ms->getWishNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 0: $ms->order('wish_title '.$orderDir); break;
+                case 1: $ms->order('nickname '.$orderDir); break;
+                case 2: $ms->order('wish_time '.$orderDir); break;
+                case 3: $ms->order('vote '.$orderDir); break;
+                case 3: $ms->order('status '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('status, wish_time desc');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getWishData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 上架漫画
+     * @param id 期望ID
+     * @param wish_title 期望漫画
+     * @param reader_id 读者ID
+     */
+    public function update_wish()
+    {
+        // 修改wish状态为已上架
+        $cond['id'] = I('id');
+        $data['status'] = C('APPLY_P');
+        M('wish')->where($cond)->save($data);
+
+        // 通知用户
+        $data_notice = [
+            'reader_id'   => I('reader_id'),
+            'content'     => '小主想看的 '.I('wish_title').' 已上架！',
+            'notice_time' => date('Y-m-d H:i:s'),
+            'status'      => C('STATUS_Y')
+        ];
+        M('notice')->add($data_notice);
+
+        ajax_return(1);
+    }
 }

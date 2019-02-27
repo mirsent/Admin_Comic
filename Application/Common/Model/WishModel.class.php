@@ -8,6 +8,16 @@ class WishModel extends BaseModel{
         array('wish_time','get_datetime',1,'callback')
     );
 
+    public function getWishNumber($cond=[])
+    {
+        $data = $this
+            ->alias('w')
+            ->join('__READER__ r ON r.id = w.reader_id')
+            ->where(array_filter($cond))
+            ->count();
+        return $data;
+    }
+
     public function getWishData($cond=[])
     {
         $data = $this
