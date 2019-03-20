@@ -35,12 +35,13 @@ class ReaderController extends Controller {
 
     /**
      * 消费记录
+     * @param reader_id 读者ID
      */
     public function get_consume_note()
     {
         $cond = [
-            'openid' => I('openid'),
-            'method' => 2
+            'reader_id' => I('reader_id'),
+            'method'    => 2
         ];
         $data = M('integral')
             ->where($cond)
@@ -51,12 +52,13 @@ class ReaderController extends Controller {
 
     /**
      * 充值记录
+     * @param reader_id 读者ID
      */
     public function get_recharge_note()
     {
         $cond = [
-            'openid' => I('openid'),
-            'method' => 1
+            'reader_id' => I('reader_id'),
+            'method'    => 1
         ];
         $data = M('integral')
             ->where($cond)
@@ -296,15 +298,15 @@ class ReaderController extends Controller {
 
     /**
      * 获取回复内容
-     * @param reply_openid
+     * @param reply_reader_id 回复的读者ID
      */
     public function get_reply()
     {
-        $cond['reply_openid'] = I('reply_openid');
+        $cond['reply_reader_id'] = I('reply_reader_id');
 
         $data = M('comment')
             ->alias('c')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.id = c.reader_id')
             ->join('__COMICS__ comic ON comic.id = c.comic_id')
             ->field('c.*,nickname,r.head,title,comic.title as comic_title')
             ->order('comment_time desc')
@@ -335,18 +337,18 @@ class ReaderController extends Controller {
     /**
      * 点赞
      * @param comic_id 漫画ID
-     * @param openid 读者ID
+     * @param reader_id 读者ID
      */
     public function like(){
         $likes = D('Likes');
         $likes->create();
 
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         $cond = [
-            'comic_id' => $comicId,
-            'openid'   => $openid
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId
         ];
         $likesInfo = $likes->where($cond)->find();
 
@@ -370,8 +372,8 @@ class ReaderController extends Controller {
     public function cancel_like()
     {
         $cond = [
-            'comic_id' => I('comic_id'),
-            'openid'   => I('openid')
+            'comic_id'  => I('comic_id'),
+            'reader_id' => I('reader_id')
         ];
         $data = [
             'status' => C('STATUS_N')
@@ -391,18 +393,18 @@ class ReaderController extends Controller {
     /**
      * 收藏
      * @param comic_id 漫画ID
-     * @param openid 读者ID
+     * @param reader_id 读者ID
      */
     public function collect(){
         $collect = D('Collect');
         $collect->create();
 
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         $cond = [
-            'comic_id' => $comicId,
-            'openid'   => $openid
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId
         ];
         $collectInfo = $collect->where($cond)->find();
 
@@ -425,8 +427,8 @@ class ReaderController extends Controller {
     public function cancel_collect()
     {
         $cond = [
-            'comic_id' => I('comic_id'),
-            'openid'   => I('openid')
+            'comic_id'  => I('comic_id'),
+            'reader_id' => I('reader_id')
         ];
         $data = [
             'status' => C('STATUS_N')
@@ -444,9 +446,10 @@ class ReaderController extends Controller {
      */
     public function get_collect_comic()
     {
+        $readerId = I('reader_id');
         $cond = [
             'ct.status' => C('STATUS_Y'),
-            'openid'    => I('openid')
+            'reader_id' => $readerId
         ];
         $data = M('collect')
             ->alias('ct')
@@ -460,8 +463,8 @@ class ReaderController extends Controller {
         foreach ($data as $key => $value) {
             // 阅读历史
             $cond_history = [
-                'comic_id' => $value['comic_id'],
-                'openid'   => I('openid')
+                'comic_id'  => $value['comic_id'],
+                'reader_id' => $readerId
             ];
             $lastChapter = $history->where($cond_history)->getField('chapter');
             $data[$key]['remain_chapter'] = $value['total_chapter'] - $lastChapter;
@@ -492,12 +495,13 @@ class ReaderController extends Controller {
         $data = D('Wish')->getWishData($cond);
 
         $like = M('wish_likes');
+        $readerId = I('reader_id');
         foreach ($data as $key => $value) {
             $cond_like = [
                 'status'  => C('STATUS_Y'),
                 'wish_id' => $value['id']
             ];
-            $cond_reader['reader_id'] = I('reader_id');
+            $cond_reader['reader_id'] = $readerId;
             $data[$key]['number_like'] = $like->where($cond_like)->count();
             $data[$key]['is_like'] = $like->where($cond_reader)->where($cond_like)->find();
         }

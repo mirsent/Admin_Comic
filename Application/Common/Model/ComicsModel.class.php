@@ -136,7 +136,7 @@ class ComicsModel extends BaseModel{
      * 验证费用
      * @param  int $comicId 漫画ID
      * @param  int $chapter 章节
-     * @param  string $openid  字符串
+     * @param  int $readerId 读者ID
      * @return 1：免费
      *         2：已购买
      *         3：已分享
@@ -145,7 +145,7 @@ class ComicsModel extends BaseModel{
      *         -3：余额解锁 + 分享解锁
      *         -4：余额解锁
      */
-    public function checkCost($comicId, $chapter, $openid){
+    public function checkCost($comicId, $chapter, $readerId){
         $comicInfo = $this->find($comicId);
         $isFree = $comicInfo['s_fee'];
         $freeChapter = $comicInfo['free_chapter'];
@@ -159,10 +159,10 @@ class ComicsModel extends BaseModel{
         } else {
             // 是否付费
             $cond_consume = [
-                'comic_id' => $comicId,
-                'openid'   => $openid,
-                'chapter'  => $chapter,
-                'status'   => C('STATUS_Y')
+                'comic_id'  => $comicId,
+                'reader_id' => $readerId,
+                'chapter'   => $chapter,
+                'status'    => C('STATUS_Y')
             ];
             $consumeInfo = M('consume_order')->where($cond_consume)->find();
 
@@ -172,7 +172,7 @@ class ComicsModel extends BaseModel{
             }
 
             // 判断余额
-            $readerInfo = M('reader')->where(['openid'=>$openid])->find();
+            $readerInfo = M('reader')->find($readerId);
             $balance = $readerInfo['balance'];
             if ($balance > $preChapterPay) {
                 $balancePay = 1;
@@ -183,9 +183,9 @@ class ComicsModel extends BaseModel{
             if ($chapter <= $maxShareChapter) { // 可以分享兑换
                 // 是否分享
                 $cond_share = [
-                    'comic_id' => $comicId,
-                    'openid'   => $openid,
-                    'chapter'  => $chapter,
+                    'comic_id'  => $comicId,
+                    'reader_id' => $readerId,
+                    'chapter'   => $chapter,
                 ];
                 $shareTimes = M('share_help')->where($cond_share)->getField('times');
                 // 3. 已分享
@@ -214,17 +214,17 @@ class ComicsModel extends BaseModel{
      * 获取需要分享数量
      * @param  int $comicId 漫画ID
      * @param  int $chapter 章节
-     * @param  string $openid  读者openid
+     * @param  int $readerId  读者ID
      */
-    public function getNeedShare($comicId, $chapter, $openid)
+    public function getNeedShare($comicId, $chapter, $readerId)
     {
         $comicInfo = $this->find($comicId);
         $preChapterShare = $comicInfo['pre_chapter_share'];
 
         $cond_share = [
-            'comic_id' => $comicId,
-            'openid'   => $openid,
-            'chapter'  => $chapter,
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId,
+            'chapter'   => $chapter,
         ];
         $shareTimes = M('share_help')->where($cond_share)->getField('times');
         $needShare = $preChapterShare - $shareTimes;
@@ -288,11 +288,11 @@ class ComicsModel extends BaseModel{
 
     /**
      * 猜你喜欢
-     * @param  char $openid
+     * @param int $readerId 读者ID
      */
-    public function getLikeComic($openid)
+    public function getLikeComic($readerId)
     {
-        $cond['openid'] = $openid;
+        $cond['reader_id'] = $readerId;
         $typeArr = M('history')->where($cond)->getField('type_ids', true);
 
         if ($typeArr) {

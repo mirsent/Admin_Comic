@@ -25,11 +25,11 @@ class ComicController extends Controller {
      */
     public function reading(){
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
         $chapter = I('chapter');
         $channel = I('channel');
 
-        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
+        D('History')->updateHistory($comicId, $chapter, $readerId, $channel); // 更新阅读历史
 
         $data['share_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 分享封面
 
@@ -54,13 +54,13 @@ class ComicController extends Controller {
         $comic = D('Comics');
 
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
         $chapter = I('chapter');
 
-        $res = $comic->checkCost($comicId, $chapter, $openid);
+        $res = $comic->checkCost($comicId, $chapter, $readerId);
 
         $data['need_pay'] = $comic->getFieldById($comicId, 'pre_chapter_pay');
-        $data['need_share'] = $comic->getNeedShare($comicId, $chapter, $openid);
+        $data['need_share'] = $comic->getNeedShare($comicId, $chapter, $readerId);
 
         ajax_return($res['status'], '1：免费2：已购买3：已分享-1：充值分享-2：充值-3：余额分享-4：余额', $data);
     }
@@ -69,13 +69,13 @@ class ComicController extends Controller {
      * 获取解锁限制
      * @param comic_id
      * @param chapter
-     * @param openid
+     * @param reader_id
      */
     public function get_auth_info()
     {
         $comic = D('Comics');
         $data = $comic->getComicInfo(I('comic_id'));
-        $data['need_share'] = $comic->getNeedShare(I('comic_id'), I('chapter'), I('openid'));
+        $data['need_share'] = $comic->getNeedShare(I('comic_id'), I('chapter'), I('reader_id'));
         ajax_return(1, '解锁限制', $data);
     }
 
@@ -88,12 +88,12 @@ class ComicController extends Controller {
 
         $comicId = I('comic_id');
         $chapter = I('chapter');
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         $cond = [
-            'comic_id' => $comicId,
-            'chapter'  => $chapter,
-            'openid'   => $openid
+            'comic_id'  => $comicId,
+            'chapter'   => $chapter,
+            'reader_id' => $readerId
         ];
         $helpInfo = $help->where($cond)->find();
 
@@ -103,7 +103,7 @@ class ComicController extends Controller {
             $data = [
                 'comic_id'   => $comicId,
                 'chapter'    => $chapter,
-                'openid'     => $openid,
+                'reader_id'  => $readerId,
                 'share_time' => date('Y-m-d H:i:s'),
                 'times'      => 1
             ];
@@ -120,7 +120,7 @@ class ComicController extends Controller {
      * 解锁
      * @param comic_id 漫画ID
      * @param chapter 章节
-     * @param openid 读者openid
+     * @param reader_id 读者id
      * @param channel 渠道
      * 1.生成订单
      * 2.更新读者余额
@@ -128,7 +128,7 @@ class ComicController extends Controller {
      */
     public function unlock()
     {
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         // 1.生成订单
         $consume = D('ConsumeOrder');
@@ -146,12 +146,12 @@ class ComicController extends Controller {
         }
 
         // 2.更新读者余额
-        $cond_reader['openid'] = $openid;
+        $cond_reader['id'] = $readerId;
         M('reader')->where($cond_reader)->setDec('balance', $needPay);
 
         // 3.更新积分详情
         $data_integral = [
-            'openid'    => $openid,
+            'reader_id' => $readerId,
             'content'   => '解锁漫画《'.$comicInfo['title'].'》第'.I('chapter').'章',
             'method'    => 2,
             'points'    => $needPay,
@@ -175,8 +175,8 @@ class ComicController extends Controller {
 
     /**
      * 评论
-     * @param comic_id 漫画Id
-     * @param openid
+     * @param comic_id 漫画ID
+     * @param reader_id 读者ID
      * @param comment_content 评论内容
      */
     public function comment()
@@ -238,11 +238,11 @@ class ComicController extends Controller {
 
     /**
      * 获取读者信息
+     * @param int reader_id 读者ID
      */
     public function get_reader()
     {
-        $cond['openid'] = I('openid');
-        $data = M('reader')->where($cond)->find();
+        $data = M('reader')->find(I('reader_id'));
         ajax_return(1, '读者信息', $data);
     }
 
@@ -294,7 +294,7 @@ class ComicController extends Controller {
     public function edit_reader(){
         $cond = [
             'status' => C('STATUS_Y'),
-            'openid' => I('openid')
+            'id'     => I('reader_id')
         ];
         $reader = M('reader');
         $reader->create();
@@ -303,7 +303,6 @@ class ComicController extends Controller {
 
         $data = $reader
             ->where($cond)
-            ->field('openid,proxy_openid,nickname,head,balance,own')
             ->find();
 
         if ($res === false) {
@@ -323,11 +322,11 @@ class ComicController extends Controller {
     /**
      * 猜你喜欢
      * 3条
-     * @param openid
+     * @param int reader_id 读者ID
      */
     public function get_like_comic()
     {
-        $data = D('Comics')->getLikeComic(I('openid'));
+        $data = D('Comics')->getLikeComic(I('reader_id'));
 
         ajax_return(1, '喜欢漫画', $data);
     }
@@ -455,7 +454,7 @@ class ComicController extends Controller {
     public function get_comic_info(){
         $comic = M('comics');
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         $cond['id'] = $comicId;
 
@@ -464,8 +463,8 @@ class ComicController extends Controller {
         $data['brief'] = htmlspecialchars_decode($data['brief']);
 
         $cond_reader = [
-            'comic_id' => $comicId,
-            'openid'   => $openid
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId
         ];
         $data['is_collect'] = M('collect')->where($cond_reader)->getField('status');
         $data['is_like'] = M('likes')->where($cond_reader)->getField('status');
@@ -521,14 +520,16 @@ class ComicController extends Controller {
 
     /**
      * 直接阅读,判断章节
+     * @param int comic_id 漫画ID
+     * @param int reader_id 读者ID
      */
     public function get_reading_chapter(){
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
 
         $cond_history = [
-            'comic_id' => $comicId,
-            'openid'   => $openid
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId
         ];
         $historyInfo = M('history')->where($cond_history)->find();
 
@@ -546,16 +547,20 @@ class ComicController extends Controller {
 
     /**
      * 下一章
+     * @param comic_id 漫画ID
+     * @param reader_id 读者ID
+     * @param chapter 章节
+     * @param channel 途径
      */
     public function reading_next(){
         $comic = D('Comics');
 
         $comicId = I('comic_id');
-        $openid = I('openid');
+        $readerId = I('reader_id');
         $chapter = I('chapter') + 1;
         $channel = I('channel');
 
-        $res = $comic->checkCost($comicId, $chapter, $openid);
+        $res = $comic->checkCost($comicId, $chapter, $readerId);
 
         if ($res['status'] == '-1') {
             // 限制阅读
@@ -565,7 +570,7 @@ class ComicController extends Controller {
             ajax_return('-1', '限制阅读', $comicInfo);
         }
 
-        D('History')->updateHistory($comicId, $chapter, $openid, $channel); // 更新阅读历史
+        D('History')->updateHistory($comicId, $chapter, $readerId, $channel); // 更新阅读历史
         $data['comics'] = $comic->getComicDetail($comicId, $chapter);
         $data['chapter_title'] = '第'.$chapter.'章' ;
 
@@ -586,11 +591,11 @@ class ComicController extends Controller {
 
     /**
      * 获取历史记录
-     * @param string openid
+     * @param int reader_id 读者ID
      */
     public function get_history_info()
     {
-        $data = D('History')->getHistoryList(I('openid'));
+        $data = D('History')->getHistoryList(I('reader_id'));
         ajax_return(1, '历史记录', $data);
     }
 
