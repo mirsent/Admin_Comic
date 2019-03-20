@@ -14,7 +14,7 @@ class RechargeOrderModel extends BaseModel{
     {
         $data = $this
             ->alias('ro')
-            ->join('__READER__ r ON r.openid = ro.openid')
+            ->join('__READER__ r ON r.id = ro.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -24,7 +24,7 @@ class RechargeOrderModel extends BaseModel{
     {
         $data = $this
             ->alias('ro')
-            ->join('__READER__ r ON r.openid = ro.openid')
+            ->join('__READER__ r ON r.id = ro.reader_id')
             ->join('__COMICS__ c ON c.id = ro.comic_id')
             ->field('ro.*,r.nickname,title')
             ->where(array_filter($cond))
@@ -50,7 +50,7 @@ class RechargeOrderModel extends BaseModel{
         $cond['ro.status'] = C('ORDER_S_P');
         $data = $this
             ->alias('ro')
-            ->join('__READER__ r ON r.openid = ro.openid')
+            ->join('__READER__ r ON r.id = ro.reader_id')
             ->where($cond)
             ->sum('ro.money');
         return $data ?: '0.00';

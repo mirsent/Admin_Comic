@@ -13,7 +13,7 @@ class CollectModel extends BaseModel{
         $data = $this
             ->alias('ct')
             ->join('__COMICS__ c ON c.id = ct.comic_id')
-            ->join('__READER__ r ON r.openid = ct.openid')
+            ->join('__READER__ r ON r.id = ct.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -24,7 +24,7 @@ class CollectModel extends BaseModel{
         $data = $this
             ->alias('ct')
             ->join('__COMICS__ c ON c.id = ct.comic_id')
-            ->join('__READER__ r ON r.openid = ct.openid')
+            ->join('__READER__ r ON r.id = ct.reader_id')
             ->field('ct.*,c.title as comic_title,r.nickname')
             ->where(array_filter($cond))
             ->select();

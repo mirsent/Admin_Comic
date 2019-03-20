@@ -13,7 +13,7 @@ class LikesModel extends BaseModel{
         $data = $this
             ->alias('l')
             ->join('__COMICS__ c ON c.id = l.comic_id')
-            ->join('__READER__ r On r.openid = l.openid')
+            ->join('__READER__ r On r.id = l.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -24,7 +24,7 @@ class LikesModel extends BaseModel{
         $data = $this
             ->alias('l')
             ->join('__COMICS__ c ON c.id = l.comic_id')
-            ->join('__READER__ r On r.openid = l.openid')
+            ->join('__READER__ r On r.id = l.reader_id')
             ->field('l.*,c.title as comic_title,r.nickname')
             ->where(array_filter($cond))
             ->select();

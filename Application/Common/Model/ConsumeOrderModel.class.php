@@ -14,7 +14,7 @@ class ConsumeOrderModel extends BaseModel{
     {
         $data = $this
             ->alias('co')
-            ->join('__READER__ r ON r.openid = co.openid')
+            ->join('__READER__ r ON r.id = co.reader_id')
             ->join('__COMICS__ c ON c.id = co.comic_id')
             ->where(array_filter($cond))
             ->count();
@@ -25,7 +25,7 @@ class ConsumeOrderModel extends BaseModel{
     {
         $data = $this
             ->alias('co')
-            ->join('__READER__ r ON r.openid = co.openid')
+            ->join('__READER__ r ON r.id = co.reader_id')
             ->join('__COMICS__ c ON c.id = co.comic_id')
             ->field('co.*,r.nickname,c.title as comic_title')
             ->where(array_filter($cond))
@@ -39,7 +39,7 @@ class ConsumeOrderModel extends BaseModel{
     public function caclConsumePerson($date)
     {
         $cond['consume_date'] = $date;
-        $data = $this->where($cond)->field('openid')->distinct(true)->select();
+        $data = $this->where($cond)->field('id')->distinct(true)->select();
         return count($data);
     }
 
@@ -60,7 +60,7 @@ class ConsumeOrderModel extends BaseModel{
     {
         $data = $this
             ->alias('co')
-            ->join('__READER__ r ON r.openid = co.openid')
+            ->join('__READER__ r ON r.id = co.reader_id')
             ->where($cond)
             ->sum('consumption');
         return $data?:'0.00';

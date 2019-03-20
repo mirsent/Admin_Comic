@@ -11,7 +11,7 @@ class IntegralModel extends BaseModel{
     {
         $data = $this
             ->alias('i')
-            ->join('__READER__ r ON r.openid = i.openid')
+            ->join('__READER__ r ON r.id = i.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -21,7 +21,7 @@ class IntegralModel extends BaseModel{
     {
         $data = $this
             ->alias('i')
-            ->join('__READER__ r ON r.openid = i.openid')
+            ->join('__READER__ r ON r.id = i.reader_id')
             ->field('i.*,r.nickname')
             ->where(array_filter($cond))
             ->select();

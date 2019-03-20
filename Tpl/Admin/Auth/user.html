@@ -72,7 +72,7 @@
                 serverSide: false,
                 ajax: "{:U('Auth/get_auth_user_info')}",
                 columns: [
-                    { "data": "real_name" },
+                    { "data": "user_name" },
                     { "data": "groups_name" },
                     DT.COLUMN.STATUS
                 ],
@@ -91,7 +91,7 @@
             // 编辑信息
             $('#edit').on('click', function() {
                 getSelectedData(oTable, function(data){
-                    layui_form('修改用户 '+data.real_name+' 信息', function(){
+                    layui_form('修改用户 '+data.user_name+' 信息', function(){
                         dataToForm('actionForm', data);
 
                     }, '50rem');
@@ -105,7 +105,7 @@
             // 修改权限
             $('#auth').on('click', function() {
                 getSelectedData(oTable, function(data){
-                    layui_form('修改用户 '+data.real_name+' 权限', function(){
+                    layui_form('修改用户 '+data.user_name+' 权限', function(){
                         dataToForm('actionForm', data);
                         $('#multiGroups').multiSelect({
                             selectableFooter: "<div id='selectAll' class='multiselect-header'>全选</div>",
@@ -124,7 +124,7 @@
         // 删除
         $('#delete').on('click', function() {
             getSelectedData(oTable, function(data){
-                var title = '确认删除用户 ' + data.real_name + ' ?';
+                var title = '确认删除用户 ' + data.user_name + ' ?';
                 set_status(title, "{:U('Auth/delete_user')}", {
                     uid: data.uid,
                 });

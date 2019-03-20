@@ -8,7 +8,7 @@ class HistoryModel extends BaseModel{
         $data = $this
             ->alias('h')
             ->join('__COMICS__ c ON c.id = h.comic_id')
-            ->join('__READER__ r ON r.openid = h.openid')
+            ->join('__READER__ r ON r.id = h.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -19,7 +19,7 @@ class HistoryModel extends BaseModel{
         $data = $this
             ->alias('h')
             ->join('__COMICS__ c ON c.id = h.comic_id')
-            ->join('__READER__ r ON r.openid = h.openid')
+            ->join('__READER__ r ON r.id = h.reader_id')
             ->field('h.*,c.title as comic_title,r.nickname')
             ->where(array_filter($cond))
             ->select();
@@ -28,11 +28,11 @@ class HistoryModel extends BaseModel{
 
     /**
      * 获取指定读者历史记录
-     * @param  int $openid
+     * @param  int $readerId
      */
-    public function getHistoryList($openid)
+    public function getHistoryList($readerId)
     {
-        $cond['openid'] = $openid;
+        $cond['h.reader_id'] = $readerId;
         $data = $this
             ->alias('h')
             ->join('__COMICS__ c ON c.id = h.comic_id')
@@ -58,14 +58,14 @@ class HistoryModel extends BaseModel{
     /**
      * 更新阅读历史
      * @param  int $comicId 漫画ID
-     * @param  string $openid  读者openid
+     * @param  int $readerId  读者ID
      * @param  int $chapter 阅读章节
      * @param  int $channel 途径
      */
-    public function updateHistory($comicId, $chapter, $openid, $channel){
+    public function updateHistory($comicId, $chapter, $readerId, $channel){
         $data = [
             'comic_id'  => $comicId,
-            'openid'    => $openid,
+            'reader_id' => $readerId,
             'chapter'   => $chapter,
             'channel'   => $channel,
             'last_time' => date('Y-m-d H:i:s')
@@ -76,8 +76,8 @@ class HistoryModel extends BaseModel{
         $data['type_ids'] = $typeIds;
 
         $cond = [
-            'comic_id' => $comicId,
-            'openid'   => $openid,
+            'comic_id'  => $comicId,
+            'reader_id' => $readerId,
         ];
         $historyInfo = $this->where($cond)->find();
 

@@ -12,7 +12,7 @@ class GatherCommentModel extends BaseModel{
         $data = $this
             ->alias('gc')
             ->join('__GATHER__ g ON g.id = gc.gather_id')
-            ->join('__READER__ r ON r.openid = gc.openid')
+            ->join('__READER__ r ON r.id = gc.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -22,7 +22,7 @@ class GatherCommentModel extends BaseModel{
         $data = $this
             ->alias('gc')
             ->join('__GATHER__ g ON g.id = gc.gather_id')
-            ->join('__READER__ r ON r.openid = gc.openid')
+            ->join('__READER__ r ON r.id = gc.reader_id')
             ->field('gc.*,gather_title,url,nickname,head')
             ->where(array_filter($cond))
             ->select();
@@ -51,7 +51,7 @@ class GatherCommentModel extends BaseModel{
         ];
         $comment = $this
             ->alias('gc')
-            ->join('__READER__ r ON r.openid = gc.openid')
+            ->join('__READER__ r ON r.id = gc.reader_id')
             ->field('gc.*,nickname,head')
             ->order('comment_time')
             ->where($cond_main)
@@ -66,8 +66,8 @@ class GatherCommentModel extends BaseModel{
             ];
             $comment[$key]['sub'] = $this
                 ->alias('gc')
-                ->join('__READER__ r ON r.openid = gc.openid')
-                ->join('__READER__ reply ON reply.openid = gc.reply_openid')
+                ->join('__READER__ r ON r.id = gc.reader_id')
+                ->join('__READER__ reply ON reply.id = gc.reply_reader_id')
                 ->field('gc.*,r.nickname,r.head,reply.nickname as replyname')
                 ->order('comment_time')
                 ->where($cond_sub)

@@ -10,8 +10,8 @@ return array(
     'GROUP_PROXY'       => 2, // 代理组
 
     'WX_CONFIG' => array(
-        'APPID'      => 'wx4af7990f8faed2af',
-        'APPSECRET'  => 'bf678846c87c828fe51f008ffd716baa',
+        'APPID'      => 'wxb4b72f8172f33f72',
+        'APPSECRET'  => '7d534ee8d6f2d32110f3f0e4159a938e',
         'MCHID'      => '',
         'KEY'        => '',
         'NOTIFY_URL' => '',

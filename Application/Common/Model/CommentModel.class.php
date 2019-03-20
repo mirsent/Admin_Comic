@@ -12,7 +12,7 @@ class CommentModel extends BaseModel{
         $data = $this
             ->alias('c')
             ->join('__COMICS__ comic ON comic.id = c.comic_id')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.id = c.reader_id')
             ->where(array_filter($cond))
             ->count();
         return $data;
@@ -22,7 +22,7 @@ class CommentModel extends BaseModel{
         $data = $this
             ->alias('c')
             ->join('__COMICS__ comic ON comic.id = c.comic_id')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.id = c.reader_id')
             ->field('c.*,comic.title as comic_title,comic.cover as comic_img,r.nickname,r.head as reader_img')
             ->where(array_filter($cond))
             ->select();
@@ -48,7 +48,7 @@ class CommentModel extends BaseModel{
         ];
         $comment = $this
             ->alias('c')
-            ->join('__READER__ r ON r.openid = c.openid')
+            ->join('__READER__ r ON r.id = c.reader_id')
             ->field('c.*,nickname,head')
             ->order('comment_time')
             ->where($cond_main)
@@ -63,8 +63,8 @@ class CommentModel extends BaseModel{
             ];
             $comment[$key]['sub'] = $this
                 ->alias('c')
-                ->join('__READER__ r ON r.openid = c.openid')
-                ->join('__READER__ reply ON reply.openid = c.reply_openid')
+                ->join('__READER__ r ON r.id = c.reader_id')
+                ->join('__READER__ reply ON reply.id = c.reply_reader_id')
                 ->field('c.*,r.nickname,r.head,reply.nickname as replyname')
                 ->order('comment_time')
                 ->where($cond_sub)
