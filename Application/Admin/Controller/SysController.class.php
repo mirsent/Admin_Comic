@@ -6,11 +6,27 @@ use Common\Controller\AdminBaseController;
  */
 class SysController extends AdminBaseController{
 
-    public function demo(){
+    /**
+     * 类型页面
+     */
+    public function type(){
         $assign = [
-            'table' => 'Demo',
-            'name' => 'demo_name',
-            'title' => '例子'
+            'table' => 'ReleaseType',
+            'name'  => 'release_type_name',
+            'title' => '类型'
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
+     * 标签页面
+     */
+    public function tag(){
+        $assign = [
+            'table' => 'ComicType',
+            'name'  => 'comic_type_name',
+            'title' => '标签'
         ];
         $this->assign($assign);
         $this->display();

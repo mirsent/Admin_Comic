@@ -51,7 +51,7 @@ class GatherCommentModel extends BaseModel{
         ];
         $comment = $this
             ->alias('gc')
-            ->join('__READER__ r ON r.id = gc.reader_id')
+            ->join('__READER__ r ON r.id = gc.reader_id')CREATE TABLE `comics` (
             ->field('gc.*,nickname,head')
             ->order('comment_time')
             ->where($cond_main)
