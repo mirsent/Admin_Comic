@@ -1,0 +1,619 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__BOWER__/bootstrap-fileinput/css/fileinput.min.css">
+    <link rel="stylesheet" href="__STATICS__/jcrop/jcrop.css">
+    <style type="text/css">
+        .img-box{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+        }
+        .fee-show{
+            display: none;
+        }
+    </style>
+</block>
+<block name="header">小说 <small>管理</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="refresh"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th width="120">封面</th>
+                        <th>小说名称</th>
+                        <th>作者</th>
+                        <th>类型</th>
+                        <th>标签</th>
+                        <th>总章节</th>
+                        <th>免费章节</th>
+                        <th>章节费用</th>
+                        <th>更新日期</th>
+                        <th width="120">状态</th>
+                        <th width="160">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">小说名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" placeholder="请输入小说名称" autocomplete="off" lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">作者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="author" placeholder="请输入作者" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">简介</label>
+                        <div class="layui-input-block">
+                            <textarea name="brief" placeholder="请输入简介" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">费用</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="s_fee" value="{:C('C_FEE_Y')}" title="收费" lay-filter="fee">
+                            <input type="radio" name="s_fee" value="{:C('C_FEE_N')}" title="免费" lay-filter="fee" checked>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">总章节</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="total_chapter" placeholder="请输入总章节" autocomplete="off" lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item fee-show">
+                        <label class="layui-form-label">免费章节</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="free_chapter" placeholder="请输入免费章节" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item fee-show">
+                        <label class="layui-form-label">章节费用</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="pre_chapter_pay" placeholder="请输入章节费用" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">初始配置</label>
+                        <div class="layui-input-block">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="heat" placeholder="热门度" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="popularity" placeholder="人气数" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-input-inline" style="width: 92px;">
+                                    <input type="number" name="collection" placeholder="收藏数" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">排序</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="sort" placeholder="请输入排序权值" autocomplete="off" value="1" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">连载状态</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="s_serial" value="{:C('C_SERIAL_L')}" title="连载中">
+                            <input type="radio" name="s_serial" value="{:C('C_SERIAL_W')}" title="已完结" checked>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">目标用户</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="s_target" value="{:C('C_TARGET_M')}" title="男频" checked>
+                            <input type="radio" name="s_target" value="{:C('C_TARGET_F')}" title="女频">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">篇幅</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="s_space" value="{:C('C_SPACE_C')}" title="长篇" checked>
+                            <input type="radio" name="s_space" value="{:C('C_SPACE_D')}" title="短篇">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="status" value="{:C('C_STATUS_U')}" title="上架" checked>
+                            <input type="radio" name="status" value="{:C('C_STATUS_D')}" title="下架">
+                            <input type="radio" name="status" value="{:C('C_STATUS_N')}" title="未开放">
+                        </div>
+                    </div>
+                </div>
+                <!-- 右侧 -->
+                <div class="layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">封面</label>
+                        <div class="layui-input-block">
+                            <input type="file" name="img" class="layui-input file-loading" id="uploadImg">
+                            <input type="hidden" name="cover">
+                            <input type="hidden" name="aw">
+                            <input type="hidden" name="ah">
+                            <input type="hidden" name="cw">
+                            <input type="hidden" name="ch">
+                            <input type="hidden" name="w">
+                            <input type="hidden" name="h">
+                            <input type="hidden" name="x">
+                            <input type="hidden" name="y">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-block">
+                            <select name="release_type_id" lay-verify="required" lay-search>
+                                <option value=""></option>
+                                <foreach name="type" item="v">
+                                    <option value="{$v.id}">{$v.release_type_name}</option>
+                                </foreach>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标签</label>
+                        <div class="layui-input-block">
+                            <foreach name="tag" item="v">
+                                <input type="checkbox" name="type_ids[]" title="{$v.comic_type_name}" value="{$v.id}" lay-skin="primary">
+                            </foreach>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+
+    <script type="text/html" id="refreshModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <foreach name="novel" item="vo" >
+                    <input type="checkbox" name="novel[ ]" value="{$vo.id}" title="{$vo.title}" lay-skin="primary">
+                </foreach>
+            </div>
+
+            <div class="layui-form-item">
+                <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="refreshSubmit">立即更新</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+</block>
+<block name="js">
+    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script src="__STATICS__/jcrop/jcrop.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        title: $('.search-title').val(),
+                        author: $('.search-author').val(),
+                        release_type_id: $('.search-release').val(),
+                        comic_type_id: $('.search-type').val(),
+                        s_serial: $('.search-serial').val(),
+                        s_fee: $('.search-fee').val(),
+                        s_target: $('.search-target').val(),
+                        s_space: $('.search-space').val(),
+                        status: $('.search-status').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Novel/get_novel_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "no"},
+                    {
+                        "data": "cover",
+                        "orderable": false,
+                        "render": DT.RENDER.IMG
+                    },
+                    { "data": "title" },
+                    {
+                        "data": "author",
+                        "render": function(data){
+                            return data?data:'/';
+                        }
+                    },
+                    { "data": "release_type_name" },
+                    { "data": "type_names" },
+                    {
+                        "data": "total_chapter",
+                        "render": function(data){
+                            return '共'+data+'章';
+                        }
+                    },
+                    {
+                        "data": "free_chapter",
+                        "render": function(data){
+                            return '免费'+data+'章';
+                        }
+                    },
+                    {
+                        "data": "pre_chapter_pay",
+                        "render": function(data){
+                            return data == 0 ? '/' : '每章'+data+'金币';
+                        }
+                    },
+                    {
+                        "data": "updated_at",
+                        "class": "text-center",
+                        "render": function(data){
+                            return data.substring(0,10)
+                        }
+                    },
+                    {
+                        "data": "status",
+                        "orderable": false,
+                        "render": function(data,type,full){
+                            var sSerial = full.s_serial == C_SERIAL_L ? '<span class="layui-badge">连载中</span> ' : '<span class="layui-badge">已完结</span> ';
+                            var sFee = full.s_fee == C_FEE_Y ? '<span class="layui-badge layui-bg-orange">收费</span> ' : '<span class="layui-badge layui-bg-orange">免费</span> ';
+                            var sTarget = full.s_target == C_TARGET_M ? '<span class="layui-badge layui-bg-blue">男频</span> ' : '<span class="layui-badge layui-bg-blue">女频</span> ';
+                            var sSpace = full.s_space == C_SPACE_C ? '<span class="layui-badge layui-bg-cyan">长篇</span> ' : '<span class="layui-badge layui-bg-cyan">短篇</span> ';
+                            var sStatus = '';
+
+                            switch (Number(full.status)) {
+                                case C_STATUS_U:
+                                    sStatus = '<span class="layui-badge layui-bg-green">上架</span>';
+                                    break;
+                                case C_STATUS_D:
+                                    sStatus = '<span class="layui-badge layui-bg-green">下架</span>';
+                                    break;
+                                case C_STATUS_N:
+                                    sStatus = '<span class="layui-badge layui-bg-green">未开放</span>';
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            return sSerial + sFee + sTarget + sSpace + sStatus;
+                        }
+                    },
+                    {
+                        "data": "status",
+                        "orderable": false,
+                        "render": function(data,type,full){
+                            var sOut = '';
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm recommend">推荐</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm update">更新</button>'
+                            sOut += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm chapter">章节</button>'
+                            return sOut;
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="小说名称" class="layui-input search-title"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="作者" class="layui-input search-author"></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-release" lay-search> <option value="">类型</option> <foreach name="release_type" item="v"> <option value="{$v.id}">{$v.release_type_name}</option> </foreach> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-type" lay-search> <option value="">标签</option> <foreach name="comic_type" item="v"> <option value="{$v.id}">{$v.comic_type_name}</option> </foreach> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-serial"> <option value="">是否完结</option> <option value="'+C_SERIAL_L+'">连载中</option><option value="'+C_SERIAL_W+'">已完结</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-fee"> <option value="">是否收费</option> <option value="'+C_FEE_Y+'">收费</option><option value="'+C_FEE_N+'">免费</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-target"> <option value="">面向群体</option> <option value="'+C_TARGET_M+'">男频</option><option value="'+C_TARGET_F+'">女频</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-space"> <option value="">篇幅</option> <option value="'+C_SPACE_C+'">长篇</option><option value="'+C_SPACE_D+'">短篇</option> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><select class="search-status"> <option value="">状态</option> <option value="'+C_STATUS_U+'">上架</option><option value="'+C_STATUS_D+'">下架</option><option value="'+C_STATUS_N+'">未开放</option> </select></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        form.render();
+                    });
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        layui.use(['layer', 'form', 'laydate'], function() {
+            var layer = layui.layer,
+            form = layui.form;
+            laydate = layui.laydate;
+
+            form.on('radio(fee)', function(data){
+                if (data.value == C_FEE_N) {
+                    // 免费
+                    $('.fee-show').hide();
+                } else {
+                    $('.fee-show').show();
+                }
+            });
+
+            // 新增
+            $('#add').on('click', function() {
+                layui_form('发布小说', function(){
+                    // 封面
+                    $('#uploadImg').fileinput({
+                        language: 'zh',
+                        uploadUrl: "{:U('Upload/upload_img_crop')}",
+                        showUpload: false,
+                        showCaption: false,
+                        showRemove: false,
+                        uploadAsync: false,
+                        maxFileSize : 10240,
+                        maxFileCount: 10,
+                        overwriteInitial: true,
+                        allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                        browseClass: "btn btn-default btn-block",
+                        dropZoneEnabled: false,
+                        enctype: 'multipart/form-data',
+                        browseLabel: '上传图片',
+                        previewClass:'previewPanel',
+                        previewTemplates:{
+                            image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                    '   <div class="kv-file-content">' +
+                                    '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop" title="{caption}" alt="{caption}" {style}>\n' +
+                                    '   </div>\n' +
+                                    '</div>\n',
+                        },
+                        layoutTemplates:{
+                            actionUpload: ''
+                        },
+                        uploadExtraData: function(previewId, index) {
+                            var obj = {
+                                aw: $('[name="aw"]').val(),
+                                ah: $('[name="ah"]').val(),
+                                cw: $('[name="cw"]').val(),
+                                ch: $('[name="ch"]').val(),
+                                x: $('[name="x"]').val(),
+                                y: $('[name="y"]').val(),
+                                w: $('[name="w"]').val(),
+                                h: $('[name="h"]').val()
+                            };
+                            return obj;
+                        }
+                    }).on('fileloaded', function(event) {
+                        Jcrop.load('jcrop').then(img => {
+                            // 图片真实尺寸
+                            $("<img/>")
+                                .attr("src", $("#jcrop").attr("src"))
+                                .load(function() {
+                                    var w = this.width,
+                                        h = this.height;
+                                    $('[name="aw"]').val(w);
+                                    $('[name="ah"]').val(h);
+
+                                    var jcp = Jcrop.attach(img,{multi:true,aspectRatio: 3 / 4});
+                                    const rect = Jcrop.Rect.sizeOf(jcp.el);
+                                    const rectA = Jcrop.Rect.fromPoints([0,0],[w,w*4/3]);
+
+                                    $('[name="cw"]').val(rect.w);
+                                    $('[name="ch"]').val(rect.h);
+                                    jcp.newWidget(rectA);
+                                    jcp.focus();
+
+                                    jcp.listen('crop.update',(widget,e) => {
+                                        $('[name="x"]').val(widget.pos.x);
+                                        $('[name="y"]').val(widget.pos.y);
+                                        $('[name="w"]').val(widget.pos.w);
+                                        $('[name="h"]').val(widget.pos.h);
+                                    });
+                                });
+                        });
+                    }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                        var image_path = data.response.data;
+                        $('input[name="cover"]').val(image_path);
+                    });
+                    form.render();
+                }, '900px');
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function(){
+                getSelectedData(oTable, function(data){
+                    layui_form('编辑小说信息', function(){
+                        if (data.s_fee == C_FEE_Y) {
+                            $('.fee-show').show();
+                        }
+                        dataToForm('actionForm', data);
+                        $('#uploadImg').fileinput({
+                            language: 'zh',
+                            uploadUrl: "{:U('Upload/upload_img_crop')}",
+                            showUpload: false,
+                            showCaption: false,
+                            showRemove: false,
+                            uploadAsync: false,
+                            maxFileSize : 10240,
+                            maxFileCount: 10,
+                            overwriteInitial: true,
+                            allowedFileExtensions: ['jpg', 'gif', 'png', 'jpeg'],
+                            browseClass: "btn btn-default btn-block",
+                            dropZoneEnabled: false,
+                            enctype: 'multipart/form-data',
+                            browseLabel: '上传图片',
+                            previewClass:'previewPanel',
+                            initialPreview: '<img src="'+data['cover']+'" class="kv-preview-data file-preview-image" id="jcrop" />',
+                            initialPreviewAsData: false,
+                            previewTemplates:{
+                                image: '<div class="file-preview-frame" id="{previewId}" data-fileindex="{fileindex}" data-template="{template}">\n' +
+                                        '   <div class="kv-file-content">' +
+                                        '       <img src="{data}" class="kv-preview-data file-preview-image" id="jcrop" title="{caption}" alt="{caption}" {style}>\n' +
+                                        '   </div>\n' +
+                                        '</div>\n',
+                            },
+                            layoutTemplates:{
+                                actionUpload: ''
+                            },
+                            uploadExtraData: function(previewId, index) {
+                                var obj = {
+                                    aw: $('[name="aw"]').val(),
+                                    ah: $('[name="ah"]').val(),
+                                    cw: $('[name="cw"]').val(),
+                                    ch: $('[name="ch"]').val(),
+                                    x: $('[name="x"]').val(),
+                                    y: $('[name="y"]').val(),
+                                    w: $('[name="w"]').val(),
+                                    h: $('[name="h"]').val()
+                                };
+                                return obj;
+                            }
+                        }).on('fileloaded', function(event) {
+                            Jcrop.load('jcrop').then(img => {
+                                $("<img/>")
+                                    .attr("src", $("#jcrop").attr("src"))
+                                    .load(function() {
+                                        $('[name="aw"]').val(this.width);
+                                        $('[name="ah"]').val(this.height);
+                                    });
+
+                                var jcp = Jcrop.attach(img,{multi:true});
+                                const rect = Jcrop.Rect.sizeOf(jcp.el);
+
+                                $('[name="cw"]').val(rect.w);
+                                $('[name="ch"]').val(rect.h);
+                                jcp.newWidget(rect);
+                                jcp.focus();
+
+                                jcp.listen('crop.change',(widget,e) => {
+                                    $('[name="x"]').val(widget.pos.x);
+                                    $('[name="y"]').val(widget.pos.y);
+                                    $('[name="w"]').val(widget.pos.w);
+                                    $('[name="h"]').val(widget.pos.h);
+                                });
+                            });
+                        }).on("filebatchuploadsuccess", function (event, data, previewId, index) {
+                            var image_path = data.response.data;
+                            $('input[name="cover"]').val(image_path);
+                        });
+                        form.render();
+                    }, '900px');
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                if ($('#uploadImg').val()) {
+                    $('#uploadImg').fileinput('upload')
+                    .on("filebatchuploadsuccess", function(event, data) {
+                        if(data.response.status){
+                            submit_form("{:U('Novel/input_novel')}");
+                        }
+                    });
+                } else {
+                    submit_form("{:U('Novel/input_novel')}");
+                }
+            });
+
+            // 批量更新小说
+            $('#refresh').on('click', function(){
+                layui_form('更新小说', function(){
+                    form.render();
+                },'500px','refreshModal')
+            })
+            form.on('submit(refreshSubmit)', function(data) {
+                submit_form("{:U('Novel/refresh_novel')}");
+            });
+
+            // 更新漫画
+            $('.table').on('click', '.update', function(){
+                getSelectedData(oTable, function(data){
+                    console.log(data)
+                    swal_action('确认更新小说', '《 '+data.title+' 》', function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "{:U('Novel/refresh_novel')}",
+                            data: {
+                                novel: data.id
+                            },
+                            dataType:"json",
+                            success: function(res) {
+                                toastr["success"]("更新成功", "");
+                                DTdraw(oTable);
+                            }
+                        });
+                    }, 'question');
+                })
+            })
+
+            // 推荐漫画
+            $('.table').on('click', '.recommend', function(){
+                getSelectedData(oTable, function(data){
+                    swal_action('确认推荐小说', '《 '+data.title+' 》', function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "{:U('Novel/recommend_novel')}",
+                            data: {
+                                novel_id: data.id
+                            },
+                            dataType:"json",
+                            success: function(res) {
+                                toastr["success"]("推荐成功", "");
+                                DTdraw(oTable);
+                            }
+                        });
+                    }, 'question');
+
+                })
+            })
+
+            // 章节
+            $('.table').on('click', '.chapter', function(){
+                getSelectedData(oTable, function(data){
+                    layer.open({
+                        type: 2,
+                        shade: 0.8,
+                        anim: 5,
+                        shadeClose: true,
+                        title: '《'+data.title+'》章节信息',
+                        content: '__MODULE__/Novel/chapter/novel_id/'+data.id,
+                        area: ['100%', '100%'],
+                        success: function(layero, index){
+
+                        }
+                    });
+                })
+            })
+        });
+    </script>
+</block>

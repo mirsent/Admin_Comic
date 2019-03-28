@@ -234,7 +234,7 @@ function layui_form(msg,callback=function(){},area='500px',contentId='actionModa
         title: msg,
         content: $('#'+contentId).html(),
         area: area,
-        maxHeight: 750,
+        maxHeight: 800,
         success: function(layero, index){
             return callback();
         }

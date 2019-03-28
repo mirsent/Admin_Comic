@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>更新章节</title>
+    <include file="Public:theme_lte_css" />
+    <link rel="stylesheet" href="__STATICS__/summernote/summernote.css">
+    <style type="text/css">
+        @media screen and (max-width: 767px){
+            div.dataTables_wrapper div.dataTables_length,
+            div.dataTables_wrapper div.dataTables_info {
+                text-align: left;
+            }
+
+            div.dataTables_wrapper div.dataTables_filter,
+            div.dataTables_wrapper div.dataTables_paginate {
+                text-align: right;
+            }
+        }
+
+        .layui-layer-content {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="box-header">
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-striped table-hover table-single">
+                <thead>
+                    <tr>
+                        <th>章节</th>
+                        <th>标题</th>
+                        <th width="200">正文</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">章节</label>
+                <div class="layui-input-block">
+                    <input type="number" name="catalog" placeholder="请输入章节" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="chapter_title" placeholder="请输入小说标题" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">正文</label>
+                <div class="layui-input-block">
+                    <textarea name="content" class="layui-textarea" id="summernote"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+            <input type="hidden" name="novel_id" value="{:I('novel_id')}">
+        </form>
+    </script>
+
+    <include file="Public:base_js" />
+    <script src="__STATICS__/summernote/summernote.min.js"></script>
+    <script src="__STATICS__/summernote/lang/summernote-zh-CN.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                dom: "<'row'<'col-xs-6'l><'col-xs-6 text-right'f>> t <'row'<'col-xs-6'i><'col-xs-6 text-right'p>>",
+                serverSide: false,
+                searching: true,
+                ajax: {
+                    url: "{:U('Novel/get_chapter_info')}",
+                    data: {
+                        novel_id: "{:I('novel_id')}"
+                    }
+                },
+                columns: [
+                    { "data": "catalog_name" },
+                    { "data": "chapter_title" },
+                    {
+                        "data": "id",
+                        "orderable": false,
+                        "render": function(data) {
+                            return '<a href="javascript:;" id="showContent">查看</a>'
+                        }
+                    }
+                ]
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        document.onkeydown = function () {
+            if (window.event && window.event.keyCode == 13) {
+                window.event.returnValue = false;
+            }
+        }
+
+        layui.use(['layer', 'form'], function() {
+            var layer = layui.layer,
+            form = layui.form;
+
+            // 添加
+            $('#add').on('click', function(){
+                layer.open({
+                    type: 1,
+                    shadeClose: true,
+                    title: '添加章节信息',
+                    content: $('#actionModal').html(),
+                    area: ['900px', '800px'],
+                    success: function(layero, index){
+                        $('#summernote').summernote({
+                            fontNames: ['宋体', '微软雅黑', '黑体','楷体', 'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New'],
+                            placeholder: '小说正文...',
+                            height: '500'
+                        });
+                        form.render();
+                    }
+                });
+            })
+
+            // 编辑
+            $('#edit').on('click', function() {
+                getSelectedData(oTable, function(data){
+                    dataToForm('actionForm', data);
+                    layer.open({
+                        type: 1,
+                        shadeClose: true,
+                        title: '编辑'+data.catalog_name+'信息',
+                        content: $('#actionModal').html(),
+                        area: ['900px', '800px'],
+                        success: function(layero, index){
+                            dataToForm('actionForm', data);
+                            $('#summernote').summernote({
+                                fontNames: ['宋体', '微软雅黑', '黑体','楷体', 'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New'],
+                                placeholder: '小说正文...',
+                                height: '500'
+                            });
+                            form.render();
+                        }
+                    });
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                submit_form("{:U('Novel/input_chapter')}");
+            });
+
+            // 查看小说正文
+            $('.table').on('click', '#showContent', function(){
+                getSelectedData(oTable, function(data){
+                    layer.open({
+                        type: 1,
+                        title: '正文',
+                        skin: 'layui-layer-rim',
+                        area: ['900px', '800px'],
+                        content: data.content
+                    });
+                })
+            })
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<?php
+namespace Admin\Controller;
+use Common\Controller\AdminBaseController;
+class NovelController extends AdminBaseController{
+
+    /**
+     * 漫画列表页面
+     */
+    public function novel_list(){
+        $cond['status'] = C('STATUS_Y');
+        $type = M('release_type')->where($cond)->select();
+        $tag = M('comic_type')->where($cond)->select();
+        $novel = M('novel')->where($cond)->field('id,title')->select();
+        $assign = compact('type','tag','novel');
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
+     * 获取上架漫画信息
+     */
+    public function get_novel_info(){
+        $ms = D('Novel');
+
+        $recordsTotal = $ms->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['title|author|release_type_name'] = array('like', '%'.$search.'%');
+        }
+        $cond['title'] = I('title');
+        $cond['author'] = I('author');
+        $cond['release_type_id'] = I('release_type_id');
+        $comicTypeId = I('comic_type_id');
+        if ($comicTypeId) {
+            $cond['_string'] = 'FIND_IN_SET('.$comicTypeId.', type_ids)';
+        }
+        $cond['s_serial'] = I('s_serial');
+        $cond['s_fee'] = I('s_fee');
+        $cond['s_target'] = I('s_target');
+        $cond['s_space'] = I('s_space');
+        $cond['c.status'] = I('status');
+
+        $recordsFiltered = $ms->getNovelNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 0: $ms->order('c.id '.$orderDir); break;
+                case 2: $ms->order('title '.$orderDir); break;
+                case 3: $ms->order('author '.$orderDir); break;
+                case 4: $ms->order('release_type_name '.$orderDir); break;
+                case 5: $ms->order('type_ids '.$orderDir); break;
+                case 6: $ms->order('total_chapter '.$orderDir); break;
+                case 7: $ms->order('free_chapter '.$orderDir); break;
+                case 8: $ms->order('pre_chapter_pay '.$orderDir); break;
+                case 9: $ms->order('updated_at '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('updated_at desc,sort desc');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getNovelData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 新增、修改小说
+     */
+    public function input_novel()
+    {
+        $id = I('id');
+        $novel = D('Novel');
+        $novel->create();
+        $novel->type_ids = implode(',', I('type_ids'));
+        if (I('s_fee') == C('C_FEE_N')) {
+            // 免费小说的免费章节为总章节数
+            $novel->free_chapter = I('total_chapter');
+        }
+
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $novel->where($cond)->save();
+        } else {
+            $res = $novel->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '修改小说失败');
+        }
+        ajax_return(1, '修改小说成功');
+    }
+
+    /**
+     * 更新小说时间
+     */
+    public function refresh_novel()
+    {
+        $novel = I('novel');
+        $cond['id'] = array('in', $novel);
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        M('novel')->where($cond)->save($data);
+        ajax_return(1);
+    }
+
+    /**
+     * 推荐小说
+     */
+    public function recommend_novel()
+    {
+        $cond['novel_id'] = I('novel_id');
+        $recommend = D('NovelRecommend');
+        $res = $recommend->where($cond)->find();
+        if ($res) {
+            $data = [
+                'status'         => C('STATUS_Y'),
+                'recommend_time' => date('Y-m-d H:i:s')
+            ];
+            $recommend->where($cond)->save($data);
+        } else {
+            $recommend->create();
+            $recommend->add();
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 小说章节信息
+     */
+    public function get_chapter_info()
+    {
+        $cond = [
+            'c.status' => C('STATUS_Y'),
+            'novel_id' => I('novel_id')
+        ];
+        $infos = D('NovelChapter')->getChapterData($cond);
+
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 编辑小说章节
+     */
+    public function input_chapter()
+    {
+        $chapterId = I('id');
+        $chapter = D('NovelChapter');
+        $chapter->create();
+        $chapter->words = mb_strlen(strip_tags(htmlspecialchars_decode(I('content'))), 'UTF8'); // 字数
+        if ($chapterId) {
+            $cond['id'] = $cond_detail['chapter_id'] = $chapterId;
+            $res = $chapter->where($cond)->save(); // 修改章节
+            M('novel_chapter_detail')->where($cond_detail)->save(['content'=>I('content')]); // 修改章节详情
+        } else {
+            $res = $chapter->add();
+            $data_detail = [
+                'chapter_id' => $res,
+                'content'    => I('content')
+            ];
+            M('novel_chapter_detail')->add($data_detail);
+        }
+
+        if (false == $res) {
+            ajax_return(0, '编辑小说章节失败');
+        }
+        ajax_return(1, '编辑小说章节成功');
+    }
+}
