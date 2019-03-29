@@ -252,4 +252,51 @@ class NovelController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
+
+
+
+    /*********************************** 小说 推荐 *************************************/
+
+    /**
+     * 获取小说推荐
+     */
+    public function get_recommend_info(){
+        $ms = D('NovelRecommend');
+        $cond['r.status'] = C('STATUS_Y');
+        $infos = $ms->getRecommendData($cond);
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 排序
+     */
+    public function order_recommend()
+    {
+        $cond['id'] = I('id');
+        $data['sort'] = I('sort');
+        $res = M('novel_recommend')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '排序失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 取消推荐
+     */
+    public function cancel_recommend()
+    {
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('novel_recommend')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '取消推荐失败');
+        }
+        ajax_return(1);
+    }
 }

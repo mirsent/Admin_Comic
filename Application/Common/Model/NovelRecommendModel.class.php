@@ -8,4 +8,15 @@ class NovelRecommendModel extends BaseModel{
         array('recommend_time','get_datetime',1,'callback')
     );
 
+    public function getRecommendData($cond=[])
+    {
+        $data = $this
+            ->alias('r')
+            ->join('__NOVEL__ n ON n.id = r.novel_id')
+            ->field('r.*, n.title')
+            ->where(array_filter($cond))
+            ->select();
+        return $data;
+    }
+
 }
