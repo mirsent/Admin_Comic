@@ -4,7 +4,7 @@ use Common\Controller\AdminBaseController;
 class NovelController extends AdminBaseController{
 
     /**
-     * 漫画列表页面
+     * 小说列表页面
      */
     public function novel_list(){
         $cond['status'] = C('STATUS_Y');
@@ -17,7 +17,7 @@ class NovelController extends AdminBaseController{
     }
 
     /**
-     * 获取上架漫画信息
+     * 获取小说信息
      */
     public function get_novel_info(){
         $ms = D('Novel');
@@ -183,5 +183,73 @@ class NovelController extends AdminBaseController{
             ajax_return(0, '编辑小说章节失败');
         }
         ajax_return(1, '编辑小说章节成功');
+    }
+
+    /*********************************** 小说 banner *************************************/
+
+    /**
+     * 小说banner页面
+     */
+    public function novel_banner(){
+        $cond['status'] = C('C_STATUS_U');
+        $novel = M('novel')
+            ->field('id,title')
+            ->where($cond)
+            ->select();
+        $assign = [
+            'novel' => $novel
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    /**
+     * 获取banner信息
+     */
+    public function get_banner_info(){
+        $cond['nb.status'] = C('STATUS_Y');
+        $infos = M('novel_banner')
+            ->alias('nb')
+            ->join('__NOVEL__ n ON n.id = nb.jump_novel_id')
+            ->field('nb.*,title as novel_title')
+            ->where($cond)
+            ->select();
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 修改banner
+     */
+    public function input_banner(){
+        $banner = D('NovelBanner');
+        $banner->create();
+        $id = I('id');
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $banner->where($cond)->save();
+        } else {
+            $res = $banner->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '修改banner失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 删除banner
+     */
+    public function delete_banner(){
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('novel_banner')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除banner失败');
+        }
+        ajax_return(1);
     }
 }
