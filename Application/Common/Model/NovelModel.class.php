@@ -38,4 +38,26 @@ class NovelModel extends BaseModel{
         }
         return $data;
     }
+
+    public function getNovelInfo($id)
+    {
+        $data = $this->find($id);
+
+        $cond_tag = [
+            'status' => C('STATUS_Y'),
+            'id'     => array('in', $data['type_ids'])
+        ];
+        $data['tags'] = M('comic_type')->where($cond_tag)->getField('comic_type_name', true);
+
+        $chapter = M('novel_chapter');
+        $cond = [
+            'status'   => C('STATUS_Y'),
+            'novel_id' => $id
+        ];
+        $data['words'] = $chapter->where($cond)->sum('words'); // 字数
+        $data['chapters'] = $chapter->where($cond)->count(); // 章节数
+        $data['collects'] = M('novel_collect')->where($cond)->count(); // 收藏数
+
+        return $data;
+    }
 }

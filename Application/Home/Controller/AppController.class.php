@@ -19,7 +19,7 @@ class AppController extends Controller {
 
         // 推荐
         $cond_recommend['r.status'] = C('STATUS_Y');
-        $recommendData = D('Recommend')->order('r.sort')->getRecommendData($cond_recommend);
+        $recommendData = D('Recommend')->order('r.sort')->getRecommendApi($cond_recommend);
         foreach ($recommendData as $key => $value) {
             $recommendData[$key]['brief'] = strip_tags(htmlspecialchars_decode($value['brief']));
         }
@@ -65,7 +65,14 @@ class AppController extends Controller {
     {
         $search = I('search');
         $cond['title'] = array('like', '%'.$search.'%');
-        $titles = M('comics')->where($cond)->field('id,title')->select();
+
+        $type = I('type');
+        if ($type == 2) {
+            $titles = M('novel')->where($cond)->field('id,title')->select();
+        } else {
+            $titles = M('comics')->where($cond)->field('id,title')->select();
+        }
+
         foreach ($titles as $key => $value) {
             $titles[$key]['title_filter'] = str_replace($search, '<span class="keyword">'.$search.'</span>', $value['title']);
         }
@@ -76,10 +83,17 @@ class AppController extends Controller {
     {
         $search = I('search');
         $cond['title'] = array('like', '%'.$search.'%');
-        $comic = M('comics')->where($cond)->select();
-        foreach ($comic as $key => $value) {
-            $comic[$key]['title_filter'] = str_replace($search, '<span class="keyword">'.$search.'</span>', $value['title']);
+
+        $type = I('type');
+        if ($type == 2) {
+            $data = M('novel')->where($cond)->select();
+        } else {
+            $data = M('comics')->where($cond)->select();
         }
-        ajax_return(1, '搜索', $comic);
+
+        foreach ($data as $key => $value) {
+            $data[$key]['title_filter'] = str_replace($search, '<span class="keyword">'.$search.'</span>', $value['title']);
+        }
+        ajax_return(1, '搜索', $data);
     }
 }
