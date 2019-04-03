@@ -85,6 +85,10 @@ class NovelController extends Controller {
         $data['score_count'] = $scoreCount;
         $data['score_avg'] = $scoreAvg;
 
+        // 评论
+        $data['comment'] = D('NovelComment')->getComment1st($novelId);
+        $data['comments'] = D('NovelComment')->where($cond_comment)->count(); // 评论数
+
         // 阅读数+1
         $cond_novel['id'] = $novelId;
         D('Novel')->where($cond_novel)->setInc('popularity');
@@ -106,6 +110,31 @@ class NovelController extends Controller {
         $comment->add();
 
         ajax_return(1, 'comment');
+    }
+
+    /**
+     * 回复评论
+     * @param int reader_id 读者ID
+     * @param int novel_id 小说Id
+     * @param varchar comment_content 评论内容
+     */
+    public function reply()
+    {
+        $comment = D('NovelComment');
+        $comment->create();
+        $comment->add();
+
+        ajax_return(1, 'comment');
+    }
+
+    /**
+     * 获取某条评论信息
+     * @param int comment_id 评论ID
+     */
+    public function get_comment_info()
+    {
+        $data = D('NovelComment')->getCommentInfo(I('comment_id'));
+        ajax_return(1, 'comment info', $data);
     }
 
     /**
