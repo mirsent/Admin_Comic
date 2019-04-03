@@ -221,14 +221,23 @@ class NovelController extends Controller {
 
     /**
      * 小说正文
+     * @param int novel_id 小说ID
+     * @param int catalog 章节
+     * @param int reader_id 读者ID
      */
     public function get_novel_content()
     {
+        $novelId = I('novel_id');
+        $catalog = I('catalog');
+        $readerId = I('reader_id');
+
         $cond = [
-            'novel_id' => I('novel_id'),
-            'catalog'  => I('catalog')
+            'novel_id' => $novelId,
+            'catalog'  => $catalog
         ];
         $data = D('NovelChapter')->getChapterInfo($cond);
+
+        D('NovelHistory')->updateHistory($novelId, $catalog, $readerId);
 
         ajax_return(1, 'novel content', $data);
     }

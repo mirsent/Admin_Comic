@@ -471,11 +471,10 @@ class NovelController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 0: $ms->order('c.title '.$orderDir); break;
+                case 0: $ms->order('title '.$orderDir); break;
                 case 1: $ms->order('nickname '.$orderDir); break;
                 case 2: $ms->order('chapter '.$orderDir); break;
                 case 3: $ms->order('last_time '.$orderDir); break;
-                case 4: $ms->order('channel '.$orderDir); break;
                 default: break;
             }
         } else {
