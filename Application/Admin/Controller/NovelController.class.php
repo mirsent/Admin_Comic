@@ -3,6 +3,8 @@ namespace Admin\Controller;
 use Common\Controller\AdminBaseController;
 class NovelController extends AdminBaseController{
 
+    /******************************************* 小说 *******************************************/
+
     /**
      * 小说列表页面
      */
@@ -185,10 +187,13 @@ class NovelController extends AdminBaseController{
         ajax_return(1, '编辑小说章节成功');
     }
 
-    /*********************************** 小说 banner *************************************/
+
+
+
+    /******************************************* banner *******************************************/
 
     /**
-     * 小说banner页面
+     * 小说banner
      */
     public function novel_banner(){
         $cond['status'] = C('C_STATUS_U');
@@ -256,7 +261,7 @@ class NovelController extends AdminBaseController{
 
 
 
-    /*********************************** 小说 推荐 *************************************/
+    /******************************************* 小说推荐 *******************************************/
 
     /**
      * 获取小说推荐
@@ -271,7 +276,7 @@ class NovelController extends AdminBaseController{
     }
 
     /**
-     * 排序
+     * 推荐排序
      */
     public function order_recommend()
     {
@@ -296,6 +301,81 @@ class NovelController extends AdminBaseController{
 
         if ($res === false) {
             ajax_return(0, '取消推荐失败');
+        }
+        ajax_return(1);
+    }
+
+
+
+
+    /******************************************* 评论 *******************************************/
+
+    /**
+     * 获取评论信息
+     */
+    public function get_comment_info(){
+        $ms = D('NovelComment');
+        $cond['c.status'] = array('neq', C('STATUS_N'));
+
+        $recordsTotal = $ms->alias('c')->where($cond)->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['title|nickname|comment_content'] = array('like', '%'.$search.'%');
+        }
+        $cond['title'] = I('title');
+        $cond['nickname'] = I('nickname');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['comment_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+        }
+
+        $recordsFiltered = $ms->getCommentNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 0: $ms->order('title '.$orderDir); break;
+                case 1: $ms->order('nickname '.$orderDir); break;
+                case 2: $ms->order('comment_content '.$orderDir); break;
+                case 3: $ms->order('comment_time '.$orderDir); break;
+                case 4: $ms->order('status '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('comment_time desc');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getCommentData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 设置评论显示状态
+     */
+    public function set_comment(){
+        $cond['id'] = I('id');
+        $data['status'] = I('status');
+        $res = M('novel_comment')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '设置评论显示状态失败');
         }
         ajax_return(1);
     }

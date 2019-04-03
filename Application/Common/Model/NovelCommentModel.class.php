@@ -8,6 +8,31 @@ class NovelCommentModel extends BaseModel{
         array('comment_time','get_datetime',1,'callback')
     );
 
+    public function getCommentNumber($cond=[])
+    {
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->join('__NOVEL__ n ON n.id = c.novel_id')
+            ->where(array_filter($cond))
+            ->count();
+
+        return $data;
+    }
+
+    public function getCommentData($cond=[])
+    {
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->join('__NOVEL__ n ON n.id = c.novel_id')
+            ->field('c.*,title,nickname')
+            ->where(array_filter($cond))
+            ->select();
+
+        return $data;
+    }
+
     /**
      * 主评论
      */

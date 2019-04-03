@@ -18,7 +18,7 @@
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
-                        <th>漫画名称</th>
+                        <th>小说名称</th>
                         <th>读者昵称</th>
                         <th>评论内容</th>
                         <th>评论时间</th>
@@ -46,13 +46,13 @@
                         order: data.order,
                         search: $('.fuzzy-search').val(),
 
-                        title: $('.search-comic').val(),
+                        title: $('.search-novel').val(),
                         nickname: $('.search-reader').val(),
                         search_date: $('.search-date').val(),
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Comic/get_comment_info')}",
+                        url: "{:U('Novel/get_comment_info')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -85,7 +85,7 @@
                 },
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="小说名称" class="layui-input search-novel"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="评论日期" class="layui-input picker-date search-date" readonly></div> ';
 
@@ -108,7 +108,7 @@
 
                             $.ajax({
                                 type: "POST",
-                                url: "{:U('Comic/set_comment')}",
+                                url: "{:U('Novel/set_comment')}",
                                 data: {
                                     id: obj.id,
                                     status: status
