@@ -18,9 +18,7 @@
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
-                        <th width="120">封面</th>
                         <th>漫画名称</th>
-                        <th width="80">头像</th>
                         <th>读者昵称</th>
                         <th>评论内容</th>
                         <th>评论时间</th>
@@ -63,17 +61,7 @@
                     });
                 },
                 columns: [
-                    {
-                        "data": "comic_img",
-                        "orderable": false,
-                        "render": DT.RENDER.IMG
-                    },
-                    { "data": "comic_title" },
-                    {
-                        "data": "reader_img",
-                        "orderable": false,
-                        "render": DT.RENDER.HEAD
-                    },
+                    { "data": "title" },
                     { "data": "nickname" },
                     { "data": "comment_content" },
                     { "data": "comment_time" },

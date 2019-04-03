@@ -30,9 +30,9 @@ class ComicController extends AdminBaseController{
     }
 
 
-    ////////////
-    // banner //
-    ////////////
+
+
+    /******************************************* banner *******************************************/
 
     /**
      * 漫画广告banner页面
@@ -101,9 +101,9 @@ class ComicController extends AdminBaseController{
     }
 
 
-    ////////
-    // 漫画 //
-    ////////
+
+
+    /******************************************* 漫画 *******************************************/
 
     /**
      * 漫画列表页面
@@ -213,6 +213,7 @@ class ComicController extends AdminBaseController{
         M('recommend')->addAll($data);
         ajax_return(1);
     }
+
     public function recommend_comic()
     {
         $comicId = I('comic_id');
@@ -233,6 +234,11 @@ class ComicController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
+
+
+
+    /******************************************* 漫画仓库 *******************************************/
 
     /**
      * 漫画仓库页面
@@ -383,9 +389,9 @@ class ComicController extends AdminBaseController{
     }
 
 
-    ////////
-    // 推荐 //
-    ////////
+
+
+    /******************************************* 推荐 *******************************************/
 
     /**
      * 获取推荐漫画
@@ -430,9 +436,9 @@ class ComicController extends AdminBaseController{
     }
 
 
-    ////////
-    // 专题 //
-    ////////
+
+
+    /******************************************* 专题 *******************************************/
 
     public function subject(){
         $cond['status'] = C('STATUS_Y');
@@ -496,15 +502,16 @@ class ComicController extends AdminBaseController{
         ajax_return(1);
     }
 
-    ////////
-    // 评论 //
-    ////////
+
+
+
+    /******************************************* 评论 *******************************************/
 
     /**
      * 获取评论信息
      */
     public function get_comment_info(){
-        $ms = D('Comment');
+        $ms = D('ComicComment');
         $cond['c.status'] = array('neq', C('STATUS_N'));
 
         $recordsTotal = $ms->alias('c')->where($cond)->count();
@@ -530,11 +537,11 @@ class ComicController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 1: $ms->order('title '.$orderDir); break;
-                case 3: $ms->order('nickname '.$orderDir); break;
-                case 4: $ms->order('comment_content '.$orderDir); break;
-                case 5: $ms->order('comment_time '.$orderDir); break;
-                case 6: $ms->order('s_show '.$orderDir); break;
+                case 0: $ms->order('title '.$orderDir); break;
+                case 1: $ms->order('nickname '.$orderDir); break;
+                case 2: $ms->order('comment_content '.$orderDir); break;
+                case 3: $ms->order('comment_time '.$orderDir); break;
+                case 4: $ms->order('status '.$orderDir); break;
                 default: break;
             }
         } else {
@@ -562,7 +569,7 @@ class ComicController extends AdminBaseController{
     public function set_comment(){
         $cond['id'] = I('id');
         $data['status'] = I('status');
-        $res = M('comment')->where($cond)->save($data);
+        $res = M('comic_comment')->where($cond)->save($data);
 
         if ($res === false) {
             ajax_return(0, '设置评论显示状态失败');

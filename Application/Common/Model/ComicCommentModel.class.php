@@ -8,6 +8,31 @@ class ComicCommentModel extends BaseModel{
         array('comment_time','get_datetime',1,'callback')
     );
 
+    public function getCommentNumber($cond=[])
+    {
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->join('__COMICS__ comic ON comic.id = c.comic_id')
+            ->where(array_filter($cond))
+            ->count();
+
+        return $data;
+    }
+
+    public function getCommentData($cond=[])
+    {
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->join('__COMICS__ comic ON comic.id = c.comic_id')
+            ->field('c.*,title,nickname')
+            ->where(array_filter($cond))
+            ->select();
+
+        return $data;
+    }
+
     /**
      * 主评论
      */
