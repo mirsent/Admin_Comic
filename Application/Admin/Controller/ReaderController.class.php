@@ -3,7 +3,7 @@ namespace Admin\Controller;
 use Common\Controller\AdminBaseController;
 class ReaderController extends AdminBaseController{
 
-    /**************************************** 读者列表 **************************************/
+    /******************************************* 读者信息 *******************************************/
 
     public function reader_list()
     {
@@ -12,7 +12,7 @@ class ReaderController extends AdminBaseController{
         $this->display();
     }
 
-    /**git pu
+    /**
      * 获取读者信息
      */
     public function get_reader_info()
@@ -122,255 +122,7 @@ class ReaderController extends AdminBaseController{
 
 
 
-    /**************************************** 收藏 **************************************/
-
-    /**
-     * 获取收藏信息
-     */
-    public function get_collect_info()
-    {
-        $ms = D('Collect');
-
-        $cond['ct.status'] = C('STATUS_Y');
-
-        $recordsTotal = $ms->alias('ct')->where($cond)->count();
-
-        // 搜索
-        $search = I('search');
-        if (strlen($search)>0) {
-            $cond['title|nickname'] = array('like', '%'.$search.'%');
-        }
-        $cond['title'] = I('title');
-        $cond['nickname'] = I('nickname');
-        $cond['channel'] = I('channel');
-        $searchDate = I('search_date');
-        if ($searchDate) {
-            $cond['create_at'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
-        }
-
-        $recordsFiltered = $ms->getCollectNumber($cond);
-
-        // 排序
-        $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
-        if(isset(I('order')[0])){
-            $i = intval($orderColumn);
-            switch($i){
-                case 0: $ms->order('c.title '.$orderDir); break;
-                case 1: $ms->order('nickname '.$orderDir); break;
-                case 2: $ms->order('create_at '.$orderDir); break;
-                case 3: $ms->order('channel '.$orderDir); break;
-                default: break;
-            }
-        } else {
-            $ms->order('create_at');
-        }
-
-        // 分页
-        $start = I('start');  // 开始的记录序号
-        $limit = I('limit');  // 每页显示条数
-        $page = I('page');    // 第几页
-
-        $infos = $ms->page($page, $limit)->getCollectData($cond);
-
-        echo json_encode(array(
-            "draw" => intval(I('draw')),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
-    }
-
-
-
-
-    /**************************************** 阅读历史 **************************************/
-
-    /**
-     * 获取阅读历史信息
-     */
-    public function get_history_info()
-    {
-        $ms = D('History');
-
-        $recordsTotal = $ms->count();
-
-        // 搜索
-        $search = I('search');
-        if (strlen($search)>0) {
-            $cond['title|nickname'] = array('like', '%'.$search.'%');
-        }
-        $cond['title'] = I('title');
-        $cond['nickname'] = I('nickname');
-        $cond['channel'] = I('channel');
-        $searchDate = I('search_date');
-        if ($searchDate) {
-            $cond['last_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
-        }
-
-        $recordsFiltered = $ms->getHistoryNumber($cond);
-
-        // 排序
-        $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
-        if(isset(I('order')[0])){
-            $i = intval($orderColumn);
-            switch($i){
-                case 0: $ms->order('c.title '.$orderDir); break;
-                case 1: $ms->order('nickname '.$orderDir); break;
-                case 2: $ms->order('chapter '.$orderDir); break;
-                case 3: $ms->order('last_time '.$orderDir); break;
-                case 4: $ms->order('channel '.$orderDir); break;
-                default: break;
-            }
-        } else {
-            $ms->order('last_time');
-        }
-
-        // 分页
-        $start = I('start');  // 开始的记录序号
-        $limit = I('limit');  // 每页显示条数
-        $page = I('page');    // 第几页
-
-        $infos = $ms->page($page, $limit)->getHistoryData($cond);
-
-        echo json_encode(array(
-            "draw" => intval(I('draw')),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
-    }
-
-
-
-
-    /**************************************** 点赞 **************************************/
-
-    /**
-     * 获取点赞信息
-     */
-    public function get_likes_info()
-    {
-        $ms = D('Likes');
-
-        $cond['l.status'] = C('STATUS_Y');
-
-        $recordsTotal = $ms->alias('l')->where($cond)->count();
-
-        // 搜索
-        $search = I('search');
-        if (strlen($search)>0) {
-            $cond['title|nickname'] = array('like', '%'.$search.'%');
-        }
-        $cond['title'] = I('title');
-        $cond['nickname'] = I('nickname');
-        $cond['channel'] = I('channel');
-        $searchDate = I('search_date');
-        if ($searchDate) {
-            $cond['create_at'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
-        }
-
-        $recordsFiltered = $ms->getLikesNumber($cond);
-
-        // 排序
-        $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
-        if(isset(I('order')[0])){
-            $i = intval($orderColumn);
-            switch($i){
-                case 0: $ms->order('c.title '.$orderDir); break;
-                case 1: $ms->order('nickname '.$orderDir); break;
-                case 2: $ms->order('create_at '.$orderDir); break;
-                case 3: $ms->order('channel '.$orderDir); break;
-                default: break;
-            }
-        } else {
-            $ms->order('create_at');
-        }
-
-        // 分页
-        $start = I('start');  // 开始的记录序号
-        $limit = I('limit');  // 每页显示条数
-        $page = I('page');    // 第几页
-
-        $infos = $ms->page($page, $limit)->getLikesData($cond);
-
-        echo json_encode(array(
-            "draw" => intval(I('draw')),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
-    }
-
-
-
-    /**************************************** 画册点赞 **************************************/
-
-    /**
-     * 获取点赞信息
-     */
-    public function get_gather_likes_info()
-    {
-        $ms = D('GatherLikes');
-
-        $cond['l.status'] = C('STATUS_Y');
-
-        $recordsTotal = $ms->alias('l')->where($cond)->count();
-
-        // 搜索
-        $search = I('search');
-        if (strlen($search)>0) {
-            $cond['gather_title|nickname'] = array('like', '%'.$search.'%');
-        }
-        $cond['gather_title'] = I('gather_title');
-        $cond['nickname'] = I('nickname');
-        $searchDate = I('search_date');
-        if ($searchDate) {
-            $cond['like_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
-        }
-
-        $recordsFiltered = $ms->getLikesNumber($cond);
-
-        // 排序
-        $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
-        if(isset(I('order')[0])){
-            $i = intval($orderColumn);
-            switch($i){
-                case 0: $ms->order('gather_title '.$orderDir); break;
-                case 1: $ms->order('nickname '.$orderDir); break;
-                case 2: $ms->order('like_time '.$orderDir); break;
-                default: break;
-            }
-        } else {
-            $ms->order('like_time desc');
-        }
-
-        // 分页
-        $start = I('start');  // 开始的记录序号
-        $limit = I('limit');  // 每页显示条数
-        $page = I('page');    // 第几页
-
-        $infos = $ms->page($page, $limit)->getLikesData($cond);
-
-        echo json_encode(array(
-            "draw" => intval(I('draw')),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
-    }
-
-
-
-
-    /**************************************** 积分详情 **************************************/
+    /******************************************* 积分 *******************************************/
 
     /**
      * 获取积分信息
@@ -431,7 +183,7 @@ class ReaderController extends AdminBaseController{
 
 
 
-    /**************************************** 分享 **************************************/
+    /******************************************* 分享 *******************************************/
 
     public function get_share_info()
     {
@@ -487,7 +239,8 @@ class ReaderController extends AdminBaseController{
 
 
 
-    /**************************************** 读者期望 **************************************/
+
+    /******************************************* 愿望墙 *******************************************/
 
     public function get_wish_info()
     {

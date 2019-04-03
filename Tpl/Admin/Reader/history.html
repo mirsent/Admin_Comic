@@ -12,8 +12,7 @@
                         <th>漫画名称</th>
                         <th>读者昵称</th>
                         <th>章节</th>
-                        <th>最后阅读时间</th>
-                        <th>途径</th>
+                        <th width="140">最后阅读时间</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +42,7 @@
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Reader/get_history_info')}",
+                        url: "{:U('Comic/get_history_info')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -55,25 +54,13 @@
                     { "data": "comic_title" },
                     { "data": "nickname" },
                     { "data": "chapter" },
-                    { "data": "last_time" },
-                    {
-                        "data": "channel",
-                        "class": "text-center",
-                        "render": function(data,type,full){
-                            if (data == CHANNEL_G) {
-                                return '<span class="label label-primary">公众号</span>'
-                            } else {
-                                return '<span class="label label-info">小程序</span>'
-                            }
-                        }
-                    }
+                    { "data": "last_time", "class": "text-center" }
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="漫画名称" class="layui-input search-comic"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="最后阅读日期" class="layui-input picker-date search-date" readonly></div> ';
-                    advancedHtml += '<div class="layui-inline"><select class="search-channel"> <option value="">途径</option> <option value="'+CHANNEL_G+'">公众号</option><option value="'+CHANNEL_X+'">小程序</option> </select></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 

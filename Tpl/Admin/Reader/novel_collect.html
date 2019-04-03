@@ -2,16 +2,16 @@
 <block name="css">
 
 </block>
-<block name="header">画册 <small>点赞</small></block>
+<block name="header">小说 <small>收藏</small></block>
 <block name="content">
     <div class="box box-primary">
         <div class="box-body">
             <table class="table table-bordered table-hover table-single">
                 <thead>
                     <tr>
-                        <th>画册名称</th>
+                        <th>小说名称</th>
                         <th>读者昵称</th>
-                        <th width="140">点赞时间</th>
+                        <th width="140">收藏时间</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +41,7 @@
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Gather/get_likes_info')}",
+                        url: "{:U('Novel/get_collect_info')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -50,18 +50,18 @@
                     });
                 },
                 columns: [
-                    { "data": "gather_title" },
+                    { "data": "title" },
                     { "data": "nickname" },
                     {
-                        "data": "like_time",
+                        "data": "create_at",
                         "class": "text-center"
                     }
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="画册名称" class="layui-input search-comic"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="小说名称" class="layui-input search-comic"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="点赞日期" class="layui-input picker-date search-date" readonly></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="收藏日期" class="layui-input picker-date search-date" readonly></div> ';
 
                     advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
 

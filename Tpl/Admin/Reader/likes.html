@@ -2,7 +2,7 @@
 <block name="css">
 
 </block>
-<block name="header">点赞 <small>管理</small></block>
+<block name="header">漫画 <small>点赞</small></block>
 <block name="content">
     <div class="box box-primary">
         <div class="box-body">
@@ -11,7 +11,7 @@
                     <tr>
                         <th>漫画名称</th>
                         <th>读者昵称</th>
-                        <th>点赞时间</th>
+                        <th width="140">点赞时间</th>
                         <!-- <th>途径</th> -->
                     </tr>
                 </thead>
@@ -42,7 +42,7 @@
                     };
                     $.ajax({
                         type: "POST",
-                        url: "{:U('Reader/get_likes_info')}",
+                        url: "{:U('Comic/get_likes_info')}",
                         data: param,
                         dataType: "json",
                         success: function(result) {
@@ -53,7 +53,10 @@
                 columns: [
                     { "data": "comic_title" },
                     { "data": "nickname" },
-                    { "data": "create_at" },
+                    {
+                        "data": "create_at",
+                        "class": "text-center"
+                    }
                     // {
                     //     "data": "channel",
                     //     "class": "text-center",
