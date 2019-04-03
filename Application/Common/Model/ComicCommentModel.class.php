@@ -1,7 +1,7 @@
 <?php
 namespace Common\Model;
 use Common\Model\BaseModel;
-class NovelCommentModel extends BaseModel{
+class ComicCommentModel extends BaseModel{
 
     protected $_auto=array(
         array('status','get_default_status',1,'callback'),
@@ -11,12 +11,12 @@ class NovelCommentModel extends BaseModel{
     /**
      * 主评论
      */
-    public function getComment1st($novelId)
+    public function getComment1st($comicId)
     {
         $cond_1st = [
             'c.status' => C('STATUS_Y'),
             'pid'      => 0,
-            'novel_id' => $novelId
+            'comic_id' => $comicId
         ];
         $data = $this
             ->alias('c')
@@ -28,7 +28,7 @@ class NovelCommentModel extends BaseModel{
             $cond_2nd = [
                 'status' => C('STATUS_Y'),
                 'pid'      => $value['id'],
-                'novel_id' => $novelId
+                'comic_id' => $comicId
             ];
             $data[$key]['replys'] = $this->where($cond_2nd)->count(); // 回复数量
             $data[$key]['comment_time'] = date('m/d', strtotime($value['comment_time']));

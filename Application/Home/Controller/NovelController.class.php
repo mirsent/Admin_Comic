@@ -2,6 +2,9 @@
 namespace Home\Controller;
 use Think\Controller;
 
+require './vendor/autoload.php';
+use DfaFilter\SensitiveHelper;
+
 class NovelController extends Controller {
 
     /**
@@ -106,6 +109,20 @@ class NovelController extends Controller {
     {
         $comment = D('NovelComment');
         $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+
         $comment->pid = 0;
         $comment->add();
 
@@ -122,6 +139,20 @@ class NovelController extends Controller {
     {
         $comment = D('NovelComment');
         $comment->create();
+
+        $content = I('comment_content');
+
+        // 获取感词库文件路径
+        $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
+
+        // get one helper
+        $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
+
+        // 敏感词替换
+        $filterContent = $handle->replace($content, C('FILTER_TEXT'));
+
+        $comment->comment_content = $filterContent;
+
         $comment->add();
 
         ajax_return(1, 'comment');

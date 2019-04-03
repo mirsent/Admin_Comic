@@ -162,15 +162,20 @@ class ComicController extends Controller {
         ajax_return(1);
     }
 
+
+
+    ////////
+    // 评论 //
+    ////////
+
     /**
-     * 评论列表
-     * @param comic_id 漫画ID
+     * 获取评论
+     * @param int comic_id 漫画ID
      */
-    public function get_comment()
+    public function get_comment_data()
     {
-        $comicId = I('comic_id');
-        $data = D('Comment')->getCommentInfo($comicId);
-        ajax_return(1, '评论列表', $data);
+        $data = D('ComicComment')->getComment1st(I('comic_id'));
+        ajax_return(1, 'comment data', $data);
     }
 
     /**
@@ -181,7 +186,7 @@ class ComicController extends Controller {
      */
     public function comment()
     {
-        $comment = D('Comment');
+        $comment = D('ComicComment');
         $comment->create();
 
         $content = I('comment_content');
@@ -192,11 +197,10 @@ class ComicController extends Controller {
         // get one helper
         $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
 
-        // 敏感词替换为***为例
+        // 敏感词替换
         $filterContent = $handle->replace($content, C('FILTER_TEXT'));
 
         $comment->comment_content = $filterContent;
-        $comment->level = 1; // 主评论
         $comment->pid = 0;
         $res = $comment->add();
 
@@ -208,11 +212,13 @@ class ComicController extends Controller {
 
     /**
      * 回复评论
-     * @param level 2
+     * @param int reader_id 读者ID
+     * @param int comic_id 漫画Id
+     * @param varchar comment_content 评论内容
      */
     public function reply()
     {
-        $comment = D('Comment');
+        $comment = D('ComicComment');
         $comment->create();
 
         $content = I('comment_content');
@@ -223,17 +229,24 @@ class ComicController extends Controller {
         // get one helper
         $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
 
-        // 敏感词替换为***为例
+        // 敏感词替换
         $filterContent = $handle->replace($content, C('FILTER_TEXT'));
 
         $comment->comment_content = $filterContent;
-        $comment->level = 2;
-        $res = $comment->add();
 
-        if ($res === false) {
-            ajax_return(0, '评论失败');
-        }
-        ajax_return(1);
+        $comment->add();
+
+        ajax_return(1, 'comment');
+    }
+
+    /**
+     * 获取某条评论信息
+     * @param int comment_id 评论ID
+     */
+    public function get_comment_info()
+    {
+        $data = D('ComicComment')->getCommentInfo(I('comment_id'));
+        ajax_return(1, 'comment info', $data);
     }
 
     /**
