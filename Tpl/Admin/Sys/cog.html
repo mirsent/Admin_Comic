@@ -1,0 +1,105 @@
+<extend name="Public/base" />
+<block name="css">
+    <style type="text/css">
+        .layui-form{
+            margin-top: 20px;
+        }
+        .layui-form-label{
+            width: 80px;
+            text-align: left;
+        }
+        .layui-form-item .layui-input-inline {
+            width: 60px;
+        }
+    </style>
+</block>
+<block name="header">参数 <small>管理</small></block>
+<block name="content">
+    <hr>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到1天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_1" value="{$cog.sign_integral_1}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到2天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_2" value="{$cog.sign_integral_2}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到3天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_3" value="{$cog.sign_integral_3}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到4天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_4" value="{$cog.sign_integral_4}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到5天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_5" value="{$cog.sign_integral_5}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到6天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_6" value="{$cog.sign_integral_6}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">签到7天</label>
+            <div class="layui-input-inline">
+                <input type="text" name="sign_integral_7" value="{$cog.sign_integral_7}" lay-verify="required" autocomplete="off" class="layui-input integral">
+            </div>
+            <div class="layui-form-mid">积分</div>
+        </div>
+    </form>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.integral').on('blur', function(){
+                var name = $(this).attr('name');
+                var value = $(this).val();
+                $.ajax({
+                    type: "POST",
+                    url: "{:U('Sys/input_config')}",
+                    data: {
+                        name: name,
+                        value: value
+                    },
+                    dataType:"json",
+                    success: function(result) {
+                        if (result.status == 1) {
+                            toastr["success"]("修改参数成功", "");
+                        } else {
+                            toastr["warning"]("稍后重试...", "");
+                        }
+                    }
+                });
+            })
+        });
+
+        /************************* document ready end *****************************/
+
+        layui.use(['layer', 'form'], function() {
+            var layer = layui.layer,
+            form = layui.form;
+
+
+        });
+    </script>
+</block>

@@ -1,9 +1,6 @@
 <?php
 namespace Admin\Controller;
 use Common\Controller\AdminBaseController;
-/**
- * 系统配置controller
- */
 class SysController extends AdminBaseController{
 
     /**
@@ -33,7 +30,9 @@ class SysController extends AdminBaseController{
     }
 
 
-    /*********************** 类型管理通用方法 *************************/
+
+
+    /******************************************* 通用 *******************************************/
 
     /**
      * 获取dt数据
@@ -85,7 +84,33 @@ class SysController extends AdminBaseController{
     }
 
 
-    /************************ 菜单管理 ***************************/
+
+
+    /******************************************* 参数 *******************************************/
+
+    public function cog()
+    {
+        $cog = M('cog')->find(1);
+        $this->assign('cog', $cog);
+        $this->display();
+    }
+
+    /**
+     * 修改参数
+     */
+    public function input_config()
+    {
+        $cond['id'] = 1;
+        $data[I('name')] = I('value');
+        M('cog')->where($cond)->save($data);
+
+        ajax_return(1);
+    }
+
+
+
+
+    /******************************************* 菜单管理 *******************************************/
 
     public function admin_nav(){
         $map = array(
