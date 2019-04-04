@@ -556,7 +556,8 @@ class ReaderController extends Controller {
     public function sign()
     {
         $sign = D('Sign');
-        $cond['reader_id'] = I('reader_id');
+        $readerId = I('reader_id');
+        $cond['reader_id'] = $readerId;
         $signInfo = $sign->where($cond)->find();
 
         if ($signInfo['last_signdate'] >= date("Y-m-d",strtotime("-1 day"))) {
@@ -566,6 +567,22 @@ class ReaderController extends Controller {
         }
 
         $days = (intval($days) + 1) % 8; // 连续签到天数
+
+        // 积分
+        $cogSign = M('cog_sign')->where(['status'=>C('STATUS_Y')])->getField('days,integral');
+        $integral = $cogSign[$days];
+        M('reader')->where(['id'=>$readerId])->setInc('integral', $integral);
+
+        // 积分详情
+        $data_integral = [
+            'reader_id' => $readerId,
+            'content'   => '连续签到'.$days.'天',
+            'method'    => 1,
+            'points'    => $integral,
+            'create_at' => date('Y-m-d H:i:s')
+        ];
+        M('integral')->add($data_integral);
+
 
         if ($signInfo) {
             $data = [

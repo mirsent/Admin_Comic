@@ -105,7 +105,7 @@ class AppController extends Controller {
      */
     public function get_cog()
     {
-        $data = M('cog_sign')->find(1);
+        $data = M('cog_sign')->getField('days,integral');
         ajax_return(1, 'cog sign', $data);
     }
 }
