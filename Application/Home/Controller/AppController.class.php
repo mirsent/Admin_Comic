@@ -79,6 +79,9 @@ class AppController extends Controller {
         ajax_return(1, '搜索联想', $titles);
     }
 
+    /**
+     * 搜索
+     */
     public function search_result()
     {
         $search = I('search');
@@ -95,5 +98,14 @@ class AppController extends Controller {
             $data[$key]['title_filter'] = str_replace($search, '<span class="keyword">'.$search.'</span>', $value['title']);
         }
         ajax_return(1, '搜索', $data);
+    }
+
+    /**
+     * 获取参数
+     */
+    public function get_cog()
+    {
+        $data = M('cog')->find(1);
+        ajax_return(1, 'cog', $data);
     }
 }
