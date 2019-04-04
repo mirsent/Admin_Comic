@@ -2,6 +2,7 @@
 namespace Common\Model;
 use Common\Model\BaseModel;
 class ShareHelpModel extends BaseModel{
+
     public function getShareNumber($cond=[])
     {
         $data = $this

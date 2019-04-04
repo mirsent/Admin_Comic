@@ -67,9 +67,10 @@ class ReaderController extends Controller {
         ajax_return(1, '充值记录', $data);
     }
 
-    ////////
-    // 画册 //
-    ////////
+
+
+
+    /******************************************* 画册 *******************************************/
 
     /**
      * 获取画册信息
@@ -195,7 +196,6 @@ class ReaderController extends Controller {
 
     /**
      * 回复评论
-     * @param level 2
      */
     public function reply()
     {
@@ -330,9 +330,10 @@ class ReaderController extends Controller {
         ajax_return(1, '通知消息', $data);
     }
 
-    ////////
-    // 点赞 //
-    ////////
+
+
+
+    /******************************************* 点赞 *******************************************/
 
     /**
      * 点赞
@@ -386,9 +387,10 @@ class ReaderController extends Controller {
         ajax_return(1);
     }
 
-    ////////
-    // 收藏 //
-    ////////
+
+
+
+    /******************************************* 收藏 *******************************************/
 
     /**
      * 收藏
@@ -481,9 +483,9 @@ class ReaderController extends Controller {
     }
 
 
-    ////////
-    // 需求 //
-    ////////
+
+
+    /******************************************* 需求墙 *******************************************/
 
     /**
      * 获取需求
@@ -540,5 +542,71 @@ class ReaderController extends Controller {
         $wishLikes->add();
 
         ajax_return(1, '需求点赞');
+    }
+
+
+
+
+    /******************************************* 签到 *******************************************/
+
+    /**
+     * 签到
+     * @param int reader_id 读者ID
+     */
+    public function sign()
+    {
+        $sign = D('Sign');
+        $cond['reader_id'] = I('reader_id');
+        $signInfo = $sign->where($cond)->find();
+
+        if ($signInfo['last_signdate'] >= date("Y-m-d",strtotime("-1 day"))) {
+            $days = $signInfo['days'];
+        } else {
+            $days = 0;
+        }
+
+        $days = (intval($days) + 1) % 8; // 连续签到天数
+
+        if ($signInfo) {
+            $data = [
+                'days'          => $days,
+                'last_signdate' => date('Y-m-d')
+            ];
+            $sign->where($cond)->save($data);
+        } else {
+            $sign->create();
+            $sign->last_signdate = date('Y-m-d');
+            $sign->days = $days;
+            $sign->add();
+        }
+
+        ajax_return(1, 'sign', $days);
+    }
+
+    /**
+     * 获取用户连续签到天数
+     * @param int reader_id 读者ID
+     * @return int days 连续签到天数
+     * @return int is_sign 今天是否签到
+     */
+    public function get_sign_days()
+    {
+        $sign = M('sign');
+        $cond['reader_id'] = I('reader_id');
+        $signInfo = $sign->where($cond)->find();
+
+        if (strtotime($signInfo['last_signdate']) + 86400 >= time()) {
+            $data['days'] = $signInfo['days'];
+        } else {
+            $data['days'] = 0;
+        }
+
+        if ($signInfo['last_signdate'] == date('Y-m-d')) {
+            $data['is_sign'] = 1;
+        } else {
+            $data['is_sign'] = 0;
+        }
+
+        ajax_return(1, 'sing days', $data);
     }
 }
