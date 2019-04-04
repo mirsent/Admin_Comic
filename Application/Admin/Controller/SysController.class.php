@@ -29,6 +29,20 @@ class SysController extends AdminBaseController{
         $this->display();
     }
 
+    /**
+     * 签到积分
+     */
+    public function cog_sign()
+    {
+        $assign = [
+            'table' => 'CogSign',
+            'name'  => 'integral',
+            'title' => '签到积分'
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
 
 
 

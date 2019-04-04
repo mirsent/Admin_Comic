@@ -105,7 +105,7 @@ class AppController extends Controller {
      */
     public function get_cog()
     {
-        $data = M('cog')->find(1);
-        ajax_return(1, 'cog', $data);
+        $data = M('cog_sign')->find(1);
+        ajax_return(1, 'cog sign', $data);
     }
 }
