@@ -14,21 +14,7 @@ class ReaderController extends Controller {
     public function get_reader_info()
     {
         $readerId = I('reader_id');
-
         $data = M('reader')->find($readerId);
-        // 发布画册
-        $cond_gather = [
-            'publisher_id' => $readerId,
-            'status'       => C('APPLY_P')
-        ];
-        $publishGatherN = M('gather')->where($cond_gather)->count();
-        // 喜欢的画册
-        $cond_gather_like = [
-            'reader_id' => $readerId,
-            'status'    => C('STATUS_Y')
-        ];
-        $likeGatherN = M('gather_likes')->where($cond_gather_like)->count();
-        $data['gather_n'] = $publishGatherN + $likeGatherN;
 
         ajax_return(1, '读者信息', $data);
     }
@@ -446,38 +432,16 @@ class ReaderController extends Controller {
     /**
      * 我的收藏
      */
-    public function get_collect_comic()
+    public function get_collect()
     {
         $readerId = I('reader_id');
-        $cond = [
-            'ct.status' => C('STATUS_Y'),
-            'reader_id' => $readerId
+        $comic = D('Collect')->getCollectList($readerId);
+        $novel = D('NovelCollect')->getCollectList($readerId);
+
+        $data = [
+            'comic' => $comic,
+            'novel' => $novel
         ];
-        $data = M('collect')
-            ->alias('ct')
-            ->join('__COMICS__ c ON c.id = ct.comic_id')
-            ->field('comic_id,head,title,total_chapter')
-            ->where($cond)
-            ->select();
-
-        $history = M('history');
-        $chapter = M('chapter');
-        foreach ($data as $key => $value) {
-            // 阅读历史
-            $cond_history = [
-                'comic_id'  => $value['comic_id'],
-                'reader_id' => $readerId
-            ];
-            $lastChapter = $history->where($cond_history)->getField('chapter');
-            $data[$key]['remain_chapter'] = $value['total_chapter'] - $lastChapter;
-
-            // 章节标题
-            $cond_chapter = [
-                'comic_id' => $value['comic_id'],
-                'catalog'  => $value['total_chapter']
-            ];
-            $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title');
-        }
 
         ajax_return(1, '我的收藏', $data);
     }
