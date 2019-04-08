@@ -19,6 +19,26 @@ class ReaderController extends Controller {
         ajax_return(1, '读者信息', $data);
     }
 
+
+
+
+    /******************************************* 明细 *******************************************/
+
+    /**
+     * 积分明细
+     * @param int reader_id 读者ID
+     */
+    public function get_integral_list()
+    {
+        $cond['reader_id'] = I('reader_id');
+        $data = M('integral')->where($cond)->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['points_text'] = $value['method'] == 1 ? '+'.$value['points'] : '-'.$value['points'];
+        }
+        ajax_return(1, '积分明细', $data);
+    }
+
+
     /**
      * 消费记录
      * @param reader_id 读者ID

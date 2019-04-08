@@ -184,4 +184,59 @@ class SysController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
+
+
+
+    /******************************************* 菜单管理 *******************************************/
+
+    /**
+     * 获取公告列表
+     */
+    public function get_announce_info(){
+        $ms = M('announce');
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $ms->where($cond)->select();
+
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 修改公告
+     */
+    public function input_announce()
+    {
+        $announce = D('Announce');
+        $announce->create();
+        $id = I('id');
+
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $announce->where($cond)->save();
+        } else {
+            $res = $announce->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '修改公告失败');
+        }
+        ajax_return(1, '修改公告成功');
+    }
+
+    /**
+     * 删除公告
+     */
+    public function delete_announce()
+    {
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('announce')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除公告失败');
+        }
+        ajax_return(1, '删除公告成功');
+    }
 }
