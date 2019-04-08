@@ -48,7 +48,8 @@ class NovelHistoryModel extends BaseModel{
             ];
             $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title');
             $data[$key]['chapter_name'] = toChineseNumber($value['chapter']);
-            $data[$key]['rate'] = intval($value['chapter'] / $value['total_chapter'] * 100);
+            $rate = intval($value['chapter'] / $value['total_chapter'] * 100);
+            $data[$key]['rate'] = $rate ? $rate : 1;
         }
 
         return $data;

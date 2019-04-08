@@ -602,14 +602,4 @@ class ComicController extends Controller {
         ajax_return(1, '章节封面', $data);
     }
 
-    /**
-     * 获取历史记录
-     * @param int reader_id 读者ID
-     */
-    public function get_history_info()
-    {
-        $data = D('History')->getHistoryList(I('reader_id'));
-        ajax_return(1, '历史记录', $data);
-    }
-
 }

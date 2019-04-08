@@ -46,9 +46,9 @@ class HistoryModel extends BaseModel{
                 'comic_id' => $value['comic_id'],
                 'catalog'  => $value['chapter']
             ];
-            $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title');
+            $data[$key]['chapter_title'] = $chapter->where($cond_chapter)->getField('chapter_title'); // 章节标题
             $data[$key]['chapter_name'] = toChineseNumber($value['chapter']);
-            $data[$key]['rate'] = intval($value['chapter'] / $value['total_chapter'] * 100);
+            $data[$key]['rate'] = intval($value['chapter'] / $value['total_chapter'] * 100); // 已读百分比
         }
 
         return $data;

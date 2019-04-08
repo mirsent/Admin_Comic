@@ -626,4 +626,27 @@ class ReaderController extends Controller {
 
         ajax_return(1, 'sing days', $data);
     }
+
+
+
+
+    /******************************************* 阅读历史 *******************************************/
+
+    /**
+     * 阅读历史记录
+     * @return array comic 漫画
+     * @return array novel 小说
+     */
+    public function get_history()
+    {
+        $readerId = I('reader_id');
+        $comic = D('History')->getHistoryList($readerId);
+        $novel = D('NovelHistory')->getHistoryList($readerId);
+
+        $data = [
+            'comic' => $comic,
+            'novel' => $novel
+        ];
+        ajax_return(1, 'history', $data);
+    }
 }
