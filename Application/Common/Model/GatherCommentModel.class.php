@@ -33,53 +33,53 @@ class GatherCommentModel extends BaseModel{
     }
 
     /**
-     * 根据画册ID获取评论列表
+     * 主评论
      */
-    public function getCommentInfo($gatherId)
+    public function getComment1st($gatherId)
     {
-
-        $cond = [
-            'status'    => C('STATUS_Y'),
+        $cond_1st = [
+            'c.status' => C('STATUS_Y'),
+            'pid'      => 0,
             'gather_id' => $gatherId
         ];
-        $count = $this->where($cond)->count();
-
-        $cond_main = [
-            'gc.status' => C('STATUS_Y'),
-            'gather_id' => $gatherId,
-            'level'     => 1
-        ];
-        $comment = $this
-            ->alias('gc')
-            ->join('__READER__ r ON r.id = gc.reader_id')CREATE TABLE `comics` (
-            ->field('gc.*,nickname,head')
-            ->order('comment_time')
-            ->where($cond_main)
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->field('c.*,nickname,head')
+            ->where($cond_1st)
             ->select();
-
-        foreach ($comment as $key => $value) {
-            $cond_sub = [
-                'gc.status' => C('STATUS_Y'),
-                'gc.pid'    => $value['id'],
-                'gather_id' => $gatherId,
-                'level'     => 2
+        foreach ($data as $key => $value) {
+            $cond_2nd = [
+                'status' => C('STATUS_Y'),
+                'pid'      => $value['id'],
+                'gather_id' => $gatherId
             ];
-            $comment[$key]['sub'] = $this
-                ->alias('gc')
-                ->join('__READER__ r ON r.id = gc.reader_id')
-                ->join('__READER__ reply ON reply.id = gc.reply_reader_id')
-                ->field('gc.*,r.nickname,r.head,reply.nickname as replyname')
-                ->order('comment_time')
-                ->where($cond_sub)
-                ->select();
+            $data[$key]['replys'] = $this->where($cond_2nd)->count(); // 回复数量
+            $data[$key]['comment_time'] = date('m/d', strtotime($value['comment_time']));
         }
-
-        $data = [
-            'count'   => $count,
-            'comment' => $comment
-        ];
-
         return $data;
     }
 
+    public function getCommentInfo($id)
+    {
+        $cond['c.id'] = $id;
+        $data = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->field('c.*,nickname,head')
+            ->where($cond)
+            ->find();
+        $data['comment_time'] = date('m/d', strtotime($data['comment_time']));
+        $cond_2nd = [
+            'c.status' => C('STATUS_Y'),
+            'pid'      => $id
+        ];
+        $data['child'] = $this
+            ->alias('c')
+            ->join('__READER__ r ON r.id = c.reader_id')
+            ->field('c.*,nickname,head')
+            ->where($cond_2nd)
+            ->select();
+        return $data;
+    }
 }

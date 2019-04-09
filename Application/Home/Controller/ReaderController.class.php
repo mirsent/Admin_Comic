@@ -168,52 +168,7 @@ class ReaderController extends Controller {
 
     /******************************************* 画册 *******************************************/
 
-    /**
-     * 获取画册信息
-     * @param reader_id 读者ID
-     */
-    public function get_gather()
-    {
-        $cond['g.status'] = C('APPLY_P');
-        $gathers = D('Gather')->order('publish_time desc')->getGatherData($cond);
 
-        $left = [];
-        $right = [];
-
-        $readerId = I('reader_id');
-        $like = M('gather_likes');
-        $comment = M('gather_comment');
-        foreach ($gathers as $key => $value) {
-            $gathers[$key]['url'] = explode(',', $value['url'])[0];
-
-            // 是否喜欢
-            $cond_like = [
-                'gather_id' => $value['id'],
-                'reader_id' => $readerId,
-                'status'    => C('STATUS_Y')
-            ];
-            $gathers[$key]['is_like'] = $like->where($cond_like)->find();
-
-            $cond_comment = [
-                'gather_id' => $value['id'],
-                'status'    => C('STATUS_Y')
-            ];
-            $gathers[$key]['comments'] = $comment->where($cond_comment)->count();
-
-            if ($key%2 == 0) {
-                $left[] = $gathers[$key];
-            } else {
-                $right[] = $gathers[$key];
-            }
-        }
-
-        $data = [
-            'left' => $left,
-            'right' => $right
-        ];
-
-        ajax_return(1, '画册', $data);
-    }
 
     /**
      * 获取读者画册
@@ -247,17 +202,6 @@ class ReaderController extends Controller {
             'like'    => $likeGather
         ];
         ajax_return(1, '读者画册', $data);
-    }
-
-    /**
-     * 获取画册评论
-     * @param gather_id 画册ID
-     */
-    public function get_gather_comment()
-    {
-        $gatherId = I('gather_id');
-        $data = D('GatherComment')->getCommentInfo($gatherId);
-        ajax_return(1, '评论列表', $data);
     }
 
     /**
@@ -316,79 +260,6 @@ class ReaderController extends Controller {
         if ($res === false) {
             ajax_return(0, '评论失败');
         }
-        ajax_return(1);
-    }
-
-    /**
-     * 获取画册详情
-     * @param gather_id 画册ID
-     */
-    public function get_gather_detail()
-    {
-        $data = D('Gather')->getGatherDetail(I('gather_id'));
-
-        $data['url'] = explode(',',$data['url']);
-
-        $cond_like = [
-            'gather_id' => $data['id'],
-            'reader_id' => I('reader_id'),
-            'status'    => C('STATUS_Y')
-        ];
-        $data['is_like'] = M('gather_likes')->where($cond_like)->find();
-
-        ajax_return(1, '画册详情', $data);
-    }
-
-    /**
-     * 发布画册
-     */
-    public function add_gather()
-    {
-        $gather = D('Gather');
-        $gather->create();
-        $res = $gather->add();
-
-        if ($res === false) {
-            ajax_return(0, '发布画册失败');
-        }
-        ajax_return(1);
-    }
-
-    /**
-     * 画册点喜欢
-     * @param gather_id 画册ID
-     * @param reader_id 读者ID
-     */
-    public function like_gather()
-    {
-        // 画册like+1
-        $cond_gather['id'] = I('gather_id');
-        M('gather')->where($cond_gather)->setInc('likes');
-
-        $like = D('GatherLikes');
-        $like->create();
-        $like->add();
-
-        ajax_return(1);
-    }
-
-    /**
-     * 画册取消喜欢
-     * @param gather_id 画册ID
-     * @param reader_id 读者ID
-     */
-    public function cancel_like_gather()
-    {
-        // 画册like+1
-        $cond_gather['id'] = I('gather_id');
-        M('gather')->where($cond_gather)->setDec('likes');
-
-        $cond_like = [
-            'gather_id' => I('gather_id'),
-            'reader_id' => I('reader_id')
-        ];
-        M('gather_likes')->where($cond_like)->save(['status'=>C('STATUS_N')]);
-
         ajax_return(1);
     }
 

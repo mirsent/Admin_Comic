@@ -19,8 +19,7 @@
                 <thead>
                     <tr>
                         <th width="120">封面</th>
-                        <th>漫画名称</th>
-                        <th width="80">头像</th>
+                        <th>画册名称</th>
                         <th>读者昵称</th>
                         <th>评论内容</th>
                         <th>评论时间</th>
@@ -48,7 +47,7 @@
                         order: data.order,
                         search: $('.fuzzy-search').val(),
 
-                        title: $('.search-comic').val(),
+                        title: $('.search-gather').val(),
                         nickname: $('.search-reader').val(),
                         search_date: $('.search-date').val(),
                     };
@@ -69,11 +68,6 @@
                         "render": DT.RENDER.IMG
                     },
                     { "data": "gather_title" },
-                    {
-                        "data": "head",
-                        "orderable": false,
-                        "render": DT.RENDER.HEAD
-                    },
                     { "data": "nickname" },
                     { "data": "comment_content" },
                     { "data": "comment_time" },
@@ -97,7 +91,7 @@
                 },
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';
-                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="画册名称" class="layui-input search-comic"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="画册名称" class="layui-input search-gather"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="读者昵称" class="layui-input search-reader"></div> ';
                     advancedHtml += '<div class="layui-inline"><input type="text" placeholder="评论日期" class="layui-input picker-date search-date" readonly></div> ';
 
