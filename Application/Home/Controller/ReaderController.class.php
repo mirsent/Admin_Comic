@@ -9,7 +9,7 @@ class ReaderController extends Controller {
 
     /**
      * 获取读者信息
-     * @param reader_id 读者ID
+     * @param int reader_id 读者ID
      */
     public function get_reader_info()
     {
@@ -17,6 +17,79 @@ class ReaderController extends Controller {
         $data = M('reader')->find($readerId);
 
         ajax_return(1, '读者信息', $data);
+    }
+
+    /**
+     * 获取通知
+     * @param int reader_id 读者ID
+     */
+    public function get_notice_list()
+    {
+        $notice = M('notice');
+        $readerId = I('reader_id');
+
+        // 公告
+        $cond_notice_announce = [
+            'reader_id' => $readerId,
+            'type'      => 1,
+            'status'    => C('STATUS_Y')
+        ];
+        $announceLast = $notice->where($cond_notice_announce)->order('notice_time desc')->getField('notice_time');
+        if ($announceLast) {
+            $cond_announce = [
+                'announce_time' => array('gt', $announceLast),
+                'status'        => C('STATUS_Y')
+            ];
+            $announceData = M('announce')->where($cond_announce)->select();
+            foreach ($announceData as $key => $value) {
+                $data_notice_announce[] = [
+                    'reader_id'   => $readerId,
+                    'type'        => 1,
+                    'target'      => $value['id'],
+                    'content'     => $value['announce_content'],
+                    'notice_time' => $value['announce_time'],
+                    'status'      => C('STATUS_Y')
+                ];
+            }
+            $notice->addAll($data_notice_announce);
+        }
+
+        // 活动
+        $cond_notice_activity = [
+            'reader_id' => $readerId,
+            'type'      => 2,
+            'status'    => C('STATUS_Y')
+        ];
+        $activityLast = $notice->where($cond_notice_announce)->order('notice_time desc')->getField('notice_time');
+        if ($activityLast) {
+            $cond_announce = [
+                'activity_time' => array('gt', $activityLast),
+                'status'        => C('STATUS_Y')
+            ];
+            $activityData = M('recharge_activity')->where($cond_announce)->select();
+            foreach ($activityData as $key => $value) {
+                $data_notice_activity[] = [
+                    'reader_id'   => $readerId,
+                    'type'        => 2,
+                    'target'      => $value['id'],
+                    'content'     => $value['activity_title'],
+                    'notice_time' => $value['activity_time'],
+                    'status'      => C('STATUS_Y')
+                ];
+            }
+            $notice->addAll($data_notice_activity);
+        }
+
+        $cond_notice = [
+            'reader_id' => $readerId,
+            'status'    => C('STATUS_Y')
+        ];
+        $data = $notice->where($cond_notice)->order('notice_time desc')->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['notice_time_text'] = date('m/d', strtotime($value['notice_time']));
+        }
+
+        ajax_return(1, '消息', $data);
     }
 
 
@@ -320,20 +393,6 @@ class ReaderController extends Controller {
             ->select();
 
         ajax_return(1, '回复内容', $data);
-    }
-
-    /**
-     * 获取通知
-     */
-    public function get_notice()
-    {
-        $cond = [
-            'status'    => C('STATUS_Y'),
-            'reader_id' => I('reader_id')
-        ];
-        $data = M('notice')->order('notice_time desc')->where($cond)->select();
-
-        ajax_return(1, '通知消息', $data);
     }
 
 
