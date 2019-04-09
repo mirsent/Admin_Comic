@@ -376,4 +376,72 @@ class ReaderController extends AdminBaseController{
             "data" => $infos
         ), JSON_UNESCAPED_UNICODE);
     }
+
+
+
+
+    /******************************************* 反馈 *******************************************/
+
+    public function feedback()
+    {
+        $cond['status'] = C('STATUS_Y');
+        $type = M('feedback_type')->where($cond)->select();
+        $this->assign('type', $type);
+        $this->display();
+    }
+
+    public function get_feedback_info()
+    {
+        $ms = D('Feedback');
+
+        $cond['f.status'] = C('STATUS_Y');
+
+        $recordsTotal = $ms->alias('f')->where($cond)->count();
+
+        // 搜索
+        $search = I('search');
+        if (strlen($search)>0) {
+            $cond['feedback_type_name|feedback_content|nickname'] = array('like', '%'.$search.'%');
+        }
+        $cond['feedback_type_id'] = I('feedback_type_id');
+        $cond['nickname'] = I('nickname');
+        $searchDate = I('search_date');
+        if ($searchDate) {
+            $cond['feedback_time'] = array('BETWEEN', [$searchDate.' 00:00:00', $searchDate.' 23:59:59']);
+        }
+
+        $recordsFiltered = $ms->getFeedbackNumber($cond);
+
+        // 排序
+        $orderObj = I('order')[0];
+        $orderColumn = $orderObj['column']; // 排序列，从0开始
+        $orderDir = $orderObj['dir'];       // ase desc
+        if(isset(I('order')[0])){
+            $i = intval($orderColumn);
+            switch($i){
+                case 1: $ms->order('feedback_type_name '.$orderDir); break;
+                case 2: $ms->order('feedback_content '.$orderDir); break;
+                case 3: $ms->order('nickname '.$orderDir); break;
+                case 4: $ms->order('feedback_time '.$orderDir); break;
+                default: break;
+            }
+        } else {
+            $ms->order('feedback_time desc');
+        }
+
+        // 分页
+        $start = I('start');  // 开始的记录序号
+        $limit = I('limit');  // 每页显示条数
+        $page = I('page');    // 第几页
+
+        $infos = $ms->page($page, $limit)->getFeedbackData($cond);
+
+        echo json_encode(array(
+            "draw" => intval(I('draw')),
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $infos
+        ), JSON_UNESCAPED_UNICODE);
+
+    }
 }

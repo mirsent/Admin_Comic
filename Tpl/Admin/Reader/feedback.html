@@ -1,0 +1,142 @@
+<extend name="Public/base" />
+<block name="css">
+    <style type="text/css">
+        .imgs{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .imgs .img-box{
+            width: 120px;
+            height: 80px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .imgs img{
+            width: 120px;
+        }
+    </style>
+</block>
+<block name="header">反馈 <small>列表</small></block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <!-- <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button> -->
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-striped table-hover table-single">
+                <thead>
+                    <tr>
+                        <th width="400">图片</th>
+                        <th>反馈类型</th>
+                        <th>内容</th>
+                        <th>反馈人</th>
+                        <th width="140">反馈时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script src="__BOWER__/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
+
+                        feedback_type_id: $('.search-type').val(),
+                        nickname: $('.search-publisher').val(),
+                        search_date: $('.search-date').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Reader/get_feedback_info')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            callback(result);
+                        }
+                    });
+                },
+                columns: [
+                    {
+                        "data": "url_arr",
+                        "orderable": false,
+                        "render": function (data,type,full,meta) {
+                            var sOut = '<div class="imgs">';
+                            for (var i = 0; i < data.length; i++) {
+                                sOut += '<a href="'+data[i]+'" class="img-box" data-lightbox="'+full.id+'"><img class="img-thumbnail" src="'+data[i]+'"></a>'
+                            }
+                            sOut += '</div>'
+                            return sOut
+                        }
+                    },
+                    { "data": "feedback_type_name" },
+                    { "data": "feedback_content" },
+                    { "data": "nickname" },
+                    { "data": "feedback_time" },
+                ],
+                initComplete: function(settings, json) {
+                    var advancedHtml = '<form class="layui-form search-box">';
+                    advancedHtml += '<div class="layui-inline"><select class="search-type" lay-search> <option value="">反馈类型</option> <foreach name="type" item="v"> <option value="{$v.id}">{$v.feedback_type_name}</option> </foreach> </select></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="反馈人" class="layui-input search-publisher"></div> ';
+                    advancedHtml += '<div class="layui-inline"><input type="text" placeholder="反馈日期" class="layui-input picker-date search-date" readonly></div> ';
+
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search fa-fw"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                    layui.use(['form', 'laydate'], function() {
+                        var laydate = layui.laydate;
+                        var form = layui.form;
+                        laydate.render({elem: '.picker-date'})
+                        form.render();
+                    });
+                }
+            });
+        });
+
+        // 删除
+        $('#delete').on('click', function() {
+            getSelectedData(oTable, function(data){
+                swal.queue([{
+                    title: '确认删除此画册？',
+                    imageUrl: data.url,
+                    confirmButtonText: '确定',
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{:U('Gather/delete_gather')}",
+                                data: {
+                                    id: data.id
+                                },
+                                dataType:"json",
+                                success: function(result) {
+                                    if (result.status == 1) {
+                                        toastr["success"]("操作成功", "");
+                                        swal.close();
+                                        DTdraw(oTable);
+                                    }
+                                }
+                            });
+                        })
+                    }
+                }]);
+            });
+        });
+    </script>
+</block>
