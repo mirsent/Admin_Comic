@@ -157,6 +157,17 @@ class AppController extends Controller {
     }
 
     /**
+     * 获取反馈信息
+     * @param int feedback_id 反馈ID
+     */
+    public function get_feedback_info()
+    {
+        $data = M('feedback')->find(I('feedback_id'));
+        $data['feedback_time_text'] = date('Y-m-d H:i', strtotime($data['feedback_time']));
+        ajax_return(1, 'feedback info', $data);
+    }
+
+    /**
      * 反馈
      */
     public function add_feedback()

@@ -394,7 +394,7 @@ class ReaderController extends AdminBaseController{
     {
         $ms = D('Feedback');
 
-        $cond['f.status'] = C('STATUS_Y');
+        $cond['f.status'] = array('neq', C('STATUS_N'));
 
         $recordsTotal = $ms->alias('f')->where($cond)->count();
 
@@ -423,6 +423,7 @@ class ReaderController extends AdminBaseController{
                 case 2: $ms->order('feedback_content '.$orderDir); break;
                 case 3: $ms->order('nickname '.$orderDir); break;
                 case 4: $ms->order('feedback_time '.$orderDir); break;
+                case 5: $ms->order('status '.$orderDir); break;
                 default: break;
             }
         } else {
@@ -442,6 +443,23 @@ class ReaderController extends AdminBaseController{
             "recordsFiltered" => intval($recordsFiltered),
             "data" => $infos
         ), JSON_UNESCAPED_UNICODE);
+    }
 
+    /**
+     * 回复反馈
+     */
+    public function reply_feedback()
+    {
+        $cond['id'] = I('feedback_id');
+        $data = [
+            'status' => C('APPLY_P'),
+            'reply'  => I('reply')
+        ];
+        $res = M('feedback')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '回复失败');
+        }
+        ajax_return(1);
     }
 }

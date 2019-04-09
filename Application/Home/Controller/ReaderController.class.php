@@ -92,6 +92,23 @@ class ReaderController extends Controller {
         ajax_return(1, '消息', $data);
     }
 
+    /**
+     * 获取读者反馈列表
+     */
+    public function get_feedback_list()
+    {
+        $cond['reader_id'] = I('reader_id');
+        $data = M('feedback')->where($cond)->select();
+        foreach ($data as $key => $value) {
+            $data[$key]['status_text'] = $value['status'] == C('STATUS_Y') ? '待回复' : '已回复';
+            $data[$key]['feedback_time_text'] = date('Y-m-d H:i', strtotime($value['feedback_time']));
+        }
+        ajax_return(1, 'feedback list', $data);
+    }
+
+
+
+
 
 
 
