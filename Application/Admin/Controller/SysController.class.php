@@ -43,6 +43,20 @@ class SysController extends AdminBaseController{
         $this->display();
     }
 
+    /**
+     * 反馈类型
+     */
+    public function feedback()
+    {
+        $assign = [
+            'table' => 'FeedbackType',
+            'name'  => 'feedback_type_name',
+            'title' => '反馈类型'
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
 
 
 
