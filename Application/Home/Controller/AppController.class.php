@@ -108,4 +108,25 @@ class AppController extends Controller {
         $data = M('cog_sign')->getField('days,integral');
         ajax_return(1, 'cog sign', $data);
     }
+
+    /**
+     * 获取问题帮助列表
+     */
+    public function get_help_list()
+    {
+        $cond['status'] = C('STATUS_Y');
+        $data = M('help')->where($cond)->field('id,help_title')->select();
+        ajax_return(1, 'help list', $data);
+    }
+
+    /**
+     * 获取问题帮助详情
+     * @param int help_id 帮助ID
+     */
+    public function get_help_info()
+    {
+        $data = M('help')->find(I('help_id'));
+        $data['help_content'] = htmlspecialchars_decode($data['help_content']);
+        ajax_return(1, 'help info', $data);
+    }
 }
