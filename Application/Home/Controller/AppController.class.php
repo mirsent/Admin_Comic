@@ -4,6 +4,12 @@ use Think\Controller;
 
 class AppController extends Controller {
 
+    public function upload_img()
+    {
+        $path = upload_single('image');
+        echo $path;
+    }
+
     /**
      * 获取首页数据
      */
@@ -109,6 +115,11 @@ class AppController extends Controller {
         ajax_return(1, 'cog sign', $data);
     }
 
+
+
+
+    /******************************************* 问题帮助 *******************************************/
+
     /**
      * 获取问题帮助列表
      */
@@ -128,5 +139,31 @@ class AppController extends Controller {
         $data = M('help')->find(I('help_id'));
         $data['help_content'] = htmlspecialchars_decode($data['help_content']);
         ajax_return(1, 'help info', $data);
+    }
+
+
+
+
+    /******************************************* 反馈 *******************************************/
+
+    /**
+     * 获取反馈类型
+     */
+    public function get_feedback_type_list()
+    {
+        $cond['status'] = C('STATUS_Y');
+        $data = M('feedback_type')->where($cond)->select();
+        ajax_return(1, 'feedback type', $data);
+    }
+
+    /**
+     * 反馈
+     */
+    public function add_feedback()
+    {
+        $feedback = D('Feedback');
+        $feedback->create();
+        $feedback->add();
+        ajax_return(1, 'feedback');
     }
 }
