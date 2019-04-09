@@ -188,7 +188,7 @@ class SysController extends AdminBaseController{
 
 
 
-    /******************************************* 菜单管理 *******************************************/
+    /******************************************* 公告 *******************************************/
 
     /**
      * 获取公告列表
@@ -197,6 +197,10 @@ class SysController extends AdminBaseController{
         $ms = M('announce');
         $cond['status'] = array('neq', C('STATUS_N'));
         $infos = $ms->where($cond)->select();
+        foreach ($infos as $key => $value) {
+            $infos[$key]['announce_content'] = htmlspecialchars_decode($value['announce_content']);
+            $infos[$key]['announce_content_text'] = strip_tags(htmlspecialchars_decode($value['announce_content']));
+        }
 
         echo json_encode([
             "data" => $infos
@@ -238,5 +242,64 @@ class SysController extends AdminBaseController{
             ajax_return(0, '删除公告失败');
         }
         ajax_return(1, '删除公告成功');
+    }
+
+
+
+
+    /******************************************* 帮助问题 *******************************************/
+
+    /**
+     * 获取帮助问题列表
+     */
+    public function get_help_info(){
+        $ms = M('help');
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $ms->where($cond)->select();
+        foreach ($infos as $key => $value) {
+            $infos[$key]['help_content'] = htmlspecialchars_decode($value['help_content']);
+            $infos[$key]['help_content_text'] = strip_tags(htmlspecialchars_decode($value['help_content']));
+        }
+
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 修改帮助问题
+     */
+    public function input_help()
+    {
+        $help = D('Help');
+        $help->create();
+        $id = I('id');
+
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $help->where($cond)->save();
+        } else {
+            $res = $help->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '修改帮助问题失败');
+        }
+        ajax_return(1, '修改帮助问题成功');
+    }
+
+    /**
+     * 删除帮助问题
+     */
+    public function delete_help()
+    {
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('help')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除帮助问题失败');
+        }
+        ajax_return(1, '删除帮助问题成功');
     }
 }

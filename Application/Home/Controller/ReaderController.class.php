@@ -46,7 +46,7 @@ class ReaderController extends Controller {
                     'reader_id'   => $readerId,
                     'type'        => 1,
                     'target'      => $value['id'],
-                    'content'     => $value['announce_content'],
+                    'content'     => $value['announce_title'],
                     'notice_time' => $value['announce_time'],
                     'status'      => C('STATUS_Y')
                 ];
