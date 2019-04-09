@@ -144,16 +144,24 @@ class NovelController extends Controller {
 
         // 获取感词库文件路径
         $wordFilePath = 'vendor/lustre/php-dfa-sensitive/keywords.txt';
-
         // get one helper
         $handle = SensitiveHelper::init()->setTreeByFile($wordFilePath);
-
         // 敏感词替换
         $filterContent = $handle->replace($content, C('FILTER_TEXT'));
-
         $comment->comment_content = $filterContent;
-
         $comment->add();
+
+        // 消息通知
+        $data_notice = [
+            'reader_id'   => I('reader_id'),
+            'type'        => 3,
+            'target'      => I('novel_id'),
+            'target_type' => 2,
+            'content'     => $filterContent,
+            'notice_time' => date('Y-m-d H:i:s'),
+            'status'      => C('STATUS_Y')
+        ];
+        M('notice')->add($data_notice);
 
         ajax_return(1, 'comment');
     }
