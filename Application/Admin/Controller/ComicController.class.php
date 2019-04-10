@@ -125,8 +125,9 @@ class ComicController extends AdminBaseController{
      */
     public function get_comic_info(){
         $ms = D('Comics');
+        $cond['c.status'] = array('neq', C('STATUS_N'));
 
-        $recordsTotal = $ms->count();
+        $recordsTotal = $ms->alias('c')->where($cond)->count();
 
         // 搜索
         $search = I('search');
@@ -144,7 +145,9 @@ class ComicController extends AdminBaseController{
         $cond['s_fee'] = I('s_fee');
         $cond['s_target'] = I('s_target');
         $cond['s_space'] = I('s_space');
-        $cond['c.status'] = I('status');
+        if (I('status')) {
+            $cond['c.status'] = I('status');
+        }
 
         $recordsFiltered = $ms->getComicNumber($cond);
 
@@ -188,15 +191,36 @@ class ComicController extends AdminBaseController{
     }
 
     /**
+     * 下架漫画
+     */
+    public function down_comic()
+    {
+        $cond['id'] = I('comic_id');
+        $data['status'] = C('C_STATUS_D');
+        M('comics')->where($cond)->save($data);
+        ajax_return(1, 'down comic');
+    }
+
+    /**
+     * 上架漫画
+     */
+    public function up_comic()
+    {
+        $cond['id'] = I('comic_id');
+        $data['status'] = C('STATUS_Y');
+        M('comics')->where($cond)->save($data);
+        ajax_return(1, 'up comic');
+    }
+
+    /**
      * 更新漫画
      */
     public function refresh_comic()
     {
-        $comics = I('comic');
-        $cond['id'] = array('in', $comics);
+        $cond['id'] = array('in', I('comic'));
         $data['updated_at'] = date('Y-m-d H:i:s');
         M('comics')->where($cond)->save($data);
-        ajax_return(1);
+        ajax_return(1, 'refresh comic');
     }
 
     /**
@@ -296,7 +320,6 @@ class ComicController extends AdminBaseController{
                 case 5: $ms->order('total_chapter '.$orderDir); break;
                 case 6: $ms->order('free_chapter '.$orderDir); break;
                 case 7: $ms->order('pre_chapter_pay '.$orderDir); break;
-                case 8: $ms->order('spread_times '.$orderDir); break;
                 default: break;
             }
         } else {

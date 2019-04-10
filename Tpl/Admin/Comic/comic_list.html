@@ -22,6 +22,7 @@
         <div class="box-header with-border">
             <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
             <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="down"><i class="fa fa-level-down fa-fw"></i>下架</button>
             <button type="button" class="btn btn-default" id="refresh"><i class="fa fa-refresh fa-fw"></i>批量更新</button>
         </div>
         <div class="box-body">
@@ -41,9 +42,9 @@
                         <th>需分享数</th>
                         <th>最大分享兑换章节</th>
                         <!-- <th>推广次数</th> -->
-                        <th>更新时间</th>
-                        <th>状态</th>
-                        <th>操作</th>
+                        <th width="80">更新时间</th>
+                        <th width="130">状态</th>
+                        <th width="265">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -767,6 +768,26 @@
                             dataType:"json",
                             success: function(res) {
                                 toastr["success"]("更新成功", "");
+                                DTdraw(oTable);
+                            }
+                        });
+                    }, 'question');
+                })
+            })
+
+            // 下架漫画
+            $('#down').on('click', function(){
+                getSelectedData(oTable, function(data){
+                    swal_action('确认下架漫画', '《 '+data.title+' 》', function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "{:U('Comic/down_comic')}",
+                            data: {
+                                comic_id: data.id
+                            },
+                            dataType:"json",
+                            success: function(res) {
+                                toastr["success"]("下架漫画成功", "");
                                 DTdraw(oTable);
                             }
                         });
