@@ -20,6 +20,29 @@ class ReaderController extends Controller {
     }
 
     /**
+     * 编辑读者信息
+     * @param int reader_id 读者ID
+     */
+    public function edit_reader()
+    {
+        $cond['id'] = I('reader_id');
+        $reader = D('Reader');
+        $reader->create();
+        $reader->where($cond)->save();
+
+        ajax_return(1, 'edit reader');
+    }
+
+    public function edit_head()
+    {
+        $cond['id'] = I('reader_id');
+        $data['head'] = upload_single('head');
+        $res = M('reader')->where($cond)->save($data);
+
+        ajax_return(1, 'edit head', $data);
+    }
+
+    /**
      * 获取通知
      * @param int reader_id 读者ID
      */
@@ -119,6 +142,19 @@ class ReaderController extends Controller {
         $mailCode = $reader->where($cond)->getField('mail_code');
 
         if ($mailCode == I('code')) {
+            // 1.验证码正确
+
+            // 2.判断是否是老用户
+            $cond_reader = [
+                'mail'   => I('mail'),
+                'status' => C('STATUS_Y')
+            ];
+            $readerInfo = $reader->where($cond_reader)->find();
+            if ($readerInfo) {
+                ajax_return(3, '老用户激活', $readerInfo);
+            }
+
+            // 3.新用户绑定邮箱
             $data = [
                 'mail' => I('mail'),
                 'mail_code' => null,

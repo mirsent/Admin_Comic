@@ -10,6 +10,12 @@ class AppController extends Controller {
         echo $path;
     }
 
+    public function upload_head()
+    {
+        $path = upload_single('head');
+        echo $path;
+    }
+
     /**
      * 获取首页数据
      */
