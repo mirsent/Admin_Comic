@@ -24,18 +24,22 @@ class ComicController extends Controller {
      * 4.显示标题信息
      */
     public function reading(){
+        $comic = D('Comics');
+
         $comicId = I('comic_id');
         $readerId = I('reader_id');
         $chapter = I('chapter');
         $channel = I('channel');
 
-        D('History')->updateHistory($comicId, $chapter, $readerId, $channel); // 更新阅读历史
+        $data = $comic->field('title')->find($comicId);
 
-        $data['share_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 分享封面
+        // $data['share_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 分享封面
 
-        $data['imgs'] = D('Comics')->getComicDetail($comicId, $chapter);
+        $data['imgs'] = $comic->getComicDetail($comicId, $chapter);
 
         $data['chapter_title'] = '第'.$chapter.'章' ;
+
+        D('History')->updateHistory($comicId, $chapter, $readerId, $channel); // 更新阅读历史
 
         ajax_return(1, '阅读漫画', $data);
     }

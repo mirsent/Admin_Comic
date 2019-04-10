@@ -26,8 +26,9 @@ class NovelChapterModel extends BaseModel{
     {
         $data = $this
             ->alias('c')
+            ->join('__NOVEL__ n ON n.id = c.novel_id')
             ->join('__NOVEL_CHAPTER_DETAIL__ cd ON cd.chapter_id = c.id')
-            ->field('c.*,content')
+            ->field('c.*,content,has_chapter,title')
             ->where(array_filter($cond))
             ->find();
         $data['content'] = htmlspecialchars_decode($data['content']);

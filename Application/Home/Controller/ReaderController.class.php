@@ -106,7 +106,30 @@ class ReaderController extends Controller {
         ajax_return(1, 'feedback list', $data);
     }
 
+    /**
+     * 绑定邮箱
+     * @param int reader_id 读者ID
+     * @param varchar mail 邮箱
+     * @param int code 验证码
+     */
+    public function bind_mail()
+    {
+        $reader = M('reader');
+        $cond['id'] = I('reader_id');
+        $mailCode = $reader->where($cond)->getField('mail_code');
 
+        if ($mailCode == I('code')) {
+            $data = [
+                'mail' => I('mail'),
+                'mail_code' => null,
+                'mail_code_period' => null
+            ];
+            $reader->where($cond)->save($data);
+            ajax_return(1, 'bind mail');
+        }
+
+        ajax_return(0, '验证码错误');
+    }
 
 
 
@@ -540,8 +563,11 @@ class ReaderController extends Controller {
     public function get_sign_days()
     {
         $sign = M('sign');
-        $cond['reader_id'] = I('reader_id');
+        $readerId = I('reader_id');
+        $cond['reader_id'] = $readerId;
         $signInfo = $sign->where($cond)->find();
+
+        $data = M('reader')->find($readerId);
 
         if (strtotime($signInfo['last_signdate']) + 86400 >= time()) {
             $data['days'] = $signInfo['days'];

@@ -177,4 +177,25 @@ class AppController extends Controller {
         $feedback->add();
         ajax_return(1, 'feedback');
     }
+
+    /**
+     * 发送邮件验证码
+     * @param int reader_id 读者ID
+     * @param varchar mail 邮箱
+     */
+    public function send_mailcode()
+    {
+        $code = mt_rand(1111,9999);
+        $content = '【爱漫】 验证码：'.$code.'，如非本人操作，请忽略。';
+        send_email(I('mail'), '【爱漫】 邮箱绑定', $content);
+
+        $data = [
+            'mail_code'        => $code,
+            'mail_code_period' => time() + 86400
+        ];
+        $cond['id'] = I('reader_id');
+        M('reader')->where($cond)->save($data);
+
+        ajax_return(1, 'code', $code);
+    }
 }
