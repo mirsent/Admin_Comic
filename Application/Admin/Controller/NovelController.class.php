@@ -180,18 +180,20 @@ class NovelController extends AdminBaseController{
                 'content'    => I('content')
             ];
             M('novel_chapter_detail')->add($data_detail);
-
-            $cond_chapter = [
-                'novel_id' => I('novel_id'),
-                'status'   => C('STATUS_Y')
-            ];
-            $chapterNumber = $chapter->where($cond_chapter)->count(); // 已存在章节
-            M('novel')->where(['id'=>I('novel_id')])->save(['has_chapter'=>$chapterNumber]); // 更新连载章节数
         }
 
         if (false == $res) {
             ajax_return(0, '编辑小说章节失败');
         }
+
+        // 更新连载章节数
+        $cond_chapter = [
+            'novel_id' => I('novel_id'),
+            'status'   => C('STATUS_Y')
+        ];
+        $chapterNumber = $chapter->where($cond_chapter)->count(); // 已存在章节
+        M('novel')->where(['id'=>I('novel_id')])->save(['has_chapter'=>$chapterNumber]);
+
         ajax_return(1, '编辑小说章节成功');
     }
 
