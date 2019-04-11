@@ -30,16 +30,25 @@ class ReaderController extends Controller {
         $reader->create();
         $reader->where($cond)->save();
 
-        ajax_return(1, 'edit reader');
+        $readerInfo = $reader->where($cond)->find();
+
+        ajax_return(1, 'edit reader', $readerInfo);
     }
 
+    /**
+     * 编辑读者头像
+     * @param int reader_id 读者ID
+     */
     public function edit_head()
     {
+        $reader = M('reader');
         $cond['id'] = I('reader_id');
         $data['head'] = upload_single('head');
-        $res = M('reader')->where($cond)->save($data);
+        $res = $reader->where($cond)->save($data);
 
-        ajax_return(1, 'edit head', $data);
+        $readerInfo = $reader->where($cond)->find();
+
+        ajax_return(1, 'edit head', $readerInfo);
     }
 
     /**
