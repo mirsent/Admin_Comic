@@ -316,4 +316,57 @@ class SysController extends AdminBaseController{
         }
         ajax_return(1, '删除帮助问题成功');
     }
+
+
+
+
+    /******************************************* 版本 *******************************************/
+
+    public function get_version_info()
+    {
+        $ms = M('version');
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $ms->where($cond)->select();
+
+        echo json_encode([
+            "data" => $infos
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * 修改版本
+     */
+    public function input_version()
+    {
+        $version = D('Version');
+        $version->create();
+        $id = I('id');
+
+        if ($id) {
+            $cond['id'] = $id;
+            $res = $version->where($cond)->save();
+        } else {
+            $res = $version->add();
+        }
+
+        if ($res === false) {
+            ajax_return(0, '修改版本失败');
+        }
+        ajax_return(1, '修改版本成功');
+    }
+
+    /**
+     * 删除版本
+     */
+    public function delete_version()
+    {
+        $cond['id'] = I('id');
+        $data['status'] = C('STATUS_N');
+        $res = M('version')->where($cond)->save($data);
+
+        if ($res === false) {
+            ajax_return(0, '删除版本失败');
+        }
+        ajax_return(1, '删除版本成功');
+    }
 }
