@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>爱漫漫画</title>
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .wrap{
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        img{
+            width: 100%;
+            height: 100%;
+        }
+        #img2{
+            display: none;
+        }
+        .toggle #img1{
+            display: none;
+        }
+        .toggle #img2{
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <a href="http://comic.ineinv.com/Uploads/iman.apk" id="wrap" class="toggle">
+        <img src="static/bg1.png" id="img1">
+        <img src="static/bg2.png" id="img2">
+    </a>
+
+    <script type="text/javascript">
+        var obj = document.getElementById('wrap')
+        setInterval(function(){
+            if (obj.classList.contains('toggle')) {
+                obj.classList.remove('toggle');
+            } else {
+                obj.classList.add('toggle');
+            }
+        }, 300)
+    </script>
+</body>
+</html>

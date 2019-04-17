@@ -4,12 +4,14 @@ use Think\Controller;
 
 class AppController extends Controller {
 
+    /**
+     * 上传图片
+     */
     public function upload_img()
     {
         $path = upload_single('image');
         echo $path;
     }
-
     public function upload_head()
     {
         $path = upload_single('head');
@@ -203,5 +205,40 @@ class AppController extends Controller {
         M('reader')->where($cond)->save($data);
 
         ajax_return(1, 'code', $code);
+    }
+
+
+
+
+    /******************************************* 更新 *******************************************/
+
+    /**
+     * @param string version 版本号
+     * @return array update 是否需要更新
+     */
+    public function update()
+    {
+        $baseUrl = 'http://'.$_SERVER['HTTP_HOST'].'/Uploads/app/';
+        $versionInfo = M('version')->where(['status'=>C('STATUS_Y')])->order('create_at desc')->find();
+        $currentVersions = explode('.', $versionInfo['version']);
+        $resultVersions = explode('.', I('version'));
+
+        if (currentVersions[0] < resultVersions[0]) {
+            // 说明有大版本更新
+            $data = [
+                'update' => true,
+                'wgtUrl' => '',
+                'pkgUrl' => $baseUrl.$versionInfo['pkg_url']
+            ];
+        } else {
+            // 其它情况均认为是小版本更新
+            $data = [
+                'update' => true,
+                'wgtUrl' => $baseUrl.$versionInfo['wgt_url'],
+                'pkgUrl' => ''
+            ];
+        }
+
+        ajax_return(1, '更新信息', $data);
     }
 }

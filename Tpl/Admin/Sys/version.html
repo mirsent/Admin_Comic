@@ -16,6 +16,10 @@
                     <tr>
                         <th>app名称</th>
                         <th>版本号</th>
+                        <th>升级包</th>
+                        <th>安装包</th>
+                        <th width="30%">描述</th>
+                        <th width="140">上架时间</th>
                         <th width="80">状态</th>
                     </tr>
                 </thead>
@@ -38,6 +42,24 @@
                 <label class="layui-form-label">版本号</label>
                 <div class="layui-input-block">
                     <input type="text" name="version" placeholder="请输入版本号" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">升级包</label>
+                <div class="layui-input-block">
+                    <input type="text" name="wgt_url" placeholder="请输入升级包" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">安装包</label>
+                <div class="layui-input-block">
+                    <input type="text" name="pkg_url" placeholder="请输入安装包" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">版本描述</label>
+                <div class="layui-input-block">
+                    <textarea name="desc" placeholder="请输入版本描述" class="layui-textarea"></textarea>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -69,6 +91,10 @@
                 columns: [
                     { "data": "name" },
                     { "data": "version" },
+                    { "data": "wgt_url" },
+                    { "data": "pkg_url" },
+                    { "data": "desc" },
+                    { "data": "create_at" },
                     DT.COLUMN.STATUS
                 ]
             });
