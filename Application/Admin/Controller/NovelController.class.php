@@ -182,7 +182,7 @@ class NovelController extends AdminBaseController{
             M('novel_chapter_detail')->add($data_detail);
         }
 
-        if (false == $res) {
+        if (false === $res) {
             ajax_return(0, '编辑小说章节失败');
         }
 

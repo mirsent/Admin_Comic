@@ -11,11 +11,10 @@
                     <tr>
                         <th>订单号</th>
                         <th>读者</th>
-                        <th>漫画</th>
+                        <th>目标</th>
                         <th>章节</th>
                         <th>消费额</th>
                         <th>消费时间</th>
-                        <th>途径</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,17 +60,6 @@
                     { "data": "chapter" },
                     { "data": "consumption" },
                     { "data": "consume_time" },
-                    {
-                        "data": "channel",
-                        "class": "text-center",
-                        "render": function(data,type,full){
-                            if (data == CHANNEL_G) {
-                                return '<span class="label label-primary">公众号</span>'
-                            } else {
-                                return '<span class="label label-info">小程序</span>'
-                            }
-                        }
-                    }
                 ],
                 initComplete: function(settings, json) {
                     var advancedHtml = '<form class="layui-form search-box">';

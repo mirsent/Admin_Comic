@@ -45,4 +45,114 @@ class OrderController extends Controller {
         }
         ajax_return(1);
     }
+
+    /**
+     * 购买漫画
+     * 1.判断余额
+     * 2.生成订单
+     * 3.积分明细
+     * 4.用户余额
+     * @param int reader_id 读者ID
+     * @param int comic_id 漫画ID
+     * @param int catalog 章节
+     */
+    public function buy_comic()
+    {
+        $reader = M('reader');
+        $readerId = I('reader_id');
+        $comicId = I('comic_id');
+        $catalog = I('catalog');
+
+        $readerInfo = $reader->where(['id'=>$readerId])->find();
+        $balance = $readerInfo['integral']; // 余额
+        $comicInfo = M('comics')->where(['id'=>$comicId])->find();
+        $money = $comicInfo['pre_chapter_pay']; // 章节费用
+
+        // 1.判断余额
+        if ($balance < $money) {
+            ajax_return(9, '积分不足');
+        }
+
+        // 2.生成订单
+        $order = D('ConsumeOrder');
+        $order->create();
+        $order->order_number = generateOrderNo(C('ORDER_C'));
+        $order->target_type = 1;
+        $order->target_id = $comicId;
+        $order->consumption = $money;
+        $res = $order->add();
+
+        // 3.积分详情
+        $data_integral = [
+            'reader_id' => $readerId,
+            'content'   => '兑换漫画《'.$comicInfo['title'].'》第'.$catalog.'章',
+            'method'    => 2,
+            'points'    => $money,
+            'create_at' => date('Y-m-d H:i:s')
+        ];
+        M('integral')->add($data_integral);
+
+        // 4.用户余额
+        $reader->where(['id'=>$readerId])->setDec('integral', $money);
+
+        if ($res === false) {
+            ajax_return(0, '购买失败');
+        }
+        ajax_return(1);
+    }
+
+    /**
+     * 购买小说
+     * 1.判断余额
+     * 2.生成订单
+     * 3.积分明细
+     * 4.用户余额
+     * @param int reader_id 读者ID
+     * @param int novel_id 小说ID
+     * @param int catalog 章节
+     */
+    public function buy_novel()
+    {
+        $reader = M('reader');
+        $readerId = I('reader_id');
+        $novelId = I('novel_id');
+        $catalog = I('catalog');
+
+        $readerInfo = $reader->where(['id'=>$readerId])->find();
+        $balance = $readerInfo['integral']; // 余额
+        $novelInfo = M('novel')->where(['id'=>$novelId])->find();
+        $money = $novelInfo['pre_chapter_pay']; // 章节费用
+
+        // 1.判断余额
+        if ($balance < $money) {
+            ajax_return(9, '积分不足');
+        }
+
+        // 2.生成订单
+        $order = D('ConsumeOrder');
+        $order->create();
+        $order->order_number = generateOrderNo(C('ORDER_C'));
+        $order->target_type = 2;
+        $order->target_id = $novelId;
+        $order->consumption = $money;
+        $res = $order->add();
+
+        // 3.积分详情
+        $data_integral = [
+            'reader_id' => $readerId,
+            'content'   => '兑换小说《'.$novelInfo['title'].'》第'.$catalog.'章',
+            'method'    => 2,
+            'points'    => $money,
+            'create_at' => date('Y-m-d H:i:s')
+        ];
+        M('integral')->add($data_integral);
+
+        // 4.用户余额
+        $reader->where(['id'=>$readerId])->setDec('integral', $money);
+
+        if ($res === false) {
+            ajax_return(0, '购买失败');
+        }
+        ajax_return(1);
+    }
 }

@@ -133,6 +133,38 @@ class ComicsModel extends BaseModel{
     }
 
     /**
+     * 检查权限
+     * @param int readerId 读者ID
+     * @param int comicId 漫画ID
+     * @param int catalog 目录
+     * @param int 1：可以阅读；2：不可以阅读；
+     */
+    public function checkAuth($readerId, $comicId, $catalog)
+    {
+        $info = $this->find($readerId);
+
+        // 1.免费章节
+        if ($info['s_fee'] == C('C_FEE_N') || $catalog <= $info['free_chapter']) {
+            return 1;
+        }
+
+        // 2.已购买
+        $cond_order = [
+            'reader_id'   => $readerId,
+            'target_type' => 1,
+            'target_id'   => $comicId,
+            'catalog'     => $catalog,
+            'status'      => C('STATUS_Y')
+        ];
+        $orderInfo = M('consume_order')->where($cond_order)->find();
+        if ($orderInfo) {
+            return 1;
+        }
+
+        return 9;
+    }
+
+    /**
      * 验证费用
      * @param  int $comicId 漫画ID
      * @param  int $chapter 章节

@@ -60,4 +60,36 @@ class NovelModel extends BaseModel{
 
         return $data;
     }
+
+    /**
+     * 检查权限
+     * @param int readerId 读者ID
+     * @param int novelId 小说ID
+     * @param int catalog 目录
+     * @param int 1：可以阅读；2：不可以阅读；
+     */
+    public function checkAuth($readerId, $novelId, $catalog)
+    {
+        $info = $this->find($readerId);
+
+        // 1.免费章节
+        if ($info['s_fee'] == C('C_FEE_N') || $catalog <= $info['free_chapter']) {
+            return 1;
+        }
+
+        // 2.已购买
+        $cond_order = [
+            'reader_id'   => $readerId,
+            'target_type' => 2,
+            'target_id'   => $novelId,
+            'catalog'     => $catalog,
+            'status'      => C('STATUS_Y')
+        ];
+        $orderInfo = M('consume_order')->where($cond_order)->find();
+        if ($orderInfo) {
+            return 1;
+        }
+
+        return 9;
+    }
 }

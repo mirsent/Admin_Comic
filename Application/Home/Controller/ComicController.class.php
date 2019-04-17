@@ -31,13 +31,18 @@ class ComicController extends Controller {
         $chapter = I('chapter');
         $channel = I('channel');
 
-        $data = $comic->field('title')->find($comicId);
-
+        $data = $comic->find($comicId);
         // $data['share_cover'] = D('Chapter')->getChapterCover($comicId, $chapter); // 分享封面
-
         $data['imgs'] = $comic->getComicDetail($comicId, $chapter);
-
         $data['chapter_title'] = '第'.$chapter.'章' ;
+
+        // 检查权限
+        $auth = $comic->checkAuth($readerId, $comicId, $chapter);
+        if ($auth == 9) {
+            $balance = M('reader')->where(['id'=>$readerId])->getField('integral');
+            $data['balance'] = $balance; // 余额
+            ajax_return(9, 'no permission', $data);
+        }
 
         D('History')->updateHistory($comicId, $chapter, $readerId, $channel); // 更新阅读历史
 

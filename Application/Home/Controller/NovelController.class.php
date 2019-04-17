@@ -239,12 +239,22 @@ class NovelController extends Controller {
         $catalog = I('catalog');
         $readerId = I('reader_id');
 
+        // 小说信息
         $cond = [
             'novel_id' => $novelId,
             'catalog'  => $catalog
         ];
         $data = D('NovelChapter')->getChapterInfo($cond);
 
+        // 检查权限
+        $auth = D('Novel')->checkAuth($readerId, $novelId, $catalog);
+        if ($auth == 9) {
+            $balance = M('reader')->where(['id'=>$readerId])->getField('integral');
+            $data['balance'] = $balance; // 余额
+            ajax_return(9, 'no permission', $data);
+        }
+
+        // 更新阅读历史
         D('NovelHistory')->updateHistory($novelId, $catalog, $readerId);
 
         ajax_return(1, 'novel content', $data);
